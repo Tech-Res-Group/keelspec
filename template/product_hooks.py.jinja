@@ -1,0 +1,88 @@
+"""Project-specific checks for {{ project_name }}.
+
+FastPDLC's core validates what `product.config.yaml` can declare: required fields,
+id shape, enums, cross-references, bundle freshness. A plugin adds the checks config
+cannot express — and this one adds the check that makes a feature *accountable*:
+
+    every acceptance criterion names a test, and that test still exists.
+
+That is the claim worth having. A spec that says what should be true, next to a test
+that proves it, with a gate that fails when they drift apart. Delete this file and
+you have a linter for markdown; keep it and you have traceability.
+
+Codes in the 9xx range are yours. The core owns 0xx-06x. Never reuse a core number,
+and never renumber one of your own once it has shipped — a diagnostic code is an API
+that CI, dashboards and humans refer to.
+"""
+from __future__ import annotations
+
+import re
+
+from fastpdlc import register as register_code
+
+
+def register(reg):
+    register_code("PAC-900", "a shipped feature has an acceptance criterion that names no test")
+    register_code("PAC-901", "an acceptance criterion names a test file that does not exist")
+    register_code("PAC-902", "an acceptance criterion names a test not declared in that file")
+
+    @reg.validator
+    def acceptance_criteria_are_proven(bundle, config, root, report):
+        for feature in bundle.get("features", []):
+            where = feature.get("_file", "")
+            for criterion in feature.get("acceptance") or []:
+                text, refs = _split(criterion)
+                if not refs:
+                    # Drafting without tests is fine; *shipping* without them is not.
+                    if feature.get("status") == "shipped":
+                        report.add(
+                            "PAC-900",
+                            f"criterion {text!r} names no test, but this feature is shipped",
+                            where,
+                        )
+                    continue
+                for ref in refs:
+                    _check(ref, root, where, report)
+
+
+def _split(criterion):
+    """Accept both the bare string (fine while drafting) and the mapping form.
+
+        acceptance:
+          - Totals include tax.                    # a string
+          - text: Totals include tax.              # ...and its proof
+            tests: [tests/test_totals.py::test_tax]
+    """
+    if isinstance(criterion, str):
+        return criterion, []
+    if not isinstance(criterion, dict):
+        return str(criterion), []
+    return criterion.get("text", ""), list(criterion.get("tests") or [])
+
+
+def _check(ref, root, where, report):
+    """Resolve one `path::name` reference against the tree.
+
+    We check the file exists and that each `::` segment is *declared* in it, rather
+    than collecting with pytest — collection imports your code, needs your
+    dependencies installed and is slow, and this is a gate that should run in a
+    second. The failure it has to catch is a rename, and a rename is visible in the
+    source text.
+    """
+    path_part, _, rest = ref.partition("::")
+    target = root / path_part
+    if not target.exists():
+        report.add("PAC-901", f"test file '{path_part}' does not exist", where)
+        return
+    if not rest:
+        return
+
+    source = target.read_text(encoding="utf-8")
+    for segment in rest.split("::"):
+        name = re.escape(segment)
+        declared = re.search(rf"^\s*(?:async\s+)?def\s+{name}\s*\(", source, re.M) or re.search(
+            rf"^\s*class\s+{name}\b", source, re.M
+        )
+        if not declared:
+            report.add("PAC-902", f"'{segment}' is not declared in {path_part}", where)
+            return

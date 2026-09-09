@@ -39,6 +39,17 @@ config key, or the plugin `Registry` surface is a breaking change and bumps the 
   surfaces so the lookups exist once. `ProductIndex`, `Artifact`, `Edge` and
   `Location` are exported from the package root.
 
+- **The scaffold demonstrates traceability**, which is the claim worth evaluating.
+  `copier copy` now produces a feature whose acceptance criterion names a test, the
+  test it names, and a `product_hooks.py` that resolves the reference — so the first
+  thing a new user can do is rename that test and watch the build fail with PAC-902.
+  It previously scaffolded a glossary and a business rule, which demonstrated
+  cross-reference checking: true, useful, and the least distinctive thing here.
+
+  Still two types, not eight. The `rules` example is dropped rather than added to —
+  the point lands faster with a glossary to point at and a feature that has to prove
+  itself. `tests/test_template.py` gates the README's demo, error code included.
+
 - `Diagnostic` gained optional `field` and `value`, naming the frontmatter key a
   finding is about and the offending value within it. `validate --json` reports them.
   Additive: `Report.add`'s existing positional signature is unchanged, so plugin

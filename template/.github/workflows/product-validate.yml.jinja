@@ -1,6 +1,7 @@
 # Product-as-code gate for {{ project_name }}. Fails the PR if any artifact is
-# malformed, references a missing id, or if {{ output_bundle }} has drifted out of
-# sync with {{ product_dir }}/. Run `fastpdlc build` locally and commit the result.
+# malformed, references a missing id, if {{ output_bundle }} has drifted out of sync
+# with {{ product_dir }}/, or if an acceptance criterion names a test that no longer
+# exists. Run `fastpdlc build` locally and commit the result.
 name: product-validate
 
 on:
@@ -19,3 +20,4 @@ jobs:
       - uses: tarvitave/fastpdlc@v{{ fastpdlc_version }}
         with:
           config: product.config.yaml
+          plugin: product_hooks.py     # the 9xx traceability checks

@@ -31,4 +31,4 @@ fastpdlc_version:
 _tasks:
   # Make the freshly scaffolded repo immediately valid. Skipped unless you pass --trust.
   - "python -m pip install --quiet 'fastpdlc=={{ fastpdlc_version }}' || pip install --quiet 'fastpdlc=={{ fastpdlc_version }}'"
-  - "fastpdlc build"
+  - "fastpdlc -p product_hooks.py build"
