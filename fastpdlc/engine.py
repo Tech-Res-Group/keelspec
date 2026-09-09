@@ -166,24 +166,29 @@ def validate(config: Config, root: str | pathlib.Path = ".", registry=None) -> R
             for req in t.required:
                 val = rid if req == "id" else rec.get(req)
                 if _is_empty(val):
-                    report.add("PAC-001", f"missing required field '{req}'", where)
+                    report.add("PAC-001", f"missing required field '{req}'", where,
+                               field=req)
 
             # id prefix + filename (PAC-010 / PAC-011)
             if rid:
                 if t.id_prefix and not str(rid).startswith(t.id_prefix):
-                    report.add("PAC-010", f"id '{rid}' must start with '{t.id_prefix}'", where)
+                    report.add("PAC-010", f"id '{rid}' must start with '{t.id_prefix}'", where,
+                               field="id", value=str(rid))
                 elif t.id_matches_filename and not where.endswith(f"/{rid}.md"):
-                    report.add("PAC-011", f"id '{rid}' must match its filename ({rid}.md)", where)
+                    report.add("PAC-011", f"id '{rid}' must match its filename ({rid}.md)", where,
+                               field="id", value=str(rid))
                 # duplicate id (PAC-012)
                 if rid in seen:
-                    report.add("PAC-012", f"duplicate id '{rid}' in type '{t.name}'", where)
+                    report.add("PAC-012", f"duplicate id '{rid}' in type '{t.name}'", where,
+                               field="id", value=str(rid))
                 seen.add(rid)
 
             # enums (PAC-030)
             for efield, allowed in t.enums.items():
                 v = rec.get(efield)
                 if v is not None and v not in allowed:
-                    report.add("PAC-030", f"{efield} '{v}' not in {sorted(allowed)}", where)
+                    report.add("PAC-030", f"{efield} '{v}' not in {sorted(allowed)}", where,
+                               field=efield, value=str(v))
 
             # references (PAC-020)
             for ref in t.references:
@@ -195,6 +200,8 @@ def validate(config: Config, root: str | pathlib.Path = ".", registry=None) -> R
                             "PAC-020",
                             f"{ref.field} '{val}' does not resolve to a {ref.to} id",
                             where,
+                            field=ref.field,
+                            value=str(val),
                         )
 
     # plugin validators — project-specific cross-file / graph checks.

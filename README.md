@@ -57,6 +57,60 @@ pip install fastpdlc
    fastpdlc validate    # schema + graph + staleness; non-zero exit on errors
    ```
 
+## While you author
+
+The gate is deterministic, which means everything it knows is available before you
+push. Four surfaces expose the same graph, and **none of them forms its own opinion**
+— every verdict below is `validate`'s, unchanged. An editor that said green while CI
+said `PAC-020` would be a second judge, and a project whose whole claim is a
+deterministic gate cannot afford two.
+
+```bash
+fastpdlc validate --watch          # the gate, re-run on every save
+fastpdlc lsp                       # language server (pip install 'fastpdlc[lsp]')
+fastpdlc mcp                       # the graph as tools (pip install 'fastpdlc[mcp]')
+```
+
+### `--watch`
+
+Re-validates whenever a `product/` file, the config, or the committed bundle
+changes. No extra dependency; it polls. Deliberately **not** a gate — it never exits
+non-zero, so a red tree you are mid-fix does not kill the terminal you are fixing it
+in. CI runs plain `validate`.
+
+### The language server
+
+Diagnostics, completion, hover, go-to-definition, find-references and workspace
+symbols over your `product/` tree, in any LSP client — VS Code, JetBrains, Neovim,
+Zed. A VS Code client lives in [`editors/vscode/`](editors/vscode/); it launches this
+and owns no logic of its own.
+
+Completion is the load-bearing one: in a reference field it offers the ids of the
+type that field must resolve to, and in an enum field its members — both read from
+the same config the validator reads, so **an accepted completion cannot be a
+`PAC-020` or a `PAC-030`**. Hover shows what an id means and how many artifacts point
+at it; find-references answers "what breaks if I retire this rule?".
+
+Diagnostics come from the file *on disk*, so they refresh on **save** rather than on
+every keystroke. That is the trade for having one judge. Completion, hover and
+navigation do read the unsaved buffer, because they answer "what is here?" rather
+than "is this allowed?".
+
+### The MCP server
+
+The same graph, spoken to an agent rather than an editor — because in a repo run this
+way the author of `product/features/refunds.md` is increasingly a model, and asked
+for a `constraints` list it will happily invent `CON-refund-window`.
+
+Six read-only tools: `product_schema`, `product_list`, `product_get`,
+`product_allowed_values`, `product_references_to` and `product_validate`. Read-only
+on purpose — an agent proposes with its own tools, and a server that could also write
+would let the thing being judged edit the evidence.
+
+```json
+{ "mcpServers": { "fastpdlc": { "command": "fastpdlc", "args": ["mcp"] } } }
+```
+
 ## The agent-built lifecycle
 
 `fastpdlc orchestrate` runs a station line over one artifact: **Understand →

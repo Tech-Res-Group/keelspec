@@ -17,7 +17,8 @@ collide with the core set.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import dataclasses
+from dataclasses import dataclass
 
 # ── core code registry ───────────────────────────────────────────────────────
 CODES: dict[str, str] = {
@@ -41,12 +42,25 @@ def register(code: str, message: str) -> None:
 
 @dataclass(frozen=True)
 class Diagnostic:
-    """A single finding: a stable code, a human message, and where it was found."""
+    """A single finding: a stable code, a human message, and where it was found.
+
+    ``field`` and ``value`` narrow "where" from a file to a point inside it: which
+    frontmatter key the finding is about, and which of that key's values offended.
+    Both are optional and empty by default, so a plugin validator written against
+    the old three-argument :meth:`Report.add` keeps working unchanged.
+
+    They exist because an editor needs to underline a range, and the alternative is
+    recovering the field by pattern-matching ``message`` — which is exactly what
+    stable codes exist to stop consumers doing. A structured field is cheap here and
+    unreliable everywhere else.
+    """
 
     code: str
     message: str
     where: str = ""
     severity: str = "error"  # "error" (gating) or "warning" (advisory)
+    field: str = ""  # the frontmatter key this is about, when the check knows it
+    value: str = ""  # the offending value within that key, when there is one
 
     def render(self) -> str:
         loc = f"{self.where}: " if self.where else ""
@@ -57,10 +71,21 @@ class Diagnostic:
 class Report:
     """Accumulates diagnostics from a validation run."""
 
-    diagnostics: list[Diagnostic] = field(default_factory=list)
+    # `dataclasses.field` spelled out: `Diagnostic` above has an attribute *named*
+    # `field`, and a bare `field(...)` here would read as that to anyone skimming.
+    diagnostics: list[Diagnostic] = dataclasses.field(default_factory=list)
 
-    def add(self, code: str, message: str, where: str = "", severity: str = "error") -> None:
-        self.diagnostics.append(Diagnostic(code, message, where, severity))
+    def add(
+        self,
+        code: str,
+        message: str,
+        where: str = "",
+        severity: str = "error",
+        *,
+        field: str = "",
+        value: str = "",
+    ) -> None:
+        self.diagnostics.append(Diagnostic(code, message, where, severity, field, value))
 
     @property
     def errors(self) -> list[Diagnostic]:

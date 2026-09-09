@@ -11,6 +11,8 @@ Three surfaces, in increasing order of ambition:
   dependencies, no network. This is what CI runs.
 * ``evidence`` — a content-addressed record of what was checked, when, on which
   commit, and with what result.
+* ``index`` / ``lsp`` / ``mcp`` — the same validated graph, answered for an editor
+  and for an agent. Both delegate every verdict to ``validate``: there is one judge.
 * ``orchestration`` — the agent-built lifecycle: Understand → Disambiguate (a
   human gate) → Design → Develop → Test → adversarial Verify, with bounded repair.
   Needs ``fastpdlc[agents]``; nothing else does.
@@ -26,6 +28,7 @@ from .engine import build, load, render_bundle, validate
 from .evidence import build_record
 from .evidence import render as render_evidence
 from .evidence import verify as verify_evidence
+from .index import Artifact, Edge, Location, ProductIndex
 from .orchestration import (
     CLEAN_SCHEMA,
     LENSES,
@@ -51,11 +54,16 @@ __all__ = [
     "CODES",
     "LENSES",
     "ROSTER",
+    # the resolved graph, with positions
+    "Artifact",
     # config
     "ArtifactType",
     "Config",
     "Diagnostic",
+    "Edge",
+    "Location",
     "Orchestrator",
+    "ProductIndex",
     "Reference",
     # plugins
     "Registry",

@@ -1,0 +1,76 @@
+{
+  "name": "fastpdlc",
+  "displayName": "FastPDLC",
+  "description": "Product-as-code as a validated graph — diagnostics, completion and navigation for your product/ tree.",
+  "version": "0.1.0",
+  "publisher": "tarvitave",
+  "license": "LGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tarvitave/fastpdlc.git",
+    "directory": "editors/vscode"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "product-as-code",
+    "pdlc",
+    "docs-as-code",
+    "validation"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/product.config.yaml"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "fastpdlc.restart",
+        "title": "FastPDLC: Restart language server"
+      }
+    ],
+    "configuration": {
+      "title": "FastPDLC",
+      "properties": {
+        "fastpdlc.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run the FastPDLC language server in this workspace."
+        },
+        "fastpdlc.path": {
+          "type": "string",
+          "default": "fastpdlc",
+          "description": "The fastpdlc executable. An absolute path pins a specific virtualenv."
+        },
+        "fastpdlc.config": {
+          "type": "string",
+          "default": "product.config.yaml",
+          "description": "Path to product.config.yaml, relative to the workspace root."
+        },
+        "fastpdlc.plugin": {
+          "type": "string",
+          "default": "",
+          "description": "Project plugin module or .py file (the -p flag). Empty for none."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0"
+  }
+}

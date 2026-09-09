@@ -18,6 +18,14 @@
       ],
       "help": "emit a content-addressed record of what was checked, when, and on what"
     },
+    "lsp": {
+      "flags": [],
+      "help": "run the language server on stdio (needs fastpdlc[lsp])"
+    },
+    "mcp": {
+      "flags": [],
+      "help": "serve the product graph over MCP on stdio (needs fastpdlc[mcp])"
+    },
     "orchestrate": {
       "flags": [
         "--cross-provider",
@@ -32,7 +40,8 @@
     },
     "validate": {
       "flags": [
-        "--json"
+        "--json",
+        "--watch"
       ],
       "help": "schema + graph + staleness checks (CI gate)"
     }

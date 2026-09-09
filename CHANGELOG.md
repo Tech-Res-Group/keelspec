@@ -10,7 +10,47 @@ config key, or the plugin `Registry` surface is a breaking change and bumps the 
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- **`fastpdlc validate --watch`** — the same gate, re-run whenever a `product/` file,
+  the config or the committed bundle changes. Polling, so the core keeps its two
+  dependencies. Not a gate: it never exits non-zero, because a red tree you are
+  mid-fix should not kill the terminal you are fixing it in.
+
+- **`fastpdlc lsp`** — a language server over the product graph: diagnostics,
+  completion, hover, go-to-definition, find-references, workspace symbols. Needs
+  `pip install 'fastpdlc[lsp]'`. A VS Code client lives in `editors/vscode/` and is
+  deliberately a shim — it launches the server and owns no logic.
+
+  Completion offers only values the validator would accept, because it reads the same
+  config: the ids of the type a reference field must resolve to, or an enum's members.
+
+  Diagnostics are `validate`'s, computed from the files **on disk** — so they refresh
+  on save, not per keystroke. An editor validating the unsaved buffer would be a
+  second opinion about correctness, and this project cannot have two judges.
+
+- **`fastpdlc mcp`** — the same graph as six read-only tools for a coding agent:
+  `product_schema`, `product_list`, `product_get`, `product_allowed_values`,
+  `product_references_to`, `product_validate`. Needs `pip install 'fastpdlc[mcp]'`.
+  Read-only on purpose: a server that could also write would let the thing being
+  judged edit the evidence.
+
+- **`fastpdlc.index`** — the resolved graph with source positions, shared by both
+  surfaces so the lookups exist once. `ProductIndex`, `Artifact`, `Edge` and
+  `Location` are exported from the package root.
+
+- `Diagnostic` gained optional `field` and `value`, naming the frontmatter key a
+  finding is about and the offending value within it. `validate --json` reports them.
+  Additive: `Report.add`'s existing positional signature is unchanged, so plugin
+  validators keep working untouched.
+
+### Fixed
+
+- The reference graph is now typed at both ends. Ids are unique only *within* a type
+  — which is exactly what `PAC-012` says — so a graph keyed on the bare id silently
+  merged a feature with the spec sharing its name. Nothing user-visible changed in
+  `validate`, which never used such an index; the new surfaces would have inherited
+  the bug.
 
 ## [0.6.3] — 2026-09-02
 

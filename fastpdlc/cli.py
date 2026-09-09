@@ -2,7 +2,10 @@
 
     fastpdlc build                       # regenerate the JSON bundle
     fastpdlc validate                    # schema + graph + staleness (CI gate)
+    fastpdlc validate --watch            # the same gate, on every save
     fastpdlc evidence -o build/ev.json   # content-addressed audit record
+    fastpdlc lsp                         # language server, on stdio
+    fastpdlc mcp                         # the graph as tools, for an agent
     fastpdlc -c product.config.yaml -p product_hooks.py validate
 
 Exit code is non-zero iff validation found errors — wire ``fastpdlc validate`` into CI.
@@ -29,6 +32,8 @@ def _build_parser() -> argparse.ArgumentParser:
     val = sub.add_parser("validate", help="schema + graph + staleness checks (CI gate)")
     val.add_argument("--json", action="store_true", dest="as_json",
                      help="emit findings as JSON — codes are an API, so make them parseable")
+    val.add_argument("--watch", action="store_true",
+                     help="re-validate on every change until interrupted (not a gate)")
     ev = sub.add_parser(
         "evidence",
         help="emit a content-addressed record of what was checked, when, and on what",
@@ -37,6 +42,9 @@ def _build_parser() -> argparse.ArgumentParser:
                     help="write the record here instead of stdout")
     ev.add_argument("--verify", metavar="RECORD", default=None,
                     help="recompute the digests in an existing record instead of making one")
+
+    sub.add_parser("lsp", help="run the language server on stdio (needs fastpdlc[lsp])")
+    sub.add_parser("mcp", help="serve the product graph over MCP on stdio (needs fastpdlc[mcp])")
 
     orc = sub.add_parser(
         "orchestrate",
@@ -62,8 +70,26 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
-    config = load_config(f"{args.root}/{args.config}" if args.root != "." else args.config)
+    config_path = f"{args.root}/{args.config}" if args.root != "." else args.config
+    config = load_config(config_path)
     registry = load_plugin(args.plugin)
+
+    if args.cmd == "validate" and args.watch:
+        if args.as_json:
+            # A tick-per-document JSON stream is not a format anything consumes.
+            # Editors want the language server; CI wants one-shot --json.
+            print("--watch and --json are mutually exclusive", file=sys.stderr)
+            return 2
+        from .watch import watch
+        return watch(config_path, args.root, registry)
+
+    if args.cmd == "lsp":
+        from .lsp import serve
+        return serve(args.config, args.root, args.plugin)
+
+    if args.cmd == "mcp":
+        from .mcp import serve
+        return serve(args.config, args.root, args.plugin)
 
     if args.cmd == "build":
         for path in engine.build(config, args.root, registry):
