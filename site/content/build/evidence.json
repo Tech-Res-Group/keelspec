@@ -2,116 +2,116 @@
   "artifacts": {
     "posts": [
       {
-        "file": "content/posts/POST-adr-and-product-as-code.md",
+        "file": "posts/POST-adr-and-product-as-code.md",
         "id": "POST-adr-and-product-as-code",
-        "sha256": null
+        "sha256": "4002844a42794baca1b147c1f6301b2031e6f25f1889f70adbeb8284faf79343"
       },
       {
-        "file": "content/posts/POST-business-rules.md",
+        "file": "posts/POST-business-rules.md",
         "id": "POST-business-rules",
-        "sha256": null
+        "sha256": "ec010e02ccd7d0678ff5f55b8e15d0b22f58f4010aec7cbbcdfc9b43ccfa020c"
       },
       {
-        "file": "content/posts/POST-ci-gate-anatomy.md",
+        "file": "posts/POST-ci-gate-anatomy.md",
         "id": "POST-ci-gate-anatomy",
-        "sha256": null
+        "sha256": "dc6150925473a947619d85ccae8c158662ff63de62730b14f5b55cb13c529221"
       },
       {
-        "file": "content/posts/POST-committing-generated-bundles.md",
+        "file": "posts/POST-committing-generated-bundles.md",
         "id": "POST-committing-generated-bundles",
-        "sha256": null
+        "sha256": "6743c5aafe4f0aaa44f73b7e0a60925dc897df1e005036ae468498a585aeb68c"
       },
       {
-        "file": "content/posts/POST-dangling-references.md",
+        "file": "posts/POST-dangling-references.md",
         "id": "POST-dangling-references",
-        "sha256": null
+        "sha256": "5980eceb0af0fb278a1563e469497bebf4f4b1a1183f8a5a5e6f03bd10ee7c1a"
       },
       {
-        "file": "content/posts/POST-diagnostic-codes-as-api.md",
+        "file": "posts/POST-diagnostic-codes-as-api.md",
         "id": "POST-diagnostic-codes-as-api",
-        "sha256": null
+        "sha256": "a9e294eb6fe47e98df4df5fa8c7e0aa3a8f91359bb5d12f0bd95338d4c739da6"
       },
       {
-        "file": "content/posts/POST-docs-from-bundles.md",
+        "file": "posts/POST-docs-from-bundles.md",
         "id": "POST-docs-from-bundles",
-        "sha256": null
+        "sha256": "5cdd048e928192267d6dcd66390bfd397a303bfc6f480c3dff0286bb2bcd62b7"
       },
       {
-        "file": "content/posts/POST-enums-and-lifecycles.md",
+        "file": "posts/POST-enums-and-lifecycles.md",
         "id": "POST-enums-and-lifecycles",
-        "sha256": null
+        "sha256": "1f632d5368717e3de68d6ca4ddcc0e93fbc2fe3e2b2bc4b48a0b026bd3aa24fa"
       },
       {
-        "file": "content/posts/POST-getting-started.md",
+        "file": "posts/POST-getting-started.md",
         "id": "POST-getting-started",
-        "sha256": null
+        "sha256": "e16069c1d3d5b87cfa8c933ee497ebb38c839edb2f7ca79688b866bfb7d43b47"
       },
       {
-        "file": "content/posts/POST-llm-context.md",
+        "file": "posts/POST-llm-context.md",
         "id": "POST-llm-context",
-        "sha256": null
+        "sha256": "2d193ae0e8df0f95333f4e175e745a8c8a7bd698b595d87e79b9c8569f3ca7ed"
       },
       {
-        "file": "content/posts/POST-migrating-a-wiki.md",
+        "file": "posts/POST-migrating-a-wiki.md",
         "id": "POST-migrating-a-wiki",
-        "sha256": null
+        "sha256": "24e7a284111d6535308abd51a5ec257e1b6b6d832e4c029d732ad8f1ba55b238"
       },
       {
-        "file": "content/posts/POST-naming-ids.md",
+        "file": "posts/POST-naming-ids.md",
         "id": "POST-naming-ids",
-        "sha256": null
+        "sha256": "a4e1c7491ec4a78b60848e8e8b96287c0175e5d312f1a6e074d9113773c3c0d0"
       },
       {
-        "file": "content/posts/POST-orphan-detection.md",
+        "file": "posts/POST-orphan-detection.md",
         "id": "POST-orphan-detection",
-        "sha256": null
+        "sha256": "952c8a9943cba0591b7e835a50110487861cea4d3e2d8f92c100ff6d5eb8927b"
       },
       {
-        "file": "content/posts/POST-payments-case-study.md",
+        "file": "posts/POST-payments-case-study.md",
         "id": "POST-payments-case-study",
-        "sha256": null
+        "sha256": "1b39540ec7f8244e47a7941e182e19f4467c8a159602904931bc7529763828da"
       },
       {
-        "file": "content/posts/POST-plugins-deep-dive.md",
+        "file": "posts/POST-plugins-deep-dive.md",
         "id": "POST-plugins-deep-dive",
-        "sha256": null
+        "sha256": "bb8c477b34c1f3408f0a56b3e1642bce0c7e95e530d1c881b9448c278c2785ea"
       },
       {
-        "file": "content/posts/POST-release-0-2-0.md",
+        "file": "posts/POST-release-0-2-0.md",
         "id": "POST-release-0-2-0",
-        "sha256": null
+        "sha256": "add49f43283619e8306b8b8e31a599100842198897f888687ab2fab3d4d939b7"
       },
       {
-        "file": "content/posts/POST-review-culture.md",
+        "file": "posts/POST-review-culture.md",
         "id": "POST-review-culture",
-        "sha256": null
+        "sha256": "afe598413a634910bc522a2bdca70b5fe796ec47e5730a9d48fd31aa014b669b"
       },
       {
-        "file": "content/posts/POST-the-staleness-gate.md",
+        "file": "posts/POST-the-staleness-gate.md",
         "id": "POST-the-staleness-gate",
-        "sha256": null
+        "sha256": "bc1e99a6d5b4fac165914e6704a8e36b06163b85675b50c589ab9067b372cf04"
       },
       {
-        "file": "content/posts/POST-typed-artifacts.md",
+        "file": "posts/POST-typed-artifacts.md",
         "id": "POST-typed-artifacts",
-        "sha256": null
+        "sha256": "39696c1b95adb876a3442248697caeaeb7bf64455de1ebb69ac85074bd4e96b0"
       },
       {
-        "file": "content/posts/POST-what-is-product-as-code.md",
+        "file": "posts/POST-what-is-product-as-code.md",
         "id": "POST-what-is-product-as-code",
-        "sha256": null
+        "sha256": "e8dbbe250569c03132d5ccf3fac0eb1a66e09fa4f2ae7e566d1bd706e7b697ef"
       },
       {
-        "file": "content/posts/POST-why-specs-rot.md",
+        "file": "posts/POST-why-specs-rot.md",
         "id": "POST-why-specs-rot",
-        "sha256": null
+        "sha256": "237b819447b4660f497247584238cdbcbdcea9dba5cb41e3de2b740e8d990bdd"
       }
     ]
   },
   "bundle": {
     "matches_sources": true,
     "path": "build/blog.generated.json",
-    "sha256": "5ab91bbf41d4e66c349aaed7dba2742df1ba75abe69e877961eef573a1c8c79d"
+    "sha256": "f80c5c264c8757fb16b56a995173c3dbd4d0eb709fcaffdffc3f2e96edd9bac2"
   },
   "checks": {
     "codes_registered": [
@@ -156,18 +156,18 @@
     "posts": 21
   },
   "findings": [],
-  "generated_at": "2026-09-14T12:32:33Z",
+  "generated_at": "2026-09-14T13:21:22Z",
   "repository": {
     "branch": "integrate/keelspec-0.7",
     "clean": false,
-    "commit": "e090da0f4303051eadcc6969b8db0eeb9739ea4c",
+    "commit": "c00dfa65694a32639df1dd1840b65d299b1d40ca",
     "tracked": true,
-    "uncommitted_files": 101
+    "uncommitted_files": 1
   },
   "result": "pass",
   "schema": "keelspec-evidence/1",
   "tool": {
     "name": "keelspec",
-    "version": "0.5.0"
+    "version": "0.7.0"
   }
 }
