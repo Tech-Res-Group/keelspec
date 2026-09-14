@@ -26,7 +26,7 @@ output_bundle:
 keelspec_version:
   type: str
   help: "KeelSpec version to pin in CI and install for the post-scaffold build."
-  default: "0.4.0"
+  default: "0.7.0"
 
 _tasks:
   # Make the freshly scaffolded repo immediately valid. Skipped unless you pass --trust.

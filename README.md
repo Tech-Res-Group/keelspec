@@ -289,7 +289,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tarvitave/keelspec@v0.4.0
+      - uses: tarvitave/keelspec@v0.7.0
         with:
           config: product.config.yaml     # optional (default)
           plugin: product_hooks.py         # optional project checks
@@ -324,5 +324,5 @@ Publishing to PyPI is automated via GitHub Releases + Trusted Publishing — see
 Apache-2.0. Permissive: use it, embed it, ship it, no obligations back beyond the
 notice. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
-Versions up to 0.6.3 were published as `keelspec` under LGPL-3.0-or-later. That
+Versions up to 0.6.3 were published as `fastpdlc` under LGPL-3.0-or-later. That
 package has been removed from PyPI; `keelspec` is the only name.
