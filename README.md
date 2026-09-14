@@ -321,4 +321,8 @@ Publishing to PyPI is automated via GitHub Releases + Trusted Publishing — see
 
 ## License
 
-LGPL-3.0-or-later (copyleft, but you can import it as a library without your project inheriting the licence). See [LICENSE](LICENSE).
+Apache-2.0. Permissive: use it, embed it, ship it, no obligations back beyond the
+notice. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+Versions up to 0.6.3 were published as `fastpdlc` under LGPL-3.0-or-later. That
+package has been removed from PyPI; `keelspec` is the only name.

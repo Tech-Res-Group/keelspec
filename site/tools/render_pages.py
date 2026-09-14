@@ -53,7 +53,7 @@ service for others. Reasonable crawling that respects
 <p>FastPDLC is distributed under the <strong>GNU Lesser General Public License, version 3 or
 later</strong>. That licence &mdash; not this page &mdash; governs your rights to use, modify and
 redistribute the software. In particular, importing FastPDLC as a library or running it in your
-CI does not place your own project under the LGPL. The full text ships with the package and is
+CI places no obligation on your own project beyond the notice. The full text ships with the package and is
 available in the <a href="https://github.com/tarvitave/fastpdlc/blob/main/LICENSE">repository</a>.</p>
 <p>The software is provided <strong>as is, without warranty of any kind</strong>, as set out in
 the licence. Nothing on this site modifies or expands that licence.</p>

@@ -1,10 +1,10 @@
 {
   "name": "fastpdlc",
   "displayName": "FastPDLC",
-  "description": "Product-as-code as a validated graph — diagnostics, completion and navigation for your product/ tree.",
+  "description": "Product-as-code as a validated graph \u2014 diagnostics, completion and navigation for your product/ tree.",
   "version": "0.1.0",
   "publisher": "tarvitave",
-  "license": "LGPL-3.0-or-later",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/tarvitave/fastpdlc.git",

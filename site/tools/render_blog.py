@@ -68,7 +68,7 @@ FOOTER = """<footer class="footer">
           <li><a href="/privacy.html">Privacy policy</a></li>
           <li><a href="/terms.html">Terms of use</a></li>
           <li><a href="/sms-opt-in.html">SMS opt-in</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc/blob/main/LICENSE">LGPL-3.0-or-later</a></li>
+          <li><a href="https://github.com/tarvitave/fastpdlc/blob/main/LICENSE">Apache-2.0</a></li>
         </ul>
       </div>
     </div>
