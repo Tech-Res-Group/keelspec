@@ -55,7 +55,7 @@ def diagram() -> str:
     p.append(_arrow(275, 185, 340, 185))
     p.append(_box(345, 105, 190, 160, "THE GATE", YEL))
     p.append(f'<text x="363" y="152" font-family="IBM Plex Mono, monospace" font-size="13" '
-             f'fill="{INK}">fastpdlc validate</text>')
+             f'fill="{INK}">keelspec validate</text>')
     for i, code in enumerate(["PAC-001  schema", "PAC-020  graph", "PAC-060  staleness"]):
         p.append(f'<text x="363" y="{178 + i * 22}" font-family="IBM Plex Mono, monospace" '
                  f'font-size="11.5" fill="{INK}">{code}</text>')
@@ -128,7 +128,7 @@ BODY = f"""<main>
       <p class="lede">Most organisations run a <strong>product development lifecycle (PDLC)</strong>
         and a <strong>software development lifecycle (SDLC)</strong> side by side, connected by
         meetings. The SDLC has been mechanised for thirty years &mdash; compilers, type checkers,
-        tests, continuous integration (CI). The PDLC has almost none of it. FastPDLC puts both in
+        tests, continuous integration (CI). The PDLC has almost none of it. KeelSpec puts both in
         the same repository, behind the same gate, with the same evidence trail.</p>
     </div>
 
@@ -137,8 +137,8 @@ BODY = f"""<main>
     </div>
 
     <p class="muted" style="margin-top:1rem;font-size:0.92rem;max-width:52rem">
-      <strong>What ships today:</strong> <code style="font-family:var(--mono)">fastpdlc
-      orchestrate</code> runs ST-01 to ST-06, and <code style="font-family:var(--mono)">fastpdlc
+      <strong>What ships today:</strong> <code style="font-family:var(--mono)">keelspec
+      orchestrate</code> runs ST-01 to ST-06, and <code style="font-family:var(--mono)">keelspec
       validate</code> is ST-08. Assembling a pull request (ST-07) and reading production
       back into intent (ST-10) are your pipeline's job &mdash; the library has no git,
       no network and no way to merge, by design.
@@ -259,7 +259,7 @@ BODY = f"""<main>
         <div class="tl-time">02</div>
         <div>
           <h3>The control is the gate</h3>
-          <p><code>fastpdlc validate</code> runs on every pull request (PR) and its exit code decides
+          <p><code>keelspec validate</code> runs on every pull request (PR) and its exit code decides
             whether the change merges. That is a control with an enforcement mechanism, not a
             policy document asking people to be careful.</p>
         </div>
@@ -278,7 +278,7 @@ BODY = f"""<main>
         <div class="tl-time">04</div>
         <div>
           <h3>The record is exportable</h3>
-          <p><code>fastpdlc evidence -o build/evidence.json</code> emits what was checked, when,
+          <p><code>keelspec evidence -o build/evidence.json</code> emits what was checked, when,
             on which commit, and with what result &mdash; every artifact, the config and the
             bundle carrying a SHA-256. An auditor verifies it by recomputing digests, not by
             trusting the issuer. For a date in the past, check out that commit and run it again.</p>

@@ -1,5 +1,5 @@
 output "ipv4" {
-  description = "Server IPv4 — the A record for fastpdlc.com and www."
+  description = "Server IPv4 — the A record for keelspec.com and www."
   value       = hcloud_server.web.ipv4_address
 }
 
@@ -16,10 +16,10 @@ output "ssh" {
 output "dns_records" {
   description = "Create these at your registrar before the first deploy, or Caddy cannot get a certificate."
   value = <<-EOT
-    fastpdlc.com.       A     ${hcloud_server.web.ipv4_address}
-    fastpdlc.com.       AAAA  ${hcloud_server.web.ipv6_address}
-    www.fastpdlc.com.   A     ${hcloud_server.web.ipv4_address}
-    www.fastpdlc.com.   AAAA  ${hcloud_server.web.ipv6_address}
+    keelspec.com.       A     ${hcloud_server.web.ipv4_address}
+    keelspec.com.       AAAA  ${hcloud_server.web.ipv6_address}
+    www.keelspec.com.   A     ${hcloud_server.web.ipv4_address}
+    www.keelspec.com.   AAAA  ${hcloud_server.web.ipv6_address}
   EOT
 }
 
@@ -27,10 +27,10 @@ output "next_steps" {
   value = <<-EOT
 
     1. Create the DNS records above and wait for them to resolve:
-         nslookup fastpdlc.com
+         nslookup keelspec.com
 
     2. Push the site (from site/):
-         FASTPDLC_HOST=${var.deploy_user}@${hcloud_server.web.ipv4_address} ./deploy.sh
+         KEELSPEC_HOST=${var.deploy_user}@${hcloud_server.web.ipv4_address} ./deploy.sh
 
     3. On the server, once:
          cd ${var.remote_dir}

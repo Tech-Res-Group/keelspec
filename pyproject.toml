@@ -3,18 +3,17 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "fastpdlc"
-version = "0.6.3"
+name = "keelspec"
+version = "0.7.0"
 description = "Product-as-code as a validated graph — for any project."
 readme = "README.md"
 requires-python = ">=3.10"
-license = "LGPL-3.0-or-later"
+license = "Apache-2.0"
 authors = [{ name = "tarvitave" }]
 keywords = ["product-as-code", "pdlc", "docs-as-code", "validation", "product-management"]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
   "Programming Language :: Python :: 3",
   "Topic :: Software Development :: Quality Assurance",
 ]
@@ -24,16 +23,21 @@ dependencies = ["pyyaml>=6.0", "pydantic>=2.0"]
 dev = ["pytest>=8.0"]
 # The reasoning stations. Core validation never needs this.
 agents = ["anthropic>=0.40"]
+# The editor surface. pygls 2.x moved LanguageServer to another module, so the
+# pin is a range rather than a floor until that migration is done deliberately.
+lsp = ["pygls>=1.3,<2"]
+# The agent surface — same graph, spoken to a model instead of an editor.
+mcp = ["mcp>=1.0"]
 
 [project.scripts]
-fastpdlc = "fastpdlc.cli:main"
+keelspec = "keelspec.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/tarvitave/fastpdlc"
-Issues = "https://github.com/tarvitave/fastpdlc/issues"
+Homepage = "https://github.com/tarvitave/keelspec"
+Issues = "https://github.com/tarvitave/keelspec/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["fastpdlc"]
+packages = ["keelspec"]
 
 # The sdist defaults to "everything not gitignored", which shipped the whole
 # marketing site, the Terraform and the deploy config to PyPI. Nothing secret was
@@ -45,13 +49,14 @@ packages = ["fastpdlc"]
 # needs. Anything operational stays in git and out of the tarball.
 [tool.hatch.build.targets.sdist]
 only-include = [
-  "fastpdlc",
+  "keelspec",
   "tests",
   "examples",
   "template",
   "action.yml",
   "copier.yml",
   "README.md",
+  "NOTICE",
   "CHANGELOG.md",
   "RELEASING.md",
   "LICENSE",
@@ -85,7 +90,7 @@ ignore = [
 "tests/*" = ["E402"]        # imports inside tests are deliberate and local
 
 [tool.coverage.run]
-source = ["fastpdlc"]
+source = ["keelspec"]
 omit = ["*/__pycache__/*"]
 
 [tool.coverage.report]

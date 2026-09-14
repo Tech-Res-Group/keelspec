@@ -11,7 +11,7 @@ title: ADRs, RFCs and where product-as-code fits
 slug: adr-and-product-as-code
 date: 2026-04-15
 summary: Decision records answer why. Product-as-code answers what is true now. Conflating them is why both rot.
-author: FastPDLC
+author: KeelSpec
 category: concept
 tags: [decisions, modelling]
 related: [POST-business-rules, POST-what-is-product-as-code]
@@ -62,7 +62,7 @@ title: Migrating a wiki to product-as-code
 slug: migrating-a-wiki
 date: 2026-04-22
 summary: How to move years of accumulated pages without a six-month project or a big-bang rewrite.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [migration, adoption]
 related: [POST-getting-started, POST-plugins-deep-dive]
@@ -93,7 +93,7 @@ Move the terms. Do not improve them yet -- copy them across as they are. Improvi
 
 ## Step two: turn on the gate before you feel ready
 
-Add `fastpdlc validate` to CI while the glossary is still incomplete. The gate does not care that you have twelve terms instead of two hundred. What it does is stop the twelve from rotting while you migrate the rest.
+Add `keelspec validate` to CI while the glossary is still incomplete. The gate does not care that you have twelve terms instead of two hundred. What it does is stop the twelve from rotting while you migrate the rest.
 
 Teams that wait until the migration is complete before enabling the gate spend the whole migration re-fixing things.
 
@@ -121,7 +121,7 @@ title: Extending the validator with plugins
 slug: plugins-deep-dive
 date: 2026-04-29
 summary: Validators, bundle transformers, extra outputs and custom codes -- the four hooks, and when to reach for each.
-author: FastPDLC
+author: KeelSpec
 category: reference
 tags: [plugins, extensibility]
 related: [POST-diagnostic-codes-as-api, POST-migrating-a-wiki]
@@ -129,7 +129,7 @@ reading_minutes: 5""", """
 The config file handles schema, ids, enums and references. Everything beyond that is a plugin -- a single Python file that registers hooks, loaded with `-p`.
 
 ```bash
-fastpdlc -p product_hooks.py validate
+keelspec -p product_hooks.py validate
 ```
 
 There are four hooks, and choosing the right one matters more than the code you write in it.
@@ -196,7 +196,7 @@ title: Feeding an LLM your product truth
 slug: llm-context
 date: 2026-05-06
 summary: A validated bundle is the best context you can give a model, precisely because something guarantees it is current.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [llm, context]
 related: [POST-docs-from-bundles, POST-what-is-product-as-code]
@@ -242,7 +242,7 @@ title: Reviewing product changes in pull requests
 slug: review-culture
 date: 2026-05-13
 summary: When intent lives in the repository, product decisions get the same review rigour as code. That changes the conversation more than the tooling does.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [workflow, culture]
 related: [POST-ci-gate-anatomy, POST-committing-generated-bundles]
@@ -285,7 +285,7 @@ title: Modelling lifecycles with enums
 slug: enums-and-lifecycles
 date: 2026-05-20
 summary: Four spellings of in-progress is not a naming problem. It is a missing constraint, and PAC-030 is the fix.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [modelling, schema]
 related: [POST-business-rules, POST-typed-artifacts]
@@ -334,17 +334,17 @@ POSTS["POST-payments-case-study"] = ("""\
 title: What we learned running this in payments
 slug: payments-case-study
 date: 2026-05-27
-summary: FastPDLC was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.
-author: FastPDLC
+summary: KeelSpec was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.
+author: KeelSpec
 category: case-study
 tags: [case-study, production]
 related: [POST-plugins-deep-dive, POST-the-staleness-gate]
 reading_minutes: 5""", """
-FastPDLC did not begin as a tool. It began as the product-as-code engine inside the pharthing / KibiPay payments platform, and it was extracted so other teams could use it. That order matters: every feature exists because something went wrong without it.
+KeelSpec did not begin as a tool. It began as the product-as-code engine inside the pharthing / KibiPay payments platform, and it was extracted so other teams could use it. That order matters: every feature exists because something went wrong without it.
 
 ## The numbers
 
-39 features under the gate, a concept catalogue, a rulebook, and a compiled render bundle of about 283 KB. `fastpdlc validate` is the sole product gate in CI, running through a plugin that adds domain-specific checks.
+39 features under the gate, a concept catalogue, a rulebook, and a compiled render bundle of about 283 KB. `keelspec validate` is the sole product gate in CI, running through a plugin that adds domain-specific checks.
 
 The extraction was verified by a **byte-identical parity test**: the extracted engine produces exactly the bundle the in-house one did. Not equivalent -- identical. That test is the reason the extraction could be trusted, and it is only possible because the build is deterministic.
 
@@ -374,7 +374,7 @@ title: Rendering docs sites from one bundle
 slug: docs-from-bundles
 date: 2026-06-03
 summary: One compiled artifact, many surfaces. The point is not convenience -- it is that the surfaces cannot disagree.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [docs, rendering]
 related: [POST-llm-context, POST-committing-generated-bundles]
@@ -398,7 +398,7 @@ None of these hold their own copy. Change a definition, rebuild, and every surfa
 
 This site does it too. The posts are typed artifacts under `content/posts/`, with a `product.config.yaml` declaring their shape: ids must match filenames, `category` must be in the allowed set, and every `related` link must resolve to a real post.
 
-`fastpdlc build` compiles them to `blog.generated.json`. A short renderer turns that into static HTML. If a post referenced a slug that did not exist, `PAC-020` would fail the build rather than shipping a dead link.
+`keelspec build` compiles them to `blog.generated.json`. A short renderer turns that into static HTML. If a post referenced a slug that did not exist, `PAC-020` would fail the build rather than shipping a dead link.
 
 The blog is a demo of the product it describes, which is the only honest way to sell a tool like this.
 
@@ -420,7 +420,7 @@ title: Finding the artifacts nobody references
 slug: orphan-detection
 date: 2026-06-10
 summary: A graph makes absence visible. Orphans are usually either dead weight or a missing link, and both are worth knowing about.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [graph, plugins]
 related: [POST-plugins-deep-dive, POST-dangling-references]
@@ -475,7 +475,7 @@ title: Product-as-code in thirty minutes
 slug: getting-started
 date: 2026-06-17
 summary: A working glossary, a rulebook, and a CI gate, starting from an empty directory.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [tutorial, adoption]
 related: [POST-migrating-a-wiki, POST-what-is-product-as-code]
@@ -485,16 +485,16 @@ The fastest way to understand this is to run it. Thirty minutes, start to finish
 ## Install
 
 ```bash
-pip install fastpdlc
+pip install keelspec
 ```
 
 Or scaffold a complete repository -- config, example artifacts and the CI gate -- in one command:
 
 ```bash
-pipx run copier copy --trust gh:tarvitave/fastpdlc my-product-repo
+pipx run copier copy --trust gh:tarvitave/keelspec my-product-repo
 ```
 
-`--trust` lets the template run `fastpdlc build` once so the new repository is valid on its first commit.
+`--trust` lets the template run `keelspec build` once so the new repository is valid on its first commit.
 
 ## Declare two types
 
@@ -538,8 +538,8 @@ Note `see_also` points at `TERM-ledger`. Build now and it fails, because that te
 ## Build and validate
 
 ```bash
-fastpdlc build       # -> build/product.generated.json  (commit it)
-fastpdlc validate    # schema + graph + staleness
+keelspec build       # -> build/product.generated.json  (commit it)
+keelspec validate    # schema + graph + staleness
 ```
 
 `validate` exits non-zero when it finds errors. That exit code is the entire contract.
@@ -554,7 +554,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tarvitave/fastpdlc@v0.1.0
+      - uses: tarvitave/keelspec@v0.1.0
 ```
 
 Commit the bundle alongside the artifacts. That is what makes staleness detectable.

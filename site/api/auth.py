@@ -21,12 +21,12 @@ ADMIN_USER = os.getenv("ADMIN_USER", "admin")
 ADMIN_PASSWORD_HASH = os.getenv("ADMIN_PASSWORD_HASH", "")
 SESSION_SECRET = os.getenv("SESSION_SECRET", "")
 
-COOKIE = "fastpdlc_admin"
+COOKIE = "keelspec_admin"
 SESSION_MAX_AGE = 12 * 3600          # re-login twice a day
 LOCKOUT_FAILS = 5
 LOCKOUT_SECONDS = 15 * 60
 
-_serializer = URLSafeTimedSerializer(SESSION_SECRET or "unset", salt="fastpdlc-admin")
+_serializer = URLSafeTimedSerializer(SESSION_SECRET or "unset", salt="keelspec-admin")
 
 
 def _client_ip(request: Request) -> str:

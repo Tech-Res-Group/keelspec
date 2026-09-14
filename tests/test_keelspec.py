@@ -1,4 +1,4 @@
-"""Tests for the FastPDLC engine: schema/id/reference/enum/staleness + the plugin API."""
+"""Tests for the KeelSpec engine: schema/id/reference/enum/staleness + the plugin API."""
 from __future__ import annotations
 
 import json
@@ -11,9 +11,9 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
-from fastpdlc import build, register, render_bundle, validate
-from fastpdlc.config import ArtifactType, Config, Reference
-from fastpdlc.plugin import Registry
+from keelspec import build, register, render_bundle, validate
+from keelspec.config import ArtifactType, Config, Reference
+from keelspec.plugin import Registry
 
 
 def _write(root: pathlib.Path, rel: str, meta: dict, body: str = "body") -> None:
@@ -161,8 +161,8 @@ def test_dates_in_frontmatter_serialize_to_iso(tmp_path):
         "    fields: [title, date]\n",
         encoding="utf-8",
     )
-    from fastpdlc import engine
-    from fastpdlc.config import load_config
+    from keelspec import engine
+    from keelspec.config import load_config
 
     config = load_config(str(tmp_path / "product.config.yaml"))
     engine.build(config, str(tmp_path))
@@ -188,7 +188,7 @@ def _tiny_project(tmp_path):
         "    fields: [term, definition]\n",
         encoding="utf-8",
     )
-    from fastpdlc.config import load_config
+    from keelspec.config import load_config
     return load_config(str(tmp_path / "product.config.yaml"))
 
 
@@ -197,13 +197,13 @@ def test_evidence_record_is_content_addressed(tmp_path):
     recomputation rather than by trusting whoever produced it."""
     import hashlib
 
-    from fastpdlc import engine, evidence
+    from keelspec import engine, evidence
 
     config = _tiny_project(tmp_path)
     engine.build(config, str(tmp_path))
     record = evidence.build_record(config, str(tmp_path))
 
-    assert record["schema"] == "fastpdlc-evidence/1"
+    assert record["schema"] == "keelspec-evidence/1"
     assert record["result"] == "pass"
     assert record["counts"] == {"terms": 1}
 
@@ -218,7 +218,7 @@ def test_evidence_record_is_content_addressed(tmp_path):
 
 def test_evidence_reports_staleness_and_failure(tmp_path):
     """A record of a failing run is still a valid record -- it just says so."""
-    from fastpdlc import engine, evidence
+    from keelspec import engine, evidence
 
     config = _tiny_project(tmp_path)
     engine.build(config, str(tmp_path))
@@ -238,7 +238,7 @@ def test_evidence_reports_staleness_and_failure(tmp_path):
 def test_evidence_is_reproducible_apart_from_the_timestamp(tmp_path):
     """Two runs on one commit must agree; that is what makes historical evidence
     a checkout away rather than a feature."""
-    from fastpdlc import engine, evidence
+    from keelspec import engine, evidence
 
     config = _tiny_project(tmp_path)
     engine.build(config, str(tmp_path))
@@ -279,12 +279,12 @@ def test_cli_surface_manifest_is_current():
 
 # ── the agent-built lifecycle ────────────────────────────────────────────────
 def _orch(**kw):
-    from fastpdlc import orchestration
+    from keelspec import orchestration
     return orchestration, kw
 
 
 def test_pipeline_runs_the_stations_in_order():
-    from fastpdlc.orchestration import Orchestrator, StubRunner
+    from keelspec.orchestration import Orchestrator, StubRunner
 
     runner = StubRunner()
     report = Orchestrator(runner).run("FEAT-refunds")
@@ -301,7 +301,7 @@ def test_pipeline_runs_the_stations_in_order():
 def test_disambiguate_blocks_before_design():
     """Building the wrong thing correctly is the expensive failure: an open question
     must stop the line before the Architect starts."""
-    from fastpdlc.orchestration import Orchestrator, StubRunner
+    from keelspec.orchestration import Orchestrator, StubRunner
 
     questions = [{"id": "q1", "dimension": "refund window start",
                   "question": "From authorization, settlement or delivery?"}]
@@ -318,7 +318,7 @@ def test_advisory_gate_records_questions_but_does_not_block():
     """block_on_unresolved=False is the autonomous run: open questions are still
     recorded on the report, but the line proceeds to build rather than stopping —
     the PR's gates and the human merge become the judge."""
-    from fastpdlc.orchestration import Orchestrator, StubRunner
+    from keelspec.orchestration import Orchestrator, StubRunner
 
     questions = [{"id": "q1", "dimension": "refund window start",
                   "question": "From authorization, settlement or delivery?"}]
@@ -334,7 +334,7 @@ def test_advisory_gate_records_questions_but_does_not_block():
 
 def test_blocking_gate_is_the_default():
     """The safe default is unchanged: without opting in, an open question blocks."""
-    from fastpdlc.orchestration import Orchestrator, StubRunner
+    from keelspec.orchestration import Orchestrator, StubRunner
 
     questions = [{"id": "q1", "dimension": "d", "question": "?"}]
     report = Orchestrator(StubRunner(questions=questions)).run("FEAT-refunds")
@@ -343,7 +343,7 @@ def test_blocking_gate_is_the_default():
 
 
 def test_resolved_questions_let_the_line_continue():
-    from fastpdlc.orchestration import Orchestrator, StubRunner
+    from keelspec.orchestration import Orchestrator, StubRunner
 
     questions = [{"id": "q1", "dimension": "refund window start", "question": "?"}]
     report = Orchestrator(
@@ -356,7 +356,7 @@ def test_resolved_questions_let_the_line_continue():
 
 
 def test_a_blocking_verdict_triggers_bounded_repair():
-    from fastpdlc.orchestration import Orchestrator, StubRunner
+    from keelspec.orchestration import Orchestrator, StubRunner
 
     refuting = {"security": {"lens": "security", "refuted": True, "severity": "blocker",
                              "reason": "no authz on the money path",
@@ -372,7 +372,7 @@ def test_a_blocking_verdict_triggers_bounded_repair():
 def test_minor_findings_do_not_block():
     """A gate that fires on nitpicks gets bypassed, and a bypassed gate is worse
     than none."""
-    from fastpdlc.orchestration import Orchestrator, StubRunner
+    from keelspec.orchestration import Orchestrator, StubRunner
 
     nitpick = {"coverage": {"lens": "coverage", "refuted": True, "severity": "minor",
                             "reason": "could add one more edge case", "failing_case": ""}}
@@ -385,7 +385,7 @@ def test_minor_findings_do_not_block():
 
 def test_a_failed_lens_abstains_rather_than_blocking():
     """An unreachable critic must never take down the line."""
-    from fastpdlc.orchestration import VERDICT_SCHEMA, Orchestrator
+    from keelspec.orchestration import VERDICT_SCHEMA, Orchestrator
 
     class Flaky:
         def run(self, station, prompt, schema=None):
@@ -406,8 +406,8 @@ def test_a_failed_lens_abstains_rather_than_blocking():
 
 def test_the_orchestrator_cannot_merge_anything():
     """Its terminal state is a report. Autonomy stops where the stakes rise."""
-    from fastpdlc import orchestration
-    from fastpdlc.orchestration import Orchestrator, StubRunner
+    from keelspec import orchestration
+    from keelspec.orchestration import Orchestrator, StubRunner
 
     report = Orchestrator(StubRunner()).run("FEAT-refunds")
     assert report.status in {"proposed", "refuted", "blocked", "error"}
@@ -421,7 +421,7 @@ def test_the_orchestrator_cannot_merge_anything():
 def test_sandbox_refuses_escape_attempts(tmp_path):
     """A model is driving this. Containment is checked after resolution, so `..`,
     absolute paths and symlinks are refused rather than sanitised."""
-    from fastpdlc.coding import PathOutsideRoot, Sandbox
+    from keelspec.coding import PathOutsideRoot, Sandbox
 
     root = tmp_path / "project"
     (root / "src").mkdir(parents=True)
@@ -438,7 +438,7 @@ def test_sandbox_refuses_escape_attempts(tmp_path):
 
 
 def test_sandbox_dry_run_records_but_does_not_write(tmp_path):
-    from fastpdlc.coding import Sandbox
+    from keelspec.coding import Sandbox
 
     root = tmp_path / "project"
     root.mkdir()
@@ -450,7 +450,7 @@ def test_sandbox_dry_run_records_but_does_not_write(tmp_path):
 
 
 def test_sandbox_writes_when_enabled(tmp_path):
-    from fastpdlc.coding import Sandbox
+    from keelspec.coding import Sandbox
 
     root = tmp_path / "project"
     root.mkdir()
@@ -462,7 +462,7 @@ def test_sandbox_writes_when_enabled(tmp_path):
 
 # ── the cross-provider adversary ─────────────────────────────────────────────
 def test_cross_provider_lens_is_skipped_without_a_key(monkeypatch):
-    from fastpdlc.runners import CROSS_PROVIDER_LENS, CrossProviderLens
+    from keelspec.runners import CROSS_PROVIDER_LENS, CrossProviderLens
 
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
     lens = CrossProviderLens()
@@ -477,7 +477,7 @@ def test_cross_provider_lens_abstains_when_the_call_fails(monkeypatch):
     """A diverse critic that cannot be reached must not take down the line."""
     import urllib.request
 
-    from fastpdlc.runners import CrossProviderLens
+    from keelspec.runners import CrossProviderLens
 
     def boom(*a, **kw):
         raise OSError("network unreachable")
@@ -493,7 +493,7 @@ def test_cross_provider_lens_abstains_when_the_call_fails(monkeypatch):
 
 def test_cross_provider_verdict_joins_the_refute_logic():
     """When the diverse critic refutes, it blocks exactly like a native lens."""
-    from fastpdlc.orchestration import Orchestrator, StubRunner
+    from keelspec.orchestration import Orchestrator, StubRunner
 
     def refusing_lens(context: str) -> dict:
         return {"lens": "cross-provider(openrouter)", "refuted": True,
@@ -513,7 +513,7 @@ def test_cross_provider_verdict_joins_the_refute_logic():
 def test_disambiguation_file_is_the_two_phase_gate(tmp_path):
     """pharthing parks these in a console; a library cannot assume a service, so the
     same gate is a file. Run 1 blocks and writes it, a human answers, run 2 proceeds."""
-    from fastpdlc.orchestration import Orchestrator, StubRunner, read_resolutions, write_questions
+    from keelspec.orchestration import Orchestrator, StubRunner, read_resolutions, write_questions
 
     questions = [{"id": "q1", "dimension": "refund window start", "question": "?"}]
 
@@ -553,18 +553,18 @@ def _plugin_project(tmp_path):
         "    required: [id, title]\n"
         "    fields: [title, code]\n",
         encoding="utf-8")
-    from fastpdlc.config import load_config
+    from keelspec.config import load_config
     return load_config(str(tmp_path / "product.config.yaml"))
 
 
 PLUGIN_SRC = r'''
-from fastpdlc import register
+from keelspec import register
 
 def register_codes():
     register("PAC-900", "links.code path does not exist on disk")
 
 def register(reg):
-    from fastpdlc.diagnostics import register as reg_code
+    from keelspec.diagnostics import register as reg_code
     reg_code("PAC-900", "links.code path does not exist on disk")
 
     @reg.validator
@@ -583,10 +583,10 @@ def register(reg):
 
 
 def test_plugin_loads_from_a_file_and_its_validator_runs(tmp_path):
-    """The documented plugin path -- fastpdlc -p product_hooks.py -- and the exact
+    """The documented plugin path -- keelspec -p product_hooks.py -- and the exact
     PAC-900 example from the README."""
-    from fastpdlc import engine
-    from fastpdlc.plugin import load_plugin
+    from keelspec import engine
+    from keelspec.plugin import load_plugin
 
     config = _plugin_project(tmp_path)
     (tmp_path / "hooks.py").write_text(PLUGIN_SRC, encoding="utf-8")
@@ -607,8 +607,8 @@ def test_plugin_loads_from_a_file_and_its_validator_runs(tmp_path):
 
 
 def test_plugin_bundle_transformer_reaches_the_committed_bundle(tmp_path):
-    from fastpdlc import engine
-    from fastpdlc.plugin import load_plugin
+    from keelspec import engine
+    from keelspec.plugin import load_plugin
 
     config = _plugin_project(tmp_path)
     (tmp_path / "hooks.py").write_text(PLUGIN_SRC, encoding="utf-8")
@@ -622,8 +622,8 @@ def test_plugin_bundle_transformer_reaches_the_committed_bundle(tmp_path):
 def test_plugin_extra_outputs_are_staleness_gated(tmp_path):
     """A generated file nothing verifies is a generated file that will fall behind.
     Plugin outputs get the same PAC-060 treatment as the bundle."""
-    from fastpdlc import engine
-    from fastpdlc.plugin import load_plugin
+    from keelspec import engine
+    from keelspec.plugin import load_plugin
 
     config = _plugin_project(tmp_path)
     (tmp_path / "hooks.py").write_text(PLUGIN_SRC, encoding="utf-8")
@@ -639,7 +639,7 @@ def test_plugin_extra_outputs_are_staleness_gated(tmp_path):
 
 
 def test_no_plugin_yields_an_empty_registry():
-    from fastpdlc.plugin import load_plugin
+    from keelspec.plugin import load_plugin
     for spec in (None, ""):
         reg = load_plugin(spec)
         assert reg.validators == [] and reg.bundle_transformers == []
@@ -648,7 +648,7 @@ def test_no_plugin_yields_an_empty_registry():
 def test_a_plugin_without_register_fails_loudly(tmp_path):
     """Silently ignoring a plugin that does not register anything would let a
     project believe its checks are running when they are not."""
-    from fastpdlc.plugin import load_plugin
+    from keelspec.plugin import load_plugin
 
     (tmp_path / "empty.py").write_text("x = 1\n", encoding="utf-8")
     with pytest.raises(SystemExit) as exc:
@@ -682,7 +682,7 @@ def _cli_project(tmp_path):
 
 
 def test_cli_build_then_validate_exits_zero(tmp_path, capsys):
-    from fastpdlc.cli import main
+    from keelspec.cli import main
 
     root = _cli_project(tmp_path)
     assert main(["-C", str(root), "build"]) == 0
@@ -696,8 +696,8 @@ def test_cli_build_then_validate_exits_zero(tmp_path, capsys):
 
 def test_cli_validate_exits_nonzero_on_a_dangling_reference(tmp_path, capsys):
     """The exit code IS the gate. If this ever returns 0 with errors present, every
-    CI job using FastPDLC goes green while broken."""
-    from fastpdlc.cli import main
+    CI job using KeelSpec goes green while broken."""
+    from keelspec.cli import main
 
     root = _cli_project(tmp_path)
     main(["-C", str(root), "build"])
@@ -710,14 +710,14 @@ def test_cli_validate_exits_nonzero_on_a_dangling_reference(tmp_path, capsys):
 
 
 def test_cli_validate_exits_nonzero_when_the_bundle_is_missing(tmp_path):
-    from fastpdlc.cli import main
+    from keelspec.cli import main
 
     root = _cli_project(tmp_path)
     assert main(["-C", str(root), "validate"]) == 1     # never built
 
 
 def test_cli_evidence_writes_a_record_and_follows_the_gate(tmp_path, capsys):
-    from fastpdlc.cli import main
+    from keelspec.cli import main
 
     root = _cli_project(tmp_path)
     main(["-C", str(root), "build"])
@@ -736,7 +736,7 @@ def test_cli_evidence_writes_a_record_and_follows_the_gate(tmp_path, capsys):
 
 
 def test_cli_evidence_to_stdout_is_valid_json(tmp_path, capsys):
-    from fastpdlc.cli import main
+    from keelspec.cli import main
 
     root = _cli_project(tmp_path)
     main(["-C", str(root), "build"])
@@ -744,11 +744,11 @@ def test_cli_evidence_to_stdout_is_valid_json(tmp_path, capsys):
 
     main(["-C", str(root), "evidence"])
     payload = json.loads(capsys.readouterr().out)
-    assert payload["schema"] == "fastpdlc-evidence/1"
+    assert payload["schema"] == "keelspec-evidence/1"
 
 
 def test_cli_orchestrate_dry_run_needs_no_network(tmp_path, capsys):
-    from fastpdlc.cli import main
+    from keelspec.cli import main
 
     root = _cli_project(tmp_path)
     main(["-C", str(root), "build"])
@@ -762,7 +762,7 @@ def test_cli_orchestrate_dry_run_needs_no_network(tmp_path, capsys):
 
 
 def test_cli_rejects_a_malformed_resolve_flag(tmp_path, capsys):
-    from fastpdlc.cli import main
+    from keelspec.cli import main
 
     root = _cli_project(tmp_path)
     assert main(["-C", str(root), "orchestrate", "FEAT-x", "--dry-run",
@@ -771,7 +771,7 @@ def test_cli_rejects_a_malformed_resolve_flag(tmp_path, capsys):
 
 def test_cli_build_is_deterministic_across_runs(tmp_path):
     """Byte-stability is what makes PAC-060 and the evidence record trustworthy."""
-    from fastpdlc.cli import main
+    from keelspec.cli import main
 
     root = _cli_project(tmp_path)
     main(["-C", str(root), "build"])
@@ -814,8 +814,8 @@ class _FakeClient:
 def test_claude_runner_sends_the_station_model_and_effort(monkeypatch):
     """Per-station model policy is the cost/correctness dial. If every station
     silently inherited one default, the dial would not exist."""
-    from fastpdlc.orchestration import BY_ID, DESIGN_SCHEMA
-    from fastpdlc.runners import ClaudeRunner
+    from keelspec.orchestration import BY_ID, DESIGN_SCHEMA
+    from keelspec.runners import ClaudeRunner
 
     runner = ClaudeRunner(api_key="test")
     runner._client = _FakeClient([_Resp([_Block('{"approach":"a","files":[],'
@@ -832,8 +832,8 @@ def test_claude_runner_sends_the_station_model_and_effort(monkeypatch):
 
 
 def test_claude_runner_uses_the_cheap_model_where_the_work_is_retrieval():
-    from fastpdlc.orchestration import BY_ID
-    from fastpdlc.runners import ClaudeRunner
+    from keelspec.orchestration import BY_ID
+    from keelspec.runners import ClaudeRunner
 
     runner = ClaudeRunner(api_key="test")
     runner._client = _FakeClient([_Resp([_Block("a brief")])])
@@ -845,8 +845,8 @@ def test_claude_runner_uses_the_cheap_model_where_the_work_is_retrieval():
 
 
 def test_claude_runner_surfaces_a_refusal_rather_than_returning_junk():
-    from fastpdlc.orchestration import BY_ID
-    from fastpdlc.runners import ClaudeRunner
+    from keelspec.orchestration import BY_ID
+    from keelspec.runners import ClaudeRunner
 
     runner = ClaudeRunner(api_key="test")
     runner._client = _FakeClient([_Resp([], stop_reason="refusal")])
@@ -855,8 +855,8 @@ def test_claude_runner_surfaces_a_refusal_rather_than_returning_junk():
 
 
 def test_claude_runner_rejects_unparseable_json():
-    from fastpdlc.orchestration import BY_ID, DESIGN_SCHEMA
-    from fastpdlc.runners import ClaudeRunner
+    from keelspec.orchestration import BY_ID, DESIGN_SCHEMA
+    from keelspec.runners import ClaudeRunner
 
     runner = ClaudeRunner(api_key="test")
     runner._client = _FakeClient([_Resp([_Block("not json at all")])])
@@ -867,8 +867,8 @@ def test_claude_runner_rejects_unparseable_json():
 def test_coding_runner_executes_tools_and_reports_what_it_actually_wrote(tmp_path):
     """The sandbox is the source of truth about files changed, not the model's
     recollection of what it changed."""
-    from fastpdlc.coding import CodingRunner
-    from fastpdlc.orchestration import BY_ID, DEVELOP_SCHEMA
+    from keelspec.coding import CodingRunner
+    from keelspec.orchestration import BY_ID, DEVELOP_SCHEMA
 
     (tmp_path / "existing.py").write_text("old\n", encoding="utf-8")
 
@@ -890,8 +890,8 @@ def test_coding_runner_executes_tools_and_reports_what_it_actually_wrote(tmp_pat
 
 
 def test_coding_runner_refuses_to_escape_the_root(tmp_path):
-    from fastpdlc.coding import CodingRunner
-    from fastpdlc.orchestration import BY_ID, DEVELOP_SCHEMA
+    from keelspec.coding import CodingRunner
+    from keelspec.orchestration import BY_ID, DEVELOP_SCHEMA
 
     root = tmp_path / "project"
     root.mkdir()
@@ -922,8 +922,8 @@ def test_coding_runner_refuses_to_escape_the_root(tmp_path):
 
 def test_coding_runner_stops_at_the_turn_limit_and_says_so(tmp_path):
     """A loop that will not converge must report honestly, not spin."""
-    from fastpdlc.coding import CodingRunner
-    from fastpdlc.orchestration import BY_ID, DEVELOP_SCHEMA
+    from keelspec.coding import CodingRunner
+    from keelspec.orchestration import BY_ID, DEVELOP_SCHEMA
 
     runner = CodingRunner(root=tmp_path, write=True, api_key="test", max_turns=3)
     runner._client = _FakeClient(
@@ -936,8 +936,8 @@ def test_coding_runner_stops_at_the_turn_limit_and_says_so(tmp_path):
 
 def test_coding_runner_delegates_other_stations(tmp_path):
     """Only Develop needs tools; everything else is one structured call."""
-    from fastpdlc.coding import CodingRunner
-    from fastpdlc.orchestration import BY_ID
+    from keelspec.coding import CodingRunner
+    from keelspec.orchestration import BY_ID
 
     class Recorder:
         def __init__(self):
@@ -966,8 +966,8 @@ def test_a_real_station_returns_the_declared_shape():
     Deliberately ST-01 (haiku, low effort) and a trivial prompt: enough to exercise
     the request shape and the structured-output contract, cheap enough to run often.
     """
-    from fastpdlc.orchestration import BY_ID, DISAMBIGUATION_SCHEMA
-    from fastpdlc.runners import ClaudeRunner
+    from keelspec.orchestration import BY_ID, DISAMBIGUATION_SCHEMA
+    from keelspec.runners import ClaudeRunner
 
     runner = ClaudeRunner()
     data = runner.run(
@@ -986,7 +986,7 @@ def test_a_real_station_returns_the_declared_shape():
 
 def _cli_config(tmp_path):
     """_cli_project builds the tree and returns the root; these need the Config."""
-    from fastpdlc.config import load_config
+    from keelspec.config import load_config
     root = _cli_project(tmp_path)
     return load_config(str(root / "product.config.yaml"))
 
@@ -996,7 +996,7 @@ def test_staleness_reports_which_artifacts_differ(tmp_path):
     """'the bundle is stale' tells you to run a command. Naming the artifacts tells
     you whether it is the change you meant to make, which is the reviewer's actual
     question."""
-    from fastpdlc import engine
+    from keelspec import engine
 
     config = _cli_config(tmp_path)
     engine.build(config, str(tmp_path))
@@ -1014,7 +1014,7 @@ def test_staleness_reports_which_artifacts_differ(tmp_path):
 
 
 def test_staleness_reports_additions_and_removals(tmp_path):
-    from fastpdlc import engine
+    from keelspec import engine
 
     config = _cli_config(tmp_path)
     engine.build(config, str(tmp_path))
@@ -1032,7 +1032,7 @@ def test_staleness_reports_additions_and_removals(tmp_path):
 
 # ── validate --json ──────────────────────────────────────────────────────────
 def test_validate_json_is_machine_readable(tmp_path, capsys):
-    from fastpdlc.cli import main
+    from keelspec.cli import main
 
     root = _cli_project(tmp_path)
     main(["-C", str(root), "build"])
@@ -1040,7 +1040,7 @@ def test_validate_json_is_machine_readable(tmp_path, capsys):
 
     assert main(["-C", str(root), "validate", "--json"]) == 0
     payload = json.loads(capsys.readouterr().out)
-    assert payload["schema"] == "fastpdlc-report/1"
+    assert payload["schema"] == "keelspec-report/1"
     assert payload["result"] == "pass"
     assert payload["counts"] == {"terms": 2}
     assert payload["findings"] == []
@@ -1048,7 +1048,7 @@ def test_validate_json_is_machine_readable(tmp_path, capsys):
 
 def test_validate_json_carries_codes_not_prose(tmp_path, capsys):
     """The point of stable codes is that a consumer never has to parse the message."""
-    from fastpdlc.cli import main
+    from keelspec.cli import main
 
     root = _cli_project(tmp_path)
     main(["-C", str(root), "build"])
@@ -1068,7 +1068,7 @@ def test_validate_json_carries_codes_not_prose(tmp_path, capsys):
 def test_a_run_is_kept_even_when_it_is_refuted(tmp_path):
     """A refuted run holds the verdicts and failing cases -- the most useful thing
     it produced. Discarding it because nothing was proposed is backwards."""
-    from fastpdlc.orchestration import Orchestrator, StubRunner, save_report
+    from keelspec.orchestration import Orchestrator, StubRunner, save_report
 
     refuting = {"security": {"lens": "security", "refuted": True, "severity": "blocker",
                              "reason": "no authz", "failing_case": "unauthenticated POST"}}
@@ -1076,7 +1076,7 @@ def test_a_run_is_kept_even_when_it_is_refuted(tmp_path):
     assert report.status == "refuted"
 
     path = save_report(tmp_path, report)
-    assert path.parent == tmp_path / ".fastpdlc" / "runs"
+    assert path.parent == tmp_path / ".keelspec" / "runs"
 
     saved = json.loads(path.read_text(encoding="utf-8"))
     assert saved["status"] == "refuted"
@@ -1087,7 +1087,7 @@ def test_a_run_is_kept_even_when_it_is_refuted(tmp_path):
 
 # ── evidence --verify ────────────────────────────────────────────────────────
 def test_evidence_verifies_against_an_unchanged_tree(tmp_path):
-    from fastpdlc import engine, evidence
+    from keelspec import engine, evidence
 
     config = _cli_config(tmp_path)
     engine.build(config, str(tmp_path))
@@ -1099,7 +1099,7 @@ def test_evidence_verifies_against_an_unchanged_tree(tmp_path):
 def test_evidence_verify_detects_a_changed_artifact(tmp_path):
     """This is the whole point of content-addressing: a record nobody can check is
     a claim, not evidence."""
-    from fastpdlc import engine, evidence
+    from keelspec import engine, evidence
 
     config = _cli_config(tmp_path)
     engine.build(config, str(tmp_path))
@@ -1113,7 +1113,7 @@ def test_evidence_verify_detects_a_changed_artifact(tmp_path):
 
 
 def test_evidence_verify_detects_a_tampered_bundle_and_a_missing_file(tmp_path):
-    from fastpdlc import engine, evidence
+    from keelspec import engine, evidence
 
     config = _cli_config(tmp_path)
     engine.build(config, str(tmp_path))
@@ -1128,7 +1128,7 @@ def test_evidence_verify_detects_a_tampered_bundle_and_a_missing_file(tmp_path):
 
 
 def test_evidence_verify_rejects_an_unknown_schema(tmp_path):
-    from fastpdlc import evidence
+    from keelspec import evidence
     problems = evidence.verify({"schema": "something-else/9"}, str(tmp_path))
     assert problems and "unknown schema" in problems[0]
 
@@ -1137,7 +1137,7 @@ def test_evidence_verify_rejects_an_unknown_schema(tmp_path):
 def test_clean_runs_between_develop_and_test():
     """An agent that has just solved a problem leaves the shape of the struggle in
     the code. Nothing downstream asked whether that was the simplest form of it."""
-    from fastpdlc.orchestration import Orchestrator, StubRunner
+    from keelspec.orchestration import Orchestrator, StubRunner
 
     report = Orchestrator(StubRunner()).run("FEAT-refunds")
     stations = [s.station for s in report.steps]
@@ -1147,7 +1147,7 @@ def test_clean_runs_between_develop_and_test():
 
 
 def test_clean_can_be_skipped():
-    from fastpdlc.orchestration import Orchestrator, StubRunner
+    from keelspec.orchestration import Orchestrator, StubRunner
 
     report = Orchestrator(StubRunner(), clean=False).run("FEAT-refunds")
     assert "ST-04b" not in [s.station for s in report.steps]
@@ -1157,7 +1157,7 @@ def test_clean_can_be_skipped():
 def test_a_cleaner_that_admits_changing_behaviour_is_not_trusted():
     """Simplification that alters behaviour is Develop's job done without Develop's
     tests. The claim is recorded; the work is dropped."""
-    from fastpdlc.orchestration import CLEAN_SCHEMA, Orchestrator
+    from keelspec.orchestration import CLEAN_SCHEMA, Orchestrator
 
     class Overreaching:
         def run(self, station, prompt, schema=None):
@@ -1178,7 +1178,7 @@ def test_a_cleaner_that_admits_changing_behaviour_is_not_trusted():
 
 
 def test_a_well_behaved_cleaner_is_recorded():
-    from fastpdlc.orchestration import CLEAN_SCHEMA, Orchestrator
+    from keelspec.orchestration import CLEAN_SCHEMA, Orchestrator
 
     class Tidy:
         def run(self, station, prompt, schema=None):
@@ -1201,7 +1201,7 @@ def test_a_well_behaved_cleaner_is_recorded():
 def test_inserting_the_cleaner_did_not_renumber_the_roster():
     """Station ids are referenced in decks and diagrams. Renumbering a stable
     reference to make room is the mistake we refuse to make with PAC codes."""
-    from fastpdlc.orchestration import BY_ID, ROSTER
+    from keelspec.orchestration import BY_ID, ROSTER
 
     ids = [s.id for s in ROSTER]
     assert ids == ["ST-01", "ST-02", "ST-03", "ST-04", "ST-04b",
@@ -1212,8 +1212,8 @@ def test_inserting_the_cleaner_did_not_renumber_the_roster():
 
 
 def test_the_cleaner_needs_tools_like_develop(tmp_path):
-    from fastpdlc.coding import CodingRunner
-    from fastpdlc.orchestration import BY_ID
+    from keelspec.coding import CodingRunner
+    from keelspec.orchestration import BY_ID
 
     class Recorder:
         def __init__(self):
@@ -1260,19 +1260,19 @@ class _PickyClient:
 
 
 def test_resolve_thinking_precedence(monkeypatch):
-    from fastpdlc.runners import resolve_thinking
-    monkeypatch.delenv("FASTPDLC_THINKING", raising=False)
+    from keelspec.runners import resolve_thinking
+    monkeypatch.delenv("KEELSPEC_THINKING", raising=False)
     assert resolve_thinking() == {"type": "adaptive"}                 # default on
     assert resolve_thinking(None) is None                              # explicit wins over env
-    monkeypatch.setenv("FASTPDLC_THINKING", "off")
+    monkeypatch.setenv("KEELSPEC_THINKING", "off")
     assert resolve_thinking() is None
-    monkeypatch.setenv("FASTPDLC_THINKING", "enabled:5000")
+    monkeypatch.setenv("KEELSPEC_THINKING", "enabled:5000")
     assert resolve_thinking() == {"type": "enabled", "budget_tokens": 5000}
     assert resolve_thinking({"type": "adaptive"}) == {"type": "adaptive"}  # explicit still wins
 
 
 def test_create_message_degrades_when_model_rejects_thinking():
-    from fastpdlc.runners import create_message
+    from keelspec.runners import create_message
     msgs = _PickyMessages("OK", reject=("thinking",))
     resp = create_message(_PickyClient(msgs), {"model": "claude-haiku-4-5", "messages": []},
                           {"type": "adaptive"})
@@ -1283,7 +1283,7 @@ def test_create_message_degrades_when_model_rejects_thinking():
 
 def test_create_message_degrades_when_model_rejects_effort():
     # `effort` lives inside output_config; stripping it must keep the rest (the schema).
-    from fastpdlc.runners import create_message
+    from keelspec.runners import create_message
     msgs = _PickyMessages("OK", reject=("effort",))
     oc = {"effort": "high", "format": {"type": "json_schema", "schema": {"x": 1}}}
     resp = create_message(_PickyClient(msgs),
@@ -1295,7 +1295,7 @@ def test_create_message_degrades_when_model_rejects_effort():
 
 
 def test_create_message_strips_both_thinking_and_effort():
-    from fastpdlc.runners import create_message
+    from keelspec.runners import create_message
     msgs = _PickyMessages("OK", reject=("thinking", "effort"))
     oc = {"effort": "high", "format": {"type": "json_schema", "schema": {}}}
     resp = create_message(_PickyClient(msgs),
@@ -1307,14 +1307,14 @@ def test_create_message_strips_both_thinking_and_effort():
 
 
 def test_create_message_propagates_unfixable_errors():
-    from fastpdlc.runners import create_message
+    from keelspec.runners import create_message
     msgs = _PickyMessages("OK", reject=(), other_error="boom")
     with pytest.raises(Exception, match="invalid model"):
         create_message(_PickyClient(msgs), {"model": "boom", "messages": []}, {"type": "adaptive"})
 
 
 def test_create_message_omits_thinking_when_none():
-    from fastpdlc.runners import create_message
+    from keelspec.runners import create_message
     msgs = _PickyMessages("OK", reject=("thinking",))   # would raise IF thinking were sent
     resp = create_message(_PickyClient(msgs), {"model": "x", "messages": []}, None)
     assert resp == "OK" and len(msgs.calls) == 1
@@ -1323,8 +1323,8 @@ def test_create_message_omits_thinking_when_none():
 
 def test_claude_runner_survives_a_haiku_station_end_to_end():
     # ST-01 runs on Haiku, which rejects both params. The station must still return.
-    from fastpdlc.orchestration import BY_ID
-    from fastpdlc.runners import ClaudeRunner
+    from keelspec.orchestration import BY_ID
+    from keelspec.runners import ClaudeRunner
 
     runner = ClaudeRunner(api_key="test")
     runner._client = _PickyClient(_PickyMessages(_Resp([_Block("hi")]), reject=("thinking", "effort")))
@@ -1348,8 +1348,8 @@ def _oai_msg(content=None, tool_calls=None):
 
 
 def test_openai_runner_parses_structured_json(monkeypatch):
-    from fastpdlc import runners
-    from fastpdlc.orchestration import BY_ID, DESIGN_SCHEMA
+    from keelspec import runners
+    from keelspec.orchestration import BY_ID, DESIGN_SCHEMA
     seen = {}
     def fake(base_url, api_key, body, timeout=120.0, extra_headers=None):
         seen.update(base_url=base_url, headers=extra_headers, body=body)
@@ -1368,8 +1368,8 @@ def test_openai_runner_parses_structured_json(monkeypatch):
 
 
 def test_openai_runner_json_mode_sends_response_format(monkeypatch):
-    from fastpdlc import runners
-    from fastpdlc.orchestration import BY_ID, DESIGN_SCHEMA
+    from keelspec import runners
+    from keelspec.orchestration import BY_ID, DESIGN_SCHEMA
     seen = {}
     def fake(base_url, api_key, body, timeout=120.0, extra_headers=None):
         seen["body"] = body
@@ -1381,15 +1381,15 @@ def test_openai_runner_json_mode_sends_response_format(monkeypatch):
 
 
 def test_extract_json_object_tolerates_fences_and_prose():
-    from fastpdlc.runners import extract_json_object
+    from keelspec.runners import extract_json_object
     assert extract_json_object('```json\n{"a": 1}\n```') == {"a": 1}
     assert extract_json_object('Sure! {"a": 1} done.') == {"a": 1}
     assert extract_json_object('{"a": 1}') == {"a": 1}
 
 
 def test_openai_runner_text_when_no_schema(monkeypatch):
-    from fastpdlc import runners
-    from fastpdlc.orchestration import BY_ID
+    from keelspec import runners
+    from keelspec.orchestration import BY_ID
     monkeypatch.setattr(runners, "openai_chat", lambda *a, **k: _oai_msg("hello"))
     r = runners.OpenAIRunner("https://gw/v1", api_key="k")
     assert r.run(BY_ID["ST-01"], "understand") == {"text": "hello"}
@@ -1398,9 +1398,9 @@ def test_openai_runner_text_when_no_schema(monkeypatch):
 def test_openai_coding_runner_writes_files_via_tool_loop(monkeypatch, tmp_path):
     # Develop routed through an OpenAI endpoint: a tool_call writes a file, the loop
     # ends, and files_changed reflects the sandbox — not the model's say-so.
-    from fastpdlc import runners
-    from fastpdlc.coding import OpenAICodingRunner
-    from fastpdlc.orchestration import BY_ID
+    from keelspec import runners
+    from keelspec.coding import OpenAICodingRunner
+    from keelspec.orchestration import BY_ID
 
     calls = {"n": 0}
     def fake(base_url, api_key, body, timeout=120.0, extra_headers=None):
@@ -1424,9 +1424,9 @@ def test_openai_coding_runner_writes_files_via_tool_loop(monkeypatch, tmp_path):
 
 def test_openai_coding_runner_delegates_non_develop(monkeypatch, tmp_path):
     # Non-Develop stations go to the OpenAIRunner fallback (one structured call).
-    from fastpdlc import runners
-    from fastpdlc.coding import OpenAICodingRunner
-    from fastpdlc.orchestration import BY_ID, DESIGN_SCHEMA
+    from keelspec import runners
+    from keelspec.coding import OpenAICodingRunner
+    from keelspec.orchestration import BY_ID, DESIGN_SCHEMA
     monkeypatch.setattr(runners, "openai_chat",
                         lambda *a, **k: _oai_msg('{"approach":"b","files":[],"criteria_to_tests":[]}'))
     runner = OpenAICodingRunner(root=tmp_path, base_url="https://gw/v1", api_key="k")
@@ -1436,8 +1436,8 @@ def test_openai_coding_runner_delegates_non_develop(monkeypatch, tmp_path):
 def test_openai_runner_guards_non_object_json(monkeypatch):
     # A gateway-routed small model can return a bare JSON string under json_object mode;
     # the runner must raise a CLEAR error, not let a str crash a downstream .get().
-    from fastpdlc import runners
-    from fastpdlc.orchestration import BY_ID, DESIGN_SCHEMA
+    from keelspec import runners
+    from keelspec.orchestration import BY_ID, DESIGN_SCHEMA
     monkeypatch.setattr(runners, "openai_chat", lambda *a, **k: _oai_msg('"just a string"'))
     r = runners.OpenAIRunner("https://gw/v1", api_key="k")
     import pytest as _pytest
@@ -1450,7 +1450,7 @@ def test_openai_chat_surfaces_http_error_body(monkeypatch):
     import io
     import urllib.error
 
-    from fastpdlc import runners
+    from keelspec import runners
     def boom(req, timeout=0):
         raise urllib.error.HTTPError(req.full_url, 502, "Bad Gateway", {},
                                      io.BytesIO(b'{"error":"upstream anthropic key invalid"}'))
@@ -1463,8 +1463,8 @@ def test_openai_chat_surfaces_http_error_body(monkeypatch):
 def test_openai_runner_omits_temperature_by_default(monkeypatch):
     # Claude-5-family models reject `temperature` as deprecated (400); it must be OFF
     # unless explicitly requested.
-    from fastpdlc import runners
-    from fastpdlc.orchestration import BY_ID
+    from keelspec import runners
+    from keelspec.orchestration import BY_ID
     seen = {}
     def fake(base_url, api_key, body, timeout=120.0, extra_headers=None):
         seen["body"] = body
@@ -1474,3 +1474,76 @@ def test_openai_runner_omits_temperature_by_default(monkeypatch):
     assert "temperature" not in seen["body"]
     runners.OpenAIRunner("https://gw/v1", api_key="k", temperature=0).run(BY_ID["ST-01"], "x")
     assert seen["body"]["temperature"] == 0                       # opt-in still works
+
+
+# ── routing by concept, per station ──────────────────────────────────────────
+# `extra_headers` is fixed for a whole run, so every station reaches the gateway
+# looking like the same kind of request. `concepts` varies the one header that says
+# otherwise, which is what lets a router apply a policy per KIND of work.
+
+def _capture_headers(monkeypatch):
+    from keelspec import runners
+    seen = {}
+
+    def fake(base_url, api_key, body, timeout=120.0, extra_headers=None):
+        seen.setdefault("calls", []).append(dict(extra_headers or {}))
+        return _oai_msg('{"ok":true}')
+
+    monkeypatch.setattr(runners, "openai_chat", fake)
+    return seen
+
+
+def test_concept_routing_is_off_unless_asked_for(monkeypatch):
+    """The default request must stay byte-identical to before this existed."""
+    from keelspec import runners
+    from keelspec.orchestration import BY_ID
+    seen = _capture_headers(monkeypatch)
+    runners.OpenAIRunner("https://gw/v1", api_key="k").run(BY_ID["ST-03"], "x", {})
+    assert seen["calls"][0] == {}
+
+
+def test_each_station_carries_its_own_concept(monkeypatch):
+    from keelspec import runners
+    from keelspec.orchestration import BY_ID
+    seen = _capture_headers(monkeypatch)
+    r = runners.OpenAIRunner("https://gw/v1", api_key="k",
+                             concepts=runners.STATION_CONCEPTS)
+    for sid in ("ST-01", "ST-03", "ST-04"):
+        r.run(BY_ID[sid], "x", {})
+    assert [c["x-muchty-concept"] for c in seen["calls"]] == [
+        "content.summarize", "spec.disambiguate", "code.repair"]
+
+
+def test_an_unmapped_station_falls_back_to_the_default_concept(monkeypatch):
+    """Adding a station must not silently route it as if it were code repair."""
+    from keelspec import runners
+    from keelspec.orchestration import BY_ID
+    seen = _capture_headers(monkeypatch)
+    runners.OpenAIRunner("https://gw/v1", api_key="k",
+                         concepts=runners.STATION_CONCEPTS).run(BY_ID["ST-07"], "x", {})
+    assert seen["calls"][0]["x-muchty-concept"] == runners.DEFAULT_CONCEPT
+    assert "ST-07" not in runners.STATION_CONCEPTS
+
+
+def test_the_catalogue_and_header_belong_to_the_operator(monkeypatch):
+    """Concept names are the router operator's, not this library's."""
+    from keelspec import runners
+    from keelspec.orchestration import BY_ID
+    seen = _capture_headers(monkeypatch)
+    runners.OpenAIRunner("https://gw/v1", api_key="k",
+                         concepts={"ST-03": "planning.deep"},
+                         concept_header="x-route-concept",
+                         extra_headers={"x-project": "keel"}).run(BY_ID["ST-03"], "x", {})
+    assert seen["calls"][0] == {"x-project": "keel", "x-route-concept": "planning.deep"}
+
+
+def test_develop_gets_its_concept_too(monkeypatch, tmp_path):
+    """ST-04 runs its own tool loop rather than delegating, so it has to ask the
+    fallback for the same headers every other station would have been given."""
+    from keelspec import runners
+    from keelspec.coding import OpenAICodingRunner
+    from keelspec.orchestration import BY_ID
+    seen = _capture_headers(monkeypatch)
+    OpenAICodingRunner(tmp_path, base_url="https://gw/v1", api_key="k",
+                       concepts=runners.STATION_CONCEPTS).run(BY_ID["ST-04"], "build it")
+    assert seen["calls"][0]["x-muchty-concept"] == "code.repair"

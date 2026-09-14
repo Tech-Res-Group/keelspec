@@ -4,7 +4,7 @@ title: Product-as-code in thirty minutes
 slug: getting-started
 date: 2026-06-17
 summary: A working glossary, a rulebook, and a CI gate, starting from an empty directory.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [tutorial, adoption]
 related: [POST-migrating-a-wiki, POST-what-is-product-as-code]
@@ -16,16 +16,16 @@ The fastest way to understand this is to run it. Thirty minutes, start to finish
 ## Install
 
 ```bash
-pip install fastpdlc
+pip install keelspec
 ```
 
 Or scaffold a complete repository -- config, example artifacts and the CI gate -- in one command:
 
 ```bash
-pipx run copier copy --trust gh:tarvitave/fastpdlc my-product-repo
+pipx run copier copy --trust gh:tarvitave/keelspec my-product-repo
 ```
 
-`--trust` lets the template run `fastpdlc build` once so the new repository is valid on its first commit.
+`--trust` lets the template run `keelspec build` once so the new repository is valid on its first commit.
 
 ## Declare two types
 
@@ -69,8 +69,8 @@ Note `see_also` points at `TERM-ledger`. Build now and it fails, because that te
 ## Build and validate
 
 ```bash
-fastpdlc build       # -> build/product.generated.json  (commit it)
-fastpdlc validate    # schema + graph + staleness
+keelspec build       # -> build/product.generated.json  (commit it)
+keelspec validate    # schema + graph + staleness
 ```
 
 `validate` exits non-zero when it finds errors. That exit code is the entire contract.
@@ -85,7 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tarvitave/fastpdlc@v0.2.0
+      - uses: tarvitave/keelspec@v0.2.0
 ```
 
 Commit the bundle alongside the artifacts. That is what makes staleness detectable.

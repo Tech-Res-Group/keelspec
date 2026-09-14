@@ -1,6 +1,10 @@
 # Product-as-code config for {{ project_name }}. Every artifact under {{ product_dir }}/
-# is a typed, id'd, cross-referenced record — FastPDLC validates the whole graph and
+# is a typed, id'd, cross-referenced record — KeelSpec validates the whole graph and
 # regenerates {{ output_bundle }} from it. Edit the types below to model your domain.
+#
+# Two types to start with, because the point lands faster with two than with eight:
+# a glossary to point *at*, and a feature that has to prove itself. Add decisions,
+# constraints, rules and metrics when you have a reason to — each is ~8 lines here.
 product_dir: {{ product_dir }}
 output: {{ output_bundle }}
 types:
@@ -12,11 +16,17 @@ types:
     references:
       - field: see_also         # every see_also must resolve to another term
         to: terms
-  - name: rules
-    dir: rules
-    id_prefix: "BR-"
-    required: [id, title, statement]
-    fields: [title, statement, applies_to]
+
+  # The interesting one. `acceptance` is required and load-bearing: product_hooks.py
+  # resolves each criterion's test refs, so a criterion cannot quietly stop being
+  # proven. Renaming a test breaks the build — see the README.
+  - name: features
+    dir: features
+    id_prefix: "FEAT-"
+    required: [id, title, status, acceptance]
+    fields: [title, status, about, acceptance]
+    enums:
+      status: [idea, building, shipped]
     references:
-      - field: applies_to       # a rule may point at the terms it governs
+      - field: about            # the terms this feature is about
         to: terms

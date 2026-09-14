@@ -1,4 +1,4 @@
-# External uptime + certificate monitoring for fastpdlc.com.
+# External uptime + certificate monitoring for keelspec.com.
 #
 # Deliberately NOT on the server. A checker that lives on the box it is checking
 # cannot tell you the box is down, which is the one failure you most need to hear
@@ -39,7 +39,7 @@ jobs:
 
           check() {
             local path="$1" want="$2" code
-            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "https://fastpdlc.com${path}" 2>/dev/null || echo "000")
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "https://keelspec.com${path}" 2>/dev/null || echo "000")
             if [ "$code" = "$want" ]; then
               echo "  ok    ${path} -> ${code}"
             else
@@ -57,7 +57,7 @@ jobs:
           check "/nope-404-probe" 404
 
           echo "== the admin panel must stay shut =="
-          ADMIN=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 -H 'Accept: application/json' https://fastpdlc.com/admin/ 2>/dev/null || echo "000")
+          ADMIN=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 -H 'Accept: application/json' https://keelspec.com/admin/ 2>/dev/null || echo "000")
           if [ "$ADMIN" = "401" ]; then
             echo "  ok    /admin/ unauthenticated -> 401"
           else
@@ -66,7 +66,7 @@ jobs:
           fi
 
           echo "== TLS certificate =="
-          END=$(echo | openssl s_client -servername fastpdlc.com -connect fastpdlc.com:443 2>/dev/null | openssl x509 -noout -enddate | cut -d= -f2)
+          END=$(echo | openssl s_client -servername keelspec.com -connect keelspec.com:443 2>/dev/null | openssl x509 -noout -enddate | cut -d= -f2)
           if [ -z "$END" ]; then
             echo "  FAIL  could not read the certificate"
             note "TLS handshake failed — could not read the certificate at all"
@@ -116,7 +116,7 @@ jobs:
             } else {
               await github.rest.issues.create({
                 owner: context.repo.owner, repo: context.repo.repo,
-                title: "fastpdlc.com is failing its uptime probe",
+                title: "keelspec.com is failing its uptime probe",
                 body, labels: ["uptime"],
               });
             }

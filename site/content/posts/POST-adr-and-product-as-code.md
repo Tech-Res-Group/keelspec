@@ -4,7 +4,7 @@ title: ADRs, RFCs and where product-as-code fits
 slug: adr-and-product-as-code
 date: 2026-04-15
 summary: Decision records answer why. Product-as-code answers what is true now. Conflating them is why both rot.
-author: FastPDLC
+author: KeelSpec
 category: concept
 tags: [decisions, modelling]
 related: [POST-business-rules, POST-what-is-product-as-code]

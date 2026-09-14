@@ -2,7 +2,7 @@
 
 The renderer is deliberately dumb: it loops over `blog.generated.json` and fills a
 template. All structural guarantees -- ids, categories, resolving `related` links --
-were already enforced by `fastpdlc validate`, so nothing here needs to check anything.
+were already enforced by `keelspec validate`, so nothing here needs to check anything.
 
     python tools/render_blog.py
 """
@@ -21,7 +21,7 @@ OUT = ROOT / "public" / "blog"
 
 NAV = """<header class="nav">
   <div class="wrap nav-inner">
-    <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+    <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
     <nav class="nav-links" id="navLinks">
       <a href="/#how">How it works</a>
@@ -29,7 +29,7 @@ NAV = """<header class="nav">
       <a href="/#diagnostics">Diagnostics</a>
       <a href="/blog/">Blog</a>
       <a href="/#faq">FAQ</a>
-      <a href="https://github.com/tarvitave/fastpdlc">GitHub</a>
+      <a href="https://github.com/tarvitave/keelspec">GitHub</a>
       <a class="btn btn-primary nav-cta" href="/#start">Get started</a>
     </nav>
   </div>
@@ -39,7 +39,7 @@ FOOTER = """<footer class="footer">
   <div class="wrap">
     <div class="footer-grid">
       <div>
-        <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+        <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
         <p class="footer-blurb">Product-as-code as a validated graph &mdash; for any project.
           Typed artifacts in, a compiled bundle out, and a CI gate in between.</p>
       </div>
@@ -58,8 +58,8 @@ FOOTER = """<footer class="footer">
         <ul>
           <li><a href="/who-we-are.html">Who we are</a></li>
           <li><a href="/contact.html">Contact us</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc">GitHub</a></li>
-          <li><a href="https://pypi.org/project/fastpdlc/">PyPI</a></li>
+          <li><a href="https://github.com/tarvitave/keelspec">GitHub</a></li>
+          <li><a href="https://pypi.org/project/keelspec/">PyPI</a></li>
         </ul>
       </div>
       <div>
@@ -68,13 +68,13 @@ FOOTER = """<footer class="footer">
           <li><a href="/privacy.html">Privacy policy</a></li>
           <li><a href="/terms.html">Terms of use</a></li>
           <li><a href="/sms-opt-in.html">SMS opt-in</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc/blob/main/LICENSE">LGPL-3.0-or-later</a></li>
+          <li><a href="https://github.com/tarvitave/keelspec/blob/main/LICENSE">Apache-2.0</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-base">
-      <span>&copy; <span id="year">2026</span> FastPDLC. This blog is compiled and validated by FastPDLC itself.</span>
-      <span><code style="font-family:var(--mono)">pip install fastpdlc</code></span>
+      <span>&copy; <span id="year">2026</span> KeelSpec. This blog is compiled and validated by KeelSpec itself.</span>
+      <span><code style="font-family:var(--mono)">pip install keelspec</code></span>
     </div>
   </div>
 </footer>"""
@@ -162,13 +162,13 @@ def page(title: str, desc: str, body: str, canonical: str, extra_head: str = "")
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)}</title>
 <meta name="description" content="{html.escape(desc)}">
-<link rel="canonical" href="https://fastpdlc.com{canonical}">
+<link rel="canonical" href="https://keelspec.com{canonical}">
 <meta property="og:type" content="article">
 <meta property="og:title" content="{html.escape(title)}">
 <meta property="og:description" content="{html.escape(desc)}">
-<meta property="og:url" content="https://fastpdlc.com{canonical}">
+<meta property="og:url" content="https://keelspec.com{canonical}">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:image" content="https://fastpdlc.com/og.png">
+<meta property="og:image" content="https://keelspec.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <link rel="icon" href="{FAVICON}">
@@ -195,7 +195,7 @@ def fmt_date(value: str) -> str:
 
 def main() -> int:
     if not BUNDLE.exists():
-        print(f"error: {BUNDLE} not found -- run `fastpdlc build` in site/content first",
+        print(f"error: {BUNDLE} not found -- run `keelspec build` in site/content first",
               file=sys.stderr)
         return 1
 
@@ -228,7 +228,7 @@ def main() -> int:
       <h1 style="font-size:clamp(2.6rem,6vw,4rem);margin-top:0.7rem">Notes on product-as-code.</h1>
       <p class="lede">Why specs rot, what a validated graph buys you, and what breaks in real
         repositories. Every post on this page is a typed artifact &mdash; ids, categories and
-        cross-links are validated by <code style="font-family:var(--mono)">fastpdlc</code> in CI.</p>
+        cross-links are validated by <code style="font-family:var(--mono)">keelspec</code> in CI.</p>
     </div>
     <div class="post-grid">
       {''.join(cards)}
@@ -239,7 +239,7 @@ def main() -> int:
 </main>"""
 
     (OUT / "index.html").write_text(
-        page("Blog — FastPDLC",
+        page("Blog — KeelSpec",
              "Notes on product-as-code: why specs rot, what a validated graph buys you, "
              "and what breaks in real repositories.",
              index_body, "/blog/"),
@@ -264,8 +264,8 @@ def main() -> int:
             "headline": p["title"],
             "description": p["summary"],
             "datePublished": str(p["date"])[:10],
-            "author": {"@type": "Organization", "name": p.get("author", "FastPDLC")},
-            "url": f"https://fastpdlc.com/blog/{p['slug']}.html",
+            "author": {"@type": "Organization", "name": p.get("author", "KeelSpec")},
+            "url": f"https://keelspec.com/blog/{p['slug']}.html",
         })
 
         body = f"""<main>
@@ -276,7 +276,7 @@ def main() -> int:
     <h1>{html.escape(p['title'])}</h1>
     <p class="lede post-summary">{html.escape(p['summary'])}</p>
     <div class="post-meta">{fmt_date(p['date'])} &middot; {p.get('reading_minutes', 4)} min read
-      &middot; {html.escape(p.get('author', 'FastPDLC'))}</div>
+      &middot; {html.escape(p.get('author', 'KeelSpec'))}</div>
     <div class="post-body">
       {md_to_html(p.get('body') or '')}
     </div>
@@ -287,7 +287,7 @@ def main() -> int:
 </main>"""
 
         (OUT / f"{p['slug']}.html").write_text(
-            page(f"{p['title']} — FastPDLC", p["summary"], body,
+            page(f"{p['title']} — KeelSpec", p["summary"], body,
                  f"/blog/{p['slug']}.html",
                  f'<script type="application/ld+json">{ld}</script>'),
             encoding="utf-8", newline="\n")

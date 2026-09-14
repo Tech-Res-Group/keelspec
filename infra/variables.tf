@@ -5,6 +5,9 @@ variable "hcloud_token" {
 }
 
 variable "project_name" {
+  # Still fastpdlc: this names a server, an SSH key and a firewall Terraform has
+  # already created. Changing it makes the next plan rename or replace them —
+  # review that plan deliberately rather than inheriting it from a rename.
   description = "Name for the server and its related resources."
   type        = string
   default     = "fastpdlc"
@@ -48,6 +51,7 @@ variable "deploy_user" {
 
 variable "remote_dir" {
   description = "Where the compose project lives on the server. Must match REMOTE_DIR in deploy.sh."
+  # Still fastpdlc, and must stay in step with deploy.sh — see the note there.
   type        = string
   default     = "/opt/fastpdlc-site"
 }

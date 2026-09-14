@@ -1,0 +1,76 @@
+{
+  "name": "keelspec",
+  "displayName": "KeelSpec",
+  "description": "Product-as-code as a validated graph \u2014 diagnostics, completion and navigation for your product/ tree.",
+  "version": "0.1.0",
+  "publisher": "tarvitave",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tarvitave/keelspec.git",
+    "directory": "editors/vscode"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "product-as-code",
+    "pdlc",
+    "docs-as-code",
+    "validation"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/product.config.yaml"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "keelspec.restart",
+        "title": "KeelSpec: Restart language server"
+      }
+    ],
+    "configuration": {
+      "title": "KeelSpec",
+      "properties": {
+        "keelspec.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run the KeelSpec language server in this workspace."
+        },
+        "keelspec.path": {
+          "type": "string",
+          "default": "keelspec",
+          "description": "The keelspec executable. An absolute path pins a specific virtualenv."
+        },
+        "keelspec.config": {
+          "type": "string",
+          "default": "product.config.yaml",
+          "description": "Path to product.config.yaml, relative to the workspace root."
+        },
+        "keelspec.plugin": {
+          "type": "string",
+          "default": "",
+          "description": "Project plugin module or .py file (the -p flag). Empty for none."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0"
+  }
+}

@@ -4,7 +4,7 @@ title: Writing business rules that survive contact with code
 slug: business-rules
 date: 2026-04-01
 summary: A rule that cannot be violated by a specific line of code is not a rule. It is a sentiment.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [modelling, rules]
 related: [POST-typed-artifacts, POST-enums-and-lifecycles]

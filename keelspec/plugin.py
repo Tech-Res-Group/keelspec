@@ -5,12 +5,12 @@ projects need more: cross-file checks (does this ``links.code`` path exist?), de
 bundle fields (reverse edges, rollups), extra generated outputs (a runtime catalogue),
 and project-specific diagnostic codes. A **plugin** registers those without forking the
 engine — which is what lets a rich project (e.g. a payments platform) migrate onto
-FastPDLC with **no loss of functionality**.
+KeelSpec with **no loss of functionality**.
 
 A plugin is a Python module exposing ``register(registry)``::
 
     # product_hooks.py
-    from fastpdlc import register as register_code
+    from keelspec import register as register_code
 
     def register(reg):
         register_code("PAC-900", "links.code path does not exist on disk")
@@ -70,7 +70,7 @@ def load_plugin(spec: str | None) -> Registry:
         return reg
     p = pathlib.Path(spec)
     if p.suffix == ".py" and p.exists():
-        mod_spec = importlib.util.spec_from_file_location("_fastpdlc_plugin", p)
+        mod_spec = importlib.util.spec_from_file_location("_keelspec_plugin", p)
         module = importlib.util.module_from_spec(mod_spec)
         mod_spec.loader.exec_module(module)  # type: ignore[union-attr]
     else:

@@ -4,8 +4,8 @@ The orchestrator owns control flow; a runner owns one step's reasoning. Keeping
 them apart is the spec's second principle, and it is why the pipeline is testable
 without a network: swap `ClaudeRunner` for `StubRunner` and the wiring is unchanged.
 
-`anthropic` is an optional dependency. FastPDLC's core job is validation, and a
-missing SDK must not stop `fastpdlc validate` from running in CI.
+`anthropic` is an optional dependency. KeelSpec's core job is validation, and a
+missing SDK must not stop `keelspec validate` from running in CI.
 """
 from __future__ import annotations
 
@@ -37,13 +37,13 @@ def resolve_thinking(explicit: Any = _UNSET) -> dict | None:
     Not every model supports extended thinking — Haiku, in particular, rejects
     ``{"type": "adaptive"}`` with a 400 — so this must be controllable rather than
     hard-wired on. Precedence: an explicit value passed to the runner (including an
-    explicit ``None``) wins; otherwise the ``FASTPDLC_THINKING`` env var; otherwise
+    explicit ``None``) wins; otherwise the ``KEELSPEC_THINKING`` env var; otherwise
     adaptive. Accepted env values: ``adaptive`` (default), ``off``/``none``/``0``/``""``
     to omit, or ``enabled:<budget_tokens>`` for fixed-budget extended thinking.
     """
     if explicit is not _UNSET:
         return explicit
-    raw = os.getenv("FASTPDLC_THINKING", "adaptive").strip().lower()
+    raw = os.getenv("KEELSPEC_THINKING", "adaptive").strip().lower()
     if raw in ("", "off", "none", "no", "0", "false"):
         return None
     if raw.startswith("enabled"):
@@ -130,7 +130,7 @@ class ClaudeRunner:
             import anthropic
         except ModuleNotFoundError as exc:
             raise RuntimeError(
-                "the anthropic package is not installed: pip install 'fastpdlc[agents]'"
+                "the anthropic package is not installed: pip install 'keelspec[agents]'"
             ) from exc
         self._client = anthropic.Anthropic(api_key=self._api_key)
         return self._client
@@ -243,7 +243,7 @@ def dataclasses_asdict(obj) -> dict:
 
 
 # ── OpenAI-compatible runner: the config bridge to any chat-completions gateway ──
-# fastpdlc's native runners speak the Anthropic Messages API. This one speaks the
+# keelspec's native runners speak the Anthropic Messages API. This one speaks the
 # OpenAI ``/chat/completions`` shape, so the pipeline can be pointed — by ``base_url`` —
 # at ANY OpenAI-compatible endpoint: a routing gateway (e.g. Muchty), OpenRouter, a
 # local vLLM/Ollama, or OpenAI itself. That is what turns "no config bridge" into a
@@ -301,6 +301,26 @@ def extract_json_object(text: str) -> Any:
         raise
 
 
+# Station id -> concept, for a gateway that routes by what KIND of work a request is
+# rather than by a model name. Every station is a different job — ST-01 reads a graph,
+# ST-03 designs, ST-06 tries to refute — and the ROSTER's `model` column is a policy
+# table written in Python. Handing the station's concept to a router moves that policy
+# into the router's config, where it can be reviewed and changed without a release.
+#
+# The names on the right belong to the ROUTER OPERATOR's catalogue, not to this
+# library, which is why this is a plain dict you pass in and can replace wholesale.
+# These match MuchtyRouter's shipped catalogue.
+STATION_CONCEPTS = {
+    "ST-01": "content.summarize",   # read the graph, report what it says
+    "ST-03": "spec.disambiguate",   # design against an intent that may be underspecified
+    "ST-04": "code.repair",         # write the change
+    "ST-04b": "code.repair",        # simplify it without changing behaviour
+    "ST-05": "code.repair",         # adversarial coverage
+    "ST-06": "code.repair",         # four refuting lenses
+}
+DEFAULT_CONCEPT = "general.assist"
+
+
 class OpenAIRunner:
     """Runs a station against any OpenAI-compatible chat-completions endpoint.
 
@@ -314,6 +334,8 @@ class OpenAIRunner:
     def __init__(self, base_url: str, api_key: str | None = None, *, model: str = "auto",
                  system: str = SYSTEM, max_tokens: int = 8192, json_mode: bool = False,
                  temperature: float | None = None,
+                 concepts: dict[str, str] | None = None,
+                 concept_header: str = "x-muchty-concept",
                  extra_headers: dict | None = None, timeout: float = 120.0):
         self.base_url = base_url
         self._api_key = api_key or os.getenv("OPENAI_API_KEY", "")
@@ -323,7 +345,22 @@ class OpenAIRunner:
         self._json_mode = json_mode
         self._temperature = temperature
         self._extra_headers = dict(extra_headers or {})
+        self._concepts = concepts
+        self._concept_header = concept_header
         self.timeout = timeout
+
+    def headers_for(self, station: Station) -> dict:
+        """Headers for one station — its concept included when concept routing is on.
+
+        ``extra_headers`` alone is constant for a whole run, so every station arrives
+        at the gateway looking like the same kind of request. This varies the one
+        header that says otherwise. Off unless ``concepts`` is passed, so the default
+        request is byte-identical to before.
+        """
+        headers = dict(self._extra_headers)
+        if self._concepts is not None:
+            headers[self._concept_header] = self._concepts.get(station.id, DEFAULT_CONCEPT)
+        return headers
 
     def run(self, station: Station, prompt: str, schema: dict | None = None) -> dict:
         # For a structured station, ASK for JSON in the prompt rather than relying on
@@ -348,7 +385,7 @@ class OpenAIRunner:
         if schema is not None and self._json_mode:
             body["response_format"] = {"type": "json_object"}
         payload, _served = openai_chat(self.base_url, self._api_key, body, self.timeout,
-                                       self._extra_headers)
+                                       self.headers_for(station))
         try:
             text = payload["choices"][0]["message"].get("content") or ""
         except (KeyError, IndexError) as exc:

@@ -4,7 +4,7 @@ title: Modelling lifecycles with enums
 slug: enums-and-lifecycles
 date: 2026-05-20
 summary: Four spellings of in-progress is not a naming problem. It is a missing constraint, and PAC-030 is the fix.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [modelling, schema]
 related: [POST-business-rules, POST-typed-artifacts]

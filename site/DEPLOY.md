@@ -1,4 +1,4 @@
-# Deploying fastpdlc.com on Hetzner Cloud
+# Deploying keelspec.com on Hetzner Cloud
 
 The site is static HTML/CSS/JS with one small API container behind Caddy. Caddy
 terminates TLS and issues certificates automatically. Everything runs from one
@@ -80,8 +80,8 @@ systemctl restart ssh
 DNS — point both records at the server's IPv4 (and AAAA at its IPv6):
 
 ```
-fastpdlc.com.       A     <server-ip>
-www.fastpdlc.com.   A     <server-ip>
+keelspec.com.       A     <server-ip>
+www.keelspec.com.   A     <server-ip>
 ```
 
 Let the records propagate *before* first boot, or Caddy's certificate request
@@ -92,13 +92,13 @@ fails and retries on a backoff.
 ## 3. First deploy
 
 ```bash
-ssh deploy@fastpdlc.com 'mkdir -p /opt/fastpdlc-site'
+ssh deploy@keelspec.com 'mkdir -p /opt/keelspec-site'
 
 # from site/ on your machine
-FASTPDLC_HOST=deploy@fastpdlc.com ./deploy.sh
+KEELSPEC_HOST=deploy@keelspec.com ./deploy.sh
 
 # then, on the server, once:
-cd /opt/fastpdlc-site
+cd /opt/keelspec-site
 cp .env.example .env && chmod 600 .env
 # fill in ACME_EMAIL, and generate the secrets:
 #   openssl rand -hex 32   → ADMIN_TOKEN
@@ -124,7 +124,7 @@ docker compose --profile analytics up -d
 
 Caddy already routes `/stats/*` to it, which means the tracking script is served
 from your own origin — no third-party request, and ad blockers leave it alone.
-Log in at `https://fastpdlc.com/stats`, create the site, then add its snippet to
+Log in at `https://keelspec.com/stats`, create the site, then add its snippet to
 `public/index.html` before `</body>`:
 
 ```html
@@ -143,7 +143,7 @@ The lead form already posts to `POST /api/subscribe`, and everything it captures
 is in one SQLite file at the `api_data` volume. Export whenever you need it:
 
 ```bash
-curl -H "Authorization: Bearer $ADMIN_TOKEN" https://fastpdlc.com/api/leads.csv -o leads.csv
+curl -H "Authorization: Bearer $ADMIN_TOKEN" https://keelspec.com/api/leads.csv -o leads.csv
 ```
 
 That CSV is the import format every CRM accepts, so nothing is trapped. When you

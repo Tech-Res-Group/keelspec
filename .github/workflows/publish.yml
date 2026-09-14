@@ -1,8 +1,8 @@
-# Publish FastPDLC to PyPI when a GitHub Release is published.
+# Publish KeelSpec to PyPI when a GitHub Release is published.
 #
 # Auth is PyPI Trusted Publishing (OIDC) — no API token is stored anywhere. This
 # needs a ONE-TIME setup on PyPI (see RELEASING.md): add a trusted publisher for
-# project `fastpdlc`, owner `tarvitave`, repo `fastpdlc`, workflow `publish.yml`,
+# project `keelspec`, owner `tarvitave`, repo `keelspec`, workflow `publish.yml`,
 # environment `pypi`. After that, cutting a Release ships the version on the tag.
 #
 # workflow_dispatch is a manual fallback: `gh workflow run publish.yml -f version=X.Y.Z`
@@ -46,7 +46,7 @@ jobs:
           else
             want="${{ github.event.inputs.version }}"; want="${want#v}"
           fi
-          pkg="$(ls dist/*.whl | sed -E 's/.*fastpdlc-([0-9][^-]*)-.*/\1/')"
+          pkg="$(ls dist/*.whl | sed -E 's/.*keelspec-([0-9][^-]*)-.*/\1/')"
           echo "requested=$want  package=$pkg  (event=${{ github.event_name }})"
           test "$want" = "$pkg" || { echo "::error::requested ($want) != package version ($pkg)"; exit 1; }
 

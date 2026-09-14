@@ -2,15 +2,37 @@
 
 Your product is defined as a typed, validated graph under [`{{ product_dir }}/`]({{ product_dir }}/),
 and generated into [`{{ output_bundle }}`]({{ output_bundle }}) by
-[FastPDLC](https://github.com/tarvitave/fastpdlc).
+[KeelSpec](https://github.com/tarvitave/keelspec).
+
+## Try the thing that makes this different
+
+```bash
+pip install keelspec=={{ keelspec_version }}
+keelspec -p product_hooks.py validate      # passes
+```
+
+Now rename `test_the_example_holds_for_empty_input` in
+[`tests/test_example.py`](tests/test_example.py) and run it again:
+
+```
+ERROR PAC-902 {{ product_dir }}/features/FEAT-example.md: 'test_the_example_holds_for_empty_input'
+      is not declared in tests/test_example.py
+```
+
+**That is the whole idea.** `FEAT-example` claims a criterion is proven by that test.
+The moment the claim stops being true, the build says so — before review, not during
+an audit. Rename it back, and it passes again.
+
+Everything else here is in service of that: a schema so a feature cannot be
+half-written, cross-references so it cannot point at a term that does not exist, and
+a committed bundle so what your docs render is what your repo actually says.
 
 ## Workflow
 
 ```bash
-pip install fastpdlc=={{ fastpdlc_version }}
-
-fastpdlc validate      # schema + references + staleness — this is the CI gate
-fastpdlc build         # regenerate {{ output_bundle }} after editing an artifact
+keelspec -p product_hooks.py validate    # the CI gate
+keelspec -p product_hooks.py build       # regenerate {{ output_bundle }} after an edit
+keelspec -p product_hooks.py validate --watch   # re-run it on every save
 ```
 
 Commit `{{ output_bundle }}` alongside your edits; the `product-validate` workflow
@@ -20,5 +42,15 @@ fails any PR where it has drifted out of sync with `{{ product_dir }}/`.
 
 Each file under `{{ product_dir }}/<type>/` is one record. Its `id` must start with
 the type's prefix and match the filename (e.g. `{{ product_dir }}/terms/TERM-payment.md`
-has `id: TERM-payment`). Reference fields must resolve to a real id — see
-[`product.config.yaml`](product.config.yaml) for the types this repo defines.
+has `id: TERM-payment`). Reference fields must resolve to a real id.
+
+Two types ship here — a glossary and a feature — because the point lands faster with
+two than with eight. [`product.config.yaml`](product.config.yaml) is where you add
+more: decisions, constraints, business rules, metrics. Each is about eight lines.
+
+## Your own rules
+
+[`product_hooks.py`](product_hooks.py) holds the checks a config file cannot express —
+here, that every acceptance criterion resolves to a test that exists, and that a
+`shipped` feature has no unproven criterion. Add your own beside them; the `9xx`
+diagnostic range is yours, and `0xx`–`06x` belong to the engine.

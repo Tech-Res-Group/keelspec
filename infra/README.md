@@ -1,4 +1,4 @@
-# infra — the fastpdlc.com server
+# infra — the keelspec.com server
 
 One Terraform stack: an SSH key, a firewall, and a single Hetzner Cloud server
 that boots with Docker installed and hardened SSH.
@@ -63,7 +63,7 @@ short-lived test costs cents.
   never shrinks them, so a rescale up is one-way.
 - **`location`.** `fsn1` is EU and cheapest. Use `ash`/`hil` if the audience is
   mostly US; the price is the same but data-protection posture changes.
-- **DNS is not managed here.** fastpdlc.com is registered elsewhere, so the
+- **DNS is not managed here.** keelspec.com is registered elsewhere, so the
   records in `terraform output dns_records` have to be created by hand. If you
   move the domain to Hetzner DNS, the `hetznerdns` provider can take that over
   too — it needs a separate API token.

@@ -4,14 +4,14 @@ title: PAC-060, the check nobody else has
 slug: the-staleness-gate
 date: 2026-02-18
 summary: Schema validation is common. Reference checking is rare. Proving the committed build still matches its sources is the one that catches real drift.
-author: FastPDLC
+author: KeelSpec
 category: reference
 tags: [diagnostics, ci]
 related: [POST-committing-generated-bundles, POST-ci-gate-anatomy]
 reading_minutes: 4
 ---
 
-FastPDLC emits seven core diagnostic codes. Six of them do what you would expect: required fields, id prefixes, filename agreement, duplicates, enum membership, reference resolution. Useful, unremarkable.
+KeelSpec emits seven core diagnostic codes. Six of them do what you would expect: required fields, id prefixes, filename agreement, duplicates, enum membership, reference resolution. Useful, unremarkable.
 
 `PAC-060` is the one that earns its place.
 
@@ -20,7 +20,7 @@ FastPDLC emits seven core diagnostic codes. Six of them do what you would expect
 The artifacts compile to a JSON bundle, and that bundle is committed to the repository. `PAC-060` recomputes the bundle from the current sources and compares it to the committed one. If they differ, the build fails:
 
 ```
-PAC-060  build/product.generated.json is stale - run: fastpdlc build (and commit it)
+PAC-060  build/product.generated.json is stale - run: keelspec build (and commit it)
 ```
 
 That is it. It is almost embarrassingly simple, and it catches a class of failure that nothing else does.

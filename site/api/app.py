@@ -1,4 +1,4 @@
-"""fastpdlc.com API: lead capture, contact, first-party analytics, and the admin panel.
+"""keelspec.com API: lead capture, contact, first-party analytics, and the admin panel.
 
 Public endpoints are deliberately few and boring. Everything interesting lives behind
 /admin, which requires a session cookie.
@@ -83,7 +83,7 @@ async def lifespan(app: FastAPI):
     scheduler.shutdown(wait=False)
 
 
-app = FastAPI(title="fastpdlc.com", docs_url=None, redoc_url=None, lifespan=lifespan)
+app = FastAPI(title="keelspec.com", docs_url=None, redoc_url=None, lifespan=lifespan)
 app.include_router(admin_router)
 
 
@@ -210,7 +210,7 @@ def track(body: Track, request: Request) -> JSONResponse:
         return JSONResponse({"ok": True})
 
     ref = body.referrer.strip()
-    if "fastpdlc.com" in ref or ref.startswith("http://localhost"):
+    if "keelspec.com" in ref or ref.startswith("http://localhost"):
         ref = ""                                    # internal navigation is not a referrer
 
     with store.cursor() as conn:
@@ -232,7 +232,7 @@ def unsubscribe(e: str = "") -> HTMLResponse:
 
     return HTMLResponse(f"""<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex"><title>{headline} · FastPDLC</title>
+<meta name="robots" content="noindex"><title>{headline} · KeelSpec</title>
 <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/blog.css"></head>
 <body><main class="section"><div class="wrap prose" style="text-align:center">
 <h1>{headline}</h1><p class="lede" style="margin-top:1rem">{detail}</p>

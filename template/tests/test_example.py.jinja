@@ -1,0 +1,13 @@
+"""The proof behind FEAT-example's first acceptance criterion.
+
+This file exists so the scaffold demonstrates traceability with something real rather
+than describing it. `product/features/FEAT-example.md` names the test below; rename it
+and `keelspec validate` fails with PAC-902.
+
+Your own tests do not have to live here or be named this way — a criterion's `tests`
+entry is any `path::name` that exists in your repo.
+"""
+
+
+def test_the_example_holds_for_empty_input():
+    assert list(filter(None, [])) == []

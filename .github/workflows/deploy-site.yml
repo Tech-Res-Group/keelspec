@@ -1,4 +1,4 @@
-# Deploy fastpdlc.com.
+# Deploy keelspec.com.
 #
 # This does NOT provision anything — the server is created once with Terraform
 # from infra/, and the Hetzner token stays on a developer machine. All this job
@@ -7,7 +7,7 @@
 # Required repository secrets:
 #   SSH_PRIVATE_KEY   private half of a key in the deploy user's authorized_keys
 # Required repository variables:
-#   DEPLOY_HOST       fastpdlc.com (or the bare IP)
+#   DEPLOY_HOST       keelspec.com (or the bare IP)
 #   DEPLOY_USER       deploy
 name: deploy-site
 
@@ -43,7 +43,7 @@ jobs:
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
           chmod 600 ~/.ssh/id_deploy
           # Trust-on-first-use. To pin instead, store the output of
-          # `ssh-keyscan fastpdlc.com` as a secret and write it here.
+          # `ssh-keyscan keelspec.com` as a secret and write it here.
           ssh-keyscan -H "${{ vars.DEPLOY_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Sync site
@@ -54,14 +54,14 @@ jobs:
             --exclude '.env' \
             --exclude '__pycache__' \
             site/public site/api site/Caddyfile site/docker-compose.yml site/.env.example \
-            "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}:/opt/fastpdlc-site/"
+            "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}:/opt/keelspec-site/"
 
       - name: Bring the stack up
         run: |
           set -euo pipefail
           ssh -i ~/.ssh/id_deploy -o BatchMode=yes \
             "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}" \
-            'cd /opt/fastpdlc-site && docker compose up -d --build && docker compose ps'
+            'cd /opt/keelspec-site && docker compose up -d --build && docker compose ps'
 
       - name: Verify it answers
         run: |

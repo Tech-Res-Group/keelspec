@@ -1,0 +1,22 @@
+---
+id: FEAT-example
+title: An example capability of {{ project_name }}
+status: building
+about: [TERM-example]
+acceptance:
+  - text: The example holds when the input is empty.
+    tests:
+      - tests/test_example.py::test_the_example_holds_for_empty_input
+  - text: A criterion may be a bare string while you are still drafting it.
+---
+Replace this with a real capability. The frontmatter is the validated data; this body
+is the "why" — the reason someone should build it, in a paragraph a person will read.
+
+Two things here are load-bearing. `about` must resolve to a real term id. And each
+`tests` entry must name a test that actually exists: rename
+`test_the_example_holds_for_empty_input` and `keelspec validate` fails with
+**PAC-902** before anyone reviews the PR.
+
+The second criterion has no test, which is allowed — until `status` becomes
+`shipped`, at which point it is **PAC-900**. Drafting without proof is fine; shipping
+without it is the thing the gate exists to stop.
