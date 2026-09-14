@@ -162,7 +162,7 @@ def front_matter(source: str, url: str) -> str:
         lines.append(f"title: {html.unescape(_strip(title.group(1)))}")
     if desc:
         lines.append(f"description: {html.unescape(desc.group(1))}")
-    lines += [f"url: https://fastpdlc.com{url}", "---", ""]
+    lines += [f"url: https://keelspec.com{url}", "---", ""]
     return "\n".join(lines)
 
 

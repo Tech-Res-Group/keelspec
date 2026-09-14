@@ -1,6 +1,6 @@
 """Project-specific checks for {{ project_name }}.
 
-FastPDLC's core validates what `product.config.yaml` can declare: required fields,
+KeelSpec's core validates what `product.config.yaml` can declare: required fields,
 id shape, enums, cross-references, bundle freshness. A plugin adds the checks config
 cannot express — and this one adds the check that makes a feature *accountable*:
 
@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import re
 
-from fastpdlc import register as register_code
+from keelspec import register as register_code
 
 
 def register(reg):

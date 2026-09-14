@@ -1,13 +1,13 @@
 {
-  "name": "fastpdlc",
-  "displayName": "FastPDLC",
+  "name": "keelspec",
+  "displayName": "KeelSpec",
   "description": "Product-as-code as a validated graph \u2014 diagnostics, completion and navigation for your product/ tree.",
   "version": "0.1.0",
   "publisher": "tarvitave",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tarvitave/fastpdlc.git",
+    "url": "https://github.com/tarvitave/keelspec.git",
     "directory": "editors/vscode"
   },
   "engines": {
@@ -30,29 +30,29 @@
   "contributes": {
     "commands": [
       {
-        "command": "fastpdlc.restart",
-        "title": "FastPDLC: Restart language server"
+        "command": "keelspec.restart",
+        "title": "KeelSpec: Restart language server"
       }
     ],
     "configuration": {
-      "title": "FastPDLC",
+      "title": "KeelSpec",
       "properties": {
-        "fastpdlc.enable": {
+        "keelspec.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Run the FastPDLC language server in this workspace."
+          "description": "Run the KeelSpec language server in this workspace."
         },
-        "fastpdlc.path": {
+        "keelspec.path": {
           "type": "string",
-          "default": "fastpdlc",
-          "description": "The fastpdlc executable. An absolute path pins a specific virtualenv."
+          "default": "keelspec",
+          "description": "The keelspec executable. An absolute path pins a specific virtualenv."
         },
-        "fastpdlc.config": {
+        "keelspec.config": {
           "type": "string",
           "default": "product.config.yaml",
           "description": "Path to product.config.yaml, relative to the workspace root."
         },
-        "fastpdlc.plugin": {
+        "keelspec.plugin": {
           "type": "string",
           "default": "",
           "description": "Project plugin module or .py file (the -p flag). Empty for none."

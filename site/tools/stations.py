@@ -45,7 +45,7 @@ STATIONS = [
      "kind": "machine", "model": "script", "colour": "#fff",
      "blurb": "Collects the team's output into a single pull request. No judgement, no model."},
     {"id": "ST-08", "name": "CI gates", "role": "the judge",
-     "kind": "machine", "model": "fastpdlc", "colour": "#fbcc00",
+     "kind": "machine", "model": "keelspec", "colour": "#fbcc00",
      "blurb": "The PAC-NNN rubric runs on every PR — including an agent's own build PR."},
     {"id": "ST-09", "name": "Human merge", "role": "a person decides",
      "kind": "human", "model": "a person", "colour": "#e5e5e5",

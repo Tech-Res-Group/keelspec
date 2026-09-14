@@ -4,7 +4,7 @@ title: Reviewing product changes in pull requests
 slug: review-culture
 date: 2026-05-13
 summary: When intent lives in the repository, product decisions get the same review rigour as code. That changes the conversation more than the tooling does.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [workflow, culture]
 related: [POST-ci-gate-anatomy, POST-committing-generated-bundles]

@@ -4,7 +4,7 @@ title: Why specs rot, and why discipline will not fix it
 slug: why-specs-rot
 date: 2026-02-11
 summary: Documentation decay is a structural problem, not a motivational one. Teams that resolve to try harder produce the same rot, slightly later.
-author: FastPDLC
+author: KeelSpec
 category: concept
 tags: [drift, culture]
 related: [POST-what-is-product-as-code, POST-the-staleness-gate]

@@ -1,8 +1,8 @@
-"""``fastpdlc validate --watch`` — the gate, re-run on every save.
+"""``keelspec validate --watch`` — the gate, re-run on every save.
 
 The cheapest fix for the loop that actually hurts: author a cross-reference, push,
 wait for CI, discover you typed ``CON-residency-pen``. Nothing here is new
-validation — it is the same :func:`fastpdlc.engine.validate` on a timer, which is the
+validation — it is the same :func:`keelspec.engine.validate` on a timer, which is the
 point. A watcher with its own opinion about correctness would be a second judge.
 
 Polling, not ``inotify``. A watcher is a convenience and the core keeps its two
@@ -29,7 +29,7 @@ def _fingerprint(config: Config, root: pathlib.Path, config_path: pathlib.Path) 
     """Modification times for everything a verdict depends on.
 
     The generated bundle is included deliberately: ``PAC-060`` compares it against
-    the tree, so a ``fastpdlc build`` in another terminal changes the answer here and
+    the tree, so a ``keelspec build`` in another terminal changes the answer here and
     the watcher should notice.
     """
     stamps: dict[str, float] = {}
@@ -83,7 +83,7 @@ def watch(
     """
     root_path = pathlib.Path(root)
     cfg_path = pathlib.Path(config_path)
-    print(f"fastpdlc: watching {root_path / '.'} — Ctrl-C to stop\n", file=sys.stderr)
+    print(f"keelspec: watching {root_path / '.'} — Ctrl-C to stop\n", file=sys.stderr)
 
     last: dict[str, float] | None = None
     seen = 0
@@ -113,5 +113,5 @@ def watch(
             if ticks is None:
                 time.sleep(interval)
     except KeyboardInterrupt:
-        print("\nfastpdlc: stopped watching", file=sys.stderr)
+        print("\nkeelspec: stopped watching", file=sys.stderr)
     return 0

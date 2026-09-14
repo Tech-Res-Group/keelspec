@@ -7,7 +7,7 @@ product intent, applied to our own supply chain.
 
 Two checks:
 
-1. **The package tree** (`fastpdlc/`) contains no credential-shaped strings.
+1. **The package tree** (`keelspec/`) contains no credential-shaped strings.
 2. **The built sdist and wheel** contain no credential-shaped strings, and the
    sdist ships none of the operational directories, so a future untracked `.env`
    under `site/` or `infra/` cannot ride along.
@@ -47,7 +47,7 @@ ALLOW = re.compile(
     r"sk-ant-api03-\.\.\.|test-key|dummy|placeholder|unset)")
 
 # The sdist must not carry operational directories.
-FORBIDDEN_IN_SDIST = ("/site/", "/infra/", "/.fastpdlc/")
+FORBIDDEN_IN_SDIST = ("/site/", "/infra/", "/.keelspec/")
 
 
 def scan_text(label: str, text: str) -> list[str]:
@@ -64,7 +64,7 @@ def scan_text(label: str, text: str) -> list[str]:
 
 def scan_tree() -> list[str]:
     findings = []
-    for path in sorted((ROOT / "fastpdlc").rglob("*.py")):
+    for path in sorted((ROOT / "keelspec").rglob("*.py")):
         findings += scan_text(str(path.relative_to(ROOT)),
                               path.read_text(encoding="utf-8", errors="replace"))
     return findings

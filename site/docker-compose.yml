@@ -1,4 +1,4 @@
-# fastpdlc.com
+# keelspec.com
 #
 #   docker compose up -d      site, lead capture, admin panel  (~250 MB RAM)
 #
@@ -45,7 +45,7 @@ services:
       # newsletter -- NEWSLETTER_AUTOSEND is the kill switch for unattended sending
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       POSTMARK_TOKEN: ${POSTMARK_TOKEN:-}
-      NEWSLETTER_FROM: ${NEWSLETTER_FROM:-marketing@fastpdlc.com}
+      NEWSLETTER_FROM: ${NEWSLETTER_FROM:-marketing@keelspec.com}
       NEWSLETTER_AUTOSEND: ${NEWSLETTER_AUTOSEND:-off}
       NEWSLETTER_MAX_RECIPIENTS: ${NEWSLETTER_MAX_RECIPIENTS:-2000}
       # seo

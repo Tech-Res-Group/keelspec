@@ -1,4 +1,4 @@
-# fastpdlc.com — Caddy handles TLS certificates automatically via Let's Encrypt.
+# keelspec.com — Caddy handles TLS certificates automatically via Let's Encrypt.
 # Point the A/AAAA records at the server first; certificates are issued on boot.
 
 {

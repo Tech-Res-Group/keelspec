@@ -88,7 +88,7 @@ def audit_page(path: pathlib.Path) -> tuple[list[dict], str, int]:
     # ── canonical ────────────────────────────────────────────────────────────
     if not re.search(r'rel=["\']canonical["\']', src, re.I):
         if AUTOFIX and "</title>" in src:
-            href = "https://fastpdlc.com" + (rel[:-len("index.html")] if rel.endswith("/index.html") else rel)
+            href = "https://keelspec.com" + (rel[:-len("index.html")] if rel.endswith("/index.html") else rel)
             src = src.replace("</title>", f'</title>\n<link rel="canonical" href="{href}">', 1)
             fixed += 1
             add("SEO-020", "added missing canonical link", "warn", True)

@@ -20,7 +20,7 @@ jobs:
       - name: Lint
         run: |
           pip install ruff
-          ruff check fastpdlc tests scripts
+          ruff check keelspec tests scripts
       - name: Secret scan
         run: python scripts/check_no_secrets.py
 
@@ -35,13 +35,13 @@ jobs:
       - name: Dogfood — the blog must validate as product-as-code
         run: |
           cd site/content
-          fastpdlc build
-          git diff --exit-code build/             || { echo "::error::blog bundle is stale — run fastpdlc build"; exit 1; }
-          fastpdlc validate
+          keelspec build
+          git diff --exit-code build/             || { echo "::error::blog bundle is stale — run keelspec build"; exit 1; }
+          keelspec validate
 
       - name: Dogfood — the quickstart example must validate
         run: |
-          fastpdlc -C examples/quickstart build
+          keelspec -C examples/quickstart build
           git diff --exit-code examples/quickstart/build/ \
-            || { echo "::error::quickstart bundle is stale — run fastpdlc build"; exit 1; }
-          fastpdlc -C examples/quickstart validate
+            || { echo "::error::quickstart bundle is stale — run keelspec build"; exit 1; }
+          keelspec -C examples/quickstart validate

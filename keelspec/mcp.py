@@ -1,4 +1,4 @@
-"""``fastpdlc mcp`` — the product graph as tools, for the agent that writes into it.
+"""``keelspec mcp`` — the product graph as tools, for the agent that writes into it.
 
 In a repo run this way, the author of ``product/features/refunds.md`` is increasingly
 a model rather than a cursor. It faces the same problem the editor solves and has a
@@ -12,12 +12,12 @@ truth about the tree — including, via ``validate``, what the gate currently sa
 A server that could also write would let the thing being judged edit the evidence,
 and the project's whole claim is that the judge cannot be persuaded.
 
-The tool bodies are plain functions over :class:`~fastpdlc.index.ProductIndex`, and
+The tool bodies are plain functions over :class:`~keelspec.index.ProductIndex`, and
 :func:`serve` does the protocol wiring — so they are testable without the SDK
 installed, the same split as the language server.
 
-    pip install 'fastpdlc[mcp]'
-    fastpdlc mcp                 # speaks MCP on stdio
+    pip install 'keelspec[mcp]'
+    keelspec mcp                 # speaks MCP on stdio
 """
 from __future__ import annotations
 
@@ -156,14 +156,14 @@ def serve(  # pragma: no cover - protocol glue; needs the optional mcp extra
 ) -> int:
     """Serve the graph over MCP on stdio until the client disconnects."""
     try:
-        # Absolute import: this module is `fastpdlc.mcp`, the SDK is top-level `mcp`,
+        # Absolute import: this module is `keelspec.mcp`, the SDK is top-level `mcp`,
         # and Python 3 resolves this to the latter.
         from mcp.server.fastmcp import FastMCP
     except ImportError:  # pragma: no cover - depends on an optional extra
         import sys
 
         print(
-            "fastpdlc mcp needs the MCP extra:\n\n    pip install 'fastpdlc[mcp]'\n",
+            "keelspec mcp needs the MCP extra:\n\n    pip install 'keelspec[mcp]'\n",
             file=sys.stderr,
         )
         return 2
@@ -180,7 +180,7 @@ def serve(  # pragma: no cover - protocol glue; needs the optional mcp extra
         graph would answer questions about the tree as it used to be."""
         return ProductIndex.build(load_config(cfg_path), root_path, load_plugin(plugin))
 
-    server = FastMCP("fastpdlc")
+    server = FastMCP("keelspec")
 
     @server.tool()
     def product_schema() -> list[dict]:
@@ -212,7 +212,7 @@ def serve(  # pragma: no cover - protocol glue; needs the optional mcp extra
 
     @server.tool()
     def product_validate() -> dict:
-        """Run the FastPDLC gate over the tree and return its findings verbatim:
+        """Run the KeelSpec gate over the tree and return its findings verbatim:
         the same PAC-NNN codes, severities and locations CI reports."""
         return validate(index())
 

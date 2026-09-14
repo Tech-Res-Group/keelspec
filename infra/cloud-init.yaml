@@ -72,4 +72,4 @@ runcmd:
 
   - touch /var/lib/cloud-init-finished-marker
 
-final_message: "fastpdlc host ready after $UPTIME seconds"
+final_message: "keelspec host ready after $UPTIME seconds"

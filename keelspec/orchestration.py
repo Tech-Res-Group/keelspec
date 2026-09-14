@@ -254,7 +254,7 @@ class RunReport:
 # writes the questions with empty answers, a person fills them in, run 2 reads them.
 # Same property -- the line stops until a human has answered -- with nothing to host.
 def disambiguation_path(root: str | pathlib.Path, feature: str) -> pathlib.Path:
-    return pathlib.Path(root) / ".fastpdlc" / "disambiguations" / f"{feature}.json"
+    return pathlib.Path(root) / ".keelspec" / "disambiguations" / f"{feature}.json"
 
 
 def write_questions(root: str | pathlib.Path, feature: str, questions: list[dict]) -> pathlib.Path:
@@ -299,7 +299,7 @@ def read_resolutions(root: str | pathlib.Path, feature: str) -> dict[str, str]:
 
 
 def run_path(root: str | pathlib.Path, feature: str, stamp: str) -> pathlib.Path:
-    return pathlib.Path(root) / ".fastpdlc" / "runs" / f"{feature}-{stamp}.json"
+    return pathlib.Path(root) / ".keelspec" / "runs" / f"{feature}-{stamp}.json"
 
 
 def save_report(root: str | pathlib.Path, report: RunReport) -> pathlib.Path:

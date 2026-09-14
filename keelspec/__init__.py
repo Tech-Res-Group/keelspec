@@ -1,7 +1,7 @@
-"""FastPDLC — the rubric, the gate, and the line that builds against them.
+"""KeelSpec — the rubric, the gate, and the line that builds against them.
 
 Declare your typed product artifacts (features, decisions, terms, rules, whatever
-your project needs) in a ``product.config.yaml``; FastPDLC loads them, enforces the
+your project needs) in a ``product.config.yaml``; KeelSpec loads them, enforces the
 schema + cross-references, compiles a JSON bundle, and fails CI if the committed
 bundle drifts — turning a folder of hopeful markdown into code.
 
@@ -15,7 +15,7 @@ Three surfaces, in increasing order of ambition:
   and for an agent. Both delegate every verdict to ``validate``: there is one judge.
 * ``orchestration`` — the agent-built lifecycle: Understand → Disambiguate (a
   human gate) → Design → Develop → Test → adversarial Verify, with bounded repair.
-  Needs ``fastpdlc[agents]``; nothing else does.
+  Needs ``keelspec[agents]``; nothing else does.
 
 The gate is never an agent. A judge that could be persuaded could not produce
 evidence, so every station past it is deterministic or human by construction.
@@ -45,7 +45,7 @@ from .orchestration import (
 )
 from .plugin import Registry, load_plugin
 
-__version__ = "0.4.0"
+__version__ = "0.7.0"
 
 __all__ = [
     # the agent-built lifecycle

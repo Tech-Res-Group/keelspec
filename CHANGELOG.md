@@ -1,6 +1,8 @@
 # Changelog
 
-All notable changes to FastPDLC. The format follows
+All notable changes to KeelSpec, published as `fastpdlc` up to and including
+0.6.3. Entries below 0.7.0 use the old name; a changelog is a record, not a
+description of the present. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows
 [semantic versioning](https://semver.org/).
 
@@ -8,16 +10,49 @@ All notable changes to FastPDLC. The format follows
 meaning gets a new code and the old one is retired. Changing the JSON bundle shape, a
 config key, or the plugin `Registry` surface is a breaking change and bumps the major.
 
-## [Unreleased]
+## [0.7.0] — 2026-09-14
+
+### Changed
+
+- **Renamed: FastPDLC is now KeelSpec**, and the package is `keelspec`. A keel is
+  laid first and everything else is attached to it, which is what "intent first, in
+  the same PR" means; a keel also resists drift, which is what `PAC-060` reports.
+  The `fastpdlc` package has been removed from PyPI rather than aliased — it had no
+  installs outside this author's own repositories, and an alias kept alive for nobody
+  is a second name to maintain forever. The CLI is `keelspec`; the GitHub Action is
+  `tarvitave/keelspec`.
+
+  **Diagnostic codes are untouched.** `PAC-` stands for product-as-code, not for the
+  product's name, so every code survives the rename — which is the behaviour the
+  never-renumber rule promises.
+
+- **Relicensed to Apache-2.0**, from LGPL-3.0-or-later. LGPL's protection assumes
+  C-style linking; under pip "the user may substitute a modified version" is already
+  true, so the practical obligation was near zero while the word LGPL sits on
+  enterprise blocklists. Apache-2.0 also grants patents explicitly. Versions up to
+  0.6.3 remain LGPL-3.0-or-later.
+
+### Fixed
+
+- **`__version__` was stuck at 0.4.0** while `pyproject.toml` shipped 0.6.1, 0.6.2 and
+  0.6.3, so `keelspec.__version__` had been lying for three releases. Both now read
+  from the same bump.
 
 ### Added
 
-- **`fastpdlc validate --watch`** — the same gate, re-run whenever a `product/` file,
+- **Concept routing per station** — `OpenAIRunner(concepts=STATION_CONCEPTS)` sends a
+  different concept header for each station, where `extra_headers` alone is fixed for
+  a whole run. The ROSTER's `model` column is a policy table written in Python; this
+  moves that policy into the router's config. Off unless asked for, and the map is a
+  plain dict because those names belong to the router operator's catalogue.
+
+
+- **`keelspec validate --watch`** — the same gate, re-run whenever a `product/` file,
   the config or the committed bundle changes. Polling, so the core keeps its two
   dependencies. Not a gate: it never exits non-zero, because a red tree you are
   mid-fix should not kill the terminal you are fixing it in.
 
-- **`fastpdlc lsp`** — a language server over the product graph: diagnostics,
+- **`keelspec lsp`** — a language server over the product graph: diagnostics,
   completion, hover, go-to-definition, find-references, workspace symbols. Needs
   `pip install 'fastpdlc[lsp]'`. A VS Code client lives in `editors/vscode/` and is
   deliberately a shim — it launches the server and owns no logic.
@@ -29,13 +64,13 @@ config key, or the plugin `Registry` surface is a breaking change and bumps the 
   on save, not per keystroke. An editor validating the unsaved buffer would be a
   second opinion about correctness, and this project cannot have two judges.
 
-- **`fastpdlc mcp`** — the same graph as six read-only tools for a coding agent:
+- **`keelspec mcp`** — the same graph as six read-only tools for a coding agent:
   `product_schema`, `product_list`, `product_get`, `product_allowed_values`,
   `product_references_to`, `product_validate`. Needs `pip install 'fastpdlc[mcp]'`.
   Read-only on purpose: a server that could also write would let the thing being
   judged edit the evidence.
 
-- **`fastpdlc.index`** — the resolved graph with source positions, shared by both
+- **`keelspec.index`** — the resolved graph with source positions, shared by both
   surfaces so the lookups exist once. `ProductIndex`, `Artifact`, `Edge` and
   `Location` are exported from the package root.
 

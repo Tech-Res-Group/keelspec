@@ -11,7 +11,7 @@ title: What product-as-code actually means
 slug: what-is-product-as-code
 date: 2026-02-04
 summary: Not docs in a repo. Typed artifacts with a schema, a reference graph, and a build that fails when they stop being true.
-author: FastPDLC
+author: KeelSpec
 category: concept
 tags: [product-as-code, fundamentals]
 related: [POST-why-specs-rot, POST-typed-artifacts]
@@ -54,7 +54,7 @@ title: Why specs rot, and why discipline will not fix it
 slug: why-specs-rot
 date: 2026-02-11
 summary: Documentation decay is a structural problem, not a motivational one. Teams that resolve to try harder produce the same rot, slightly later.
-author: FastPDLC
+author: KeelSpec
 category: concept
 tags: [drift, culture]
 related: [POST-what-is-product-as-code, POST-the-staleness-gate]
@@ -97,12 +97,12 @@ title: PAC-060, the check nobody else has
 slug: the-staleness-gate
 date: 2026-02-18
 summary: Schema validation is common. Reference checking is rare. Proving the committed build still matches its sources is the one that catches real drift.
-author: FastPDLC
+author: KeelSpec
 category: reference
 tags: [diagnostics, ci]
 related: [POST-committing-generated-bundles, POST-ci-gate-anatomy]
 reading_minutes: 4""", """
-FastPDLC emits seven core diagnostic codes. Six of them do what you would expect: required fields, id prefixes, filename agreement, duplicates, enum membership, reference resolution. Useful, unremarkable.
+KeelSpec emits seven core diagnostic codes. Six of them do what you would expect: required fields, id prefixes, filename agreement, duplicates, enum membership, reference resolution. Useful, unremarkable.
 
 `PAC-060` is the one that earns its place.
 
@@ -111,7 +111,7 @@ FastPDLC emits seven core diagnostic codes. Six of them do what you would expect
 The artifacts compile to a JSON bundle, and that bundle is committed to the repository. `PAC-060` recomputes the bundle from the current sources and compares it to the committed one. If they differ, the build fails:
 
 ```
-PAC-060  build/product.generated.json is stale - run: fastpdlc build (and commit it)
+PAC-060  build/product.generated.json is stale - run: keelspec build (and commit it)
 ```
 
 That is it. It is almost embarrassingly simple, and it catches a class of failure that nothing else does.
@@ -153,7 +153,7 @@ title: Why typed artifacts beat free-form documents
 slug: typed-artifacts
 date: 2026-02-25
 summary: The moment a document has a declared shape, a whole class of question becomes machine-answerable.
-author: FastPDLC
+author: KeelSpec
 category: concept
 tags: [schema, modelling]
 related: [POST-what-is-product-as-code, POST-naming-ids]
@@ -174,7 +174,7 @@ None of these are exotic. Every one is unanswerable against a folder of prose, a
 
 ## The shape is yours
 
-The important design decision in FastPDLC is that it ships no schema. You declare your collections in `product.config.yaml`:
+The important design decision in KeelSpec is that it ships no schema. You declare your collections in `product.config.yaml`:
 
 ```yaml
 types:
@@ -208,7 +208,7 @@ title: What a dangling reference actually costs
 slug: dangling-references
 date: 2026-03-04
 summary: PAC-020 looks like a link checker. It is really a rename detector, and renames are where product knowledge goes to die.
-author: FastPDLC
+author: KeelSpec
 category: reference
 tags: [diagnostics, graph]
 related: [POST-the-staleness-gate, POST-naming-ids]
@@ -257,7 +257,7 @@ title: Anatomy of a product CI gate
 slug: ci-gate-anatomy
 date: 2026-03-11
 summary: What a good product gate checks, what it must never do, and why its exit code is the entire contract.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [ci, workflow]
 related: [POST-the-staleness-gate, POST-review-culture]
@@ -292,7 +292,7 @@ Never renumber a code. Retire it and add a new one.
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: tarvitave/fastpdlc@v0.1.0
+- uses: tarvitave/keelspec@v0.1.0
 ```
 
 The gate should be a single step with no bespoke scripting around it. Every line of glue in a workflow file is a line that rots, and a gate that requires maintenance is a gate that gets deleted during the next CI cleanup.
@@ -314,7 +314,7 @@ title: Diagnostic codes are an API
 slug: diagnostic-codes-as-api
 date: 2026-03-18
 summary: Treat your error codes with the same seriousness as your function signatures, because downstream systems depend on both.
-author: FastPDLC
+author: KeelSpec
 category: reference
 tags: [diagnostics, design]
 related: [POST-ci-gate-anatomy, POST-plugins-deep-dive]
@@ -325,7 +325,7 @@ Validation tools usually do not learn it, and then wonder why nobody automates a
 
 ## The contract
 
-FastPDLC's core codes occupy documented ranges:
+KeelSpec's core codes occupy documented ranges:
 
 - `00x` required-field and schema
 - `01x` id and graph integrity
@@ -368,7 +368,7 @@ title: Commit the generated bundle
 slug: committing-generated-bundles
 date: 2026-03-25
 summary: Build artifacts usually do not belong in git. This one does, and the reason is that it turns invisible drift into a reviewable diff.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [ci, workflow]
 related: [POST-the-staleness-gate, POST-review-culture]
@@ -405,7 +405,7 @@ title: Writing business rules that survive contact with code
 slug: business-rules
 date: 2026-04-01
 summary: A rule that cannot be violated by a specific line of code is not a rule. It is a sentiment.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [modelling, rules]
 related: [POST-typed-artifacts, POST-enums-and-lifecycles]
@@ -460,7 +460,7 @@ title: Naming artifact ids you will not regret
 slug: naming-ids
 date: 2026-04-08
 summary: Ids are the most permanent thing you will write. A few conventions keep them from becoming a source of churn.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [modelling, conventions]
 related: [POST-dangling-references, POST-typed-artifacts]
@@ -469,7 +469,7 @@ An id is a promise that other artifacts can depend on. Renaming one is a graph-w
 
 ## Prefix by collection
 
-`TERM-`, `BR-`, `FEAT-`, `ADR-`. FastPDLC enforces this with `id_prefix`, and the value is not bureaucratic: a bare id in a reference field tells a reader nothing, while `BR-idempotent` announces its collection. When you see it in a diff, in a log line, or in a support conversation, you know what kind of thing it is.
+`TERM-`, `BR-`, `FEAT-`, `ADR-`. KeelSpec enforces this with `id_prefix`, and the value is not bureaucratic: a bare id in a reference field tells a reader nothing, while `BR-idempotent` announces its collection. When you see it in a diff, in a log line, or in a support conversation, you know what kind of thing it is.
 
 ## Match the filename
 

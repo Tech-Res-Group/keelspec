@@ -1,33 +1,33 @@
-# Reusable GitHub Action: run the FastPDLC product-as-code gate in any repo.
+# Reusable GitHub Action: run the KeelSpec product-as-code gate in any repo.
 #
-#   - uses: tarvitave/fastpdlc@v0.4.0
+#   - uses: tarvitave/keelspec@v0.4.0
 #     with:
 #       config: product.config.yaml     # optional (this is the default)
 #       plugin: scripts/product_hooks.py # optional project-specific checks
 #       version: "0.4.0"                 # optional pin; empty = latest on PyPI
 #
-# It installs FastPDLC and runs `fastpdlc … validate`, whose exit code is the gate.
-name: 'FastPDLC validate'
-description: 'Validate product-as-code as a typed, referenced, non-stale graph with FastPDLC.'
+# It installs KeelSpec and runs `keelspec … validate`, whose exit code is the gate.
+name: 'KeelSpec validate'
+description: 'Validate product-as-code as a typed, referenced, non-stale graph with KeelSpec.'
 branding:
   icon: 'check-circle'
   color: 'purple'
 
 inputs:
   config:
-    description: 'Path to the FastPDLC config (product.config.yaml).'
+    description: 'Path to the KeelSpec config (product.config.yaml).'
     required: false
     default: 'product.config.yaml'
   root:
-    description: 'Project root that paths resolve from (fastpdlc -C).'
+    description: 'Project root that paths resolve from (keelspec -C).'
     required: false
     default: '.'
   plugin:
-    description: 'Optional plugin module or .py file (fastpdlc -p) for project-specific checks.'
+    description: 'Optional plugin module or .py file (keelspec -p) for project-specific checks.'
     required: false
     default: ''
   version:
-    description: 'FastPDLC version to install, e.g. "0.4.0". Empty installs the latest on PyPI.'
+    description: 'KeelSpec version to install, e.g. "0.4.0". Empty installs the latest on PyPI.'
     required: false
     default: ''
   python-version:
@@ -42,12 +42,12 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
 
-    - name: Install FastPDLC
+    - name: Install KeelSpec
       shell: bash
       run: |
         set -euo pipefail
-        spec="fastpdlc"
-        if [ -n "${{ inputs.version }}" ]; then spec="fastpdlc==${{ inputs.version }}"; fi
+        spec="keelspec"
+        if [ -n "${{ inputs.version }}" ]; then spec="keelspec==${{ inputs.version }}"; fi
         python -m pip install --upgrade "$spec"
 
     - name: Validate product-as-code
@@ -56,4 +56,4 @@ runs:
         set -euo pipefail
         args=(-c "${{ inputs.config }}" -C "${{ inputs.root }}")
         if [ -n "${{ inputs.plugin }}" ]; then args+=(-p "${{ inputs.plugin }}"); fi
-        fastpdlc "${args[@]}" validate
+        keelspec "${args[@]}" validate

@@ -4,7 +4,7 @@ title: Commit the generated bundle
 slug: committing-generated-bundles
 date: 2026-03-25
 summary: Build artifacts usually do not belong in git. This one does, and the reason is that it turns invisible drift into a reviewable diff.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [ci, workflow]
 related: [POST-the-staleness-gate, POST-review-culture]

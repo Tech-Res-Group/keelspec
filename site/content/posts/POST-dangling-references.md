@@ -4,7 +4,7 @@ title: What a dangling reference actually costs
 slug: dangling-references
 date: 2026-03-04
 summary: PAC-020 looks like a link checker. It is really a rename detector, and renames are where product knowledge goes to die.
-author: FastPDLC
+author: KeelSpec
 category: reference
 tags: [diagnostics, graph]
 related: [POST-the-staleness-gate, POST-naming-ids]

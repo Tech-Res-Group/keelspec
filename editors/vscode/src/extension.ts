@@ -1,8 +1,8 @@
 /**
- * The VS Code client for the FastPDLC language server.
+ * The VS Code client for the KeelSpec language server.
  *
  * There is deliberately no validation, no graph and no diagnostics logic in this
- * file. All of that is `fastpdlc lsp`, which is the same Python that CI runs — an
+ * file. All of that is `keelspec lsp`, which is the same Python that CI runs — an
  * extension that re-implemented any of it in TypeScript would be a second judge, and
  * an editor that says green while the gate says PAC-020 is worse than no editor
  * support at all. So this starts a process, points it at the workspace, and gets out
@@ -22,10 +22,10 @@ import {
 let client: LanguageClient | undefined;
 
 function settings() {
-  return vscode.workspace.getConfiguration('fastpdlc');
+  return vscode.workspace.getConfiguration('keelspec');
 }
 
-/** Build the argv for `fastpdlc lsp`. Global flags precede the subcommand. */
+/** Build the argv for `keelspec lsp`. Global flags precede the subcommand. */
 function serverArgs(): string[] {
   const config = settings().get<string>('config', 'product.config.yaml');
   const plugin = settings().get<string>('plugin', '');
@@ -46,7 +46,7 @@ async function start(): Promise<void> {
     return;
   }
 
-  const command = settings().get<string>('path', 'fastpdlc');
+  const command = settings().get<string>('path', 'keelspec');
   const server: ServerOptions = {
     command,
     args: serverArgs(),
@@ -63,10 +63,10 @@ async function start(): Promise<void> {
         new vscode.RelativePattern(folder, '**/product.config.yaml'),
       ),
     },
-    outputChannelName: 'FastPDLC',
+    outputChannelName: 'KeelSpec',
   };
 
-  client = new LanguageClient('fastpdlc', 'FastPDLC', server, clientOptions);
+  client = new LanguageClient('keelspec', 'KeelSpec', server, clientOptions);
 
   try {
     await client.start();
@@ -74,18 +74,18 @@ async function start(): Promise<void> {
     client = undefined;
     const install = 'Show install command';
     const choice = await vscode.window.showErrorMessage(
-      `FastPDLC: could not start "${command}". Is it installed and on PATH?`,
+      `KeelSpec: could not start "${command}". Is it installed and on PATH?`,
       install,
     );
     if (choice === install) {
-      const channel = vscode.window.createOutputChannel('FastPDLC');
+      const channel = vscode.window.createOutputChannel('KeelSpec');
       channel.appendLine('The language server ships as an extra on the Python package:');
       channel.appendLine('');
-      channel.appendLine("    pip install 'fastpdlc[lsp]'");
+      channel.appendLine("    pip install 'keelspec[lsp]'");
       channel.appendLine('');
-      channel.appendLine('If it lives in a virtualenv, set fastpdlc.path to that');
-      channel.appendLine(`absolute path, e.g. ${path.join('.venv', 'bin', 'fastpdlc')}`);
-      channel.appendLine(`(${path.join('.venv', 'Scripts', 'fastpdlc.exe')} on Windows).`);
+      channel.appendLine('If it lives in a virtualenv, set keelspec.path to that');
+      channel.appendLine(`absolute path, e.g. ${path.join('.venv', 'bin', 'keelspec')}`);
+      channel.appendLine(`(${path.join('.venv', 'Scripts', 'keelspec.exe')} on Windows).`);
       channel.appendLine('');
       channel.appendLine(String(err));
       channel.show();
@@ -100,12 +100,12 @@ async function stop(): Promise<void> {
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   context.subscriptions.push(
-    vscode.commands.registerCommand('fastpdlc.restart', async () => {
+    vscode.commands.registerCommand('keelspec.restart', async () => {
       await stop();
       await start();
     }),
     vscode.workspace.onDidChangeConfiguration(async (event) => {
-      if (event.affectsConfiguration('fastpdlc')) {
+      if (event.affectsConfiguration('keelspec')) {
         await stop();
         await start();
       }

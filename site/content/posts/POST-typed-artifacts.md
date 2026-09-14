@@ -4,7 +4,7 @@ title: Why typed artifacts beat free-form documents
 slug: typed-artifacts
 date: 2026-02-25
 summary: The moment a document has a declared shape, a whole class of question becomes machine-answerable.
-author: FastPDLC
+author: KeelSpec
 category: concept
 tags: [schema, modelling]
 related: [POST-what-is-product-as-code, POST-naming-ids]
@@ -27,7 +27,7 @@ None of these are exotic. Every one is unanswerable against a folder of prose, a
 
 ## The shape is yours
 
-The important design decision in FastPDLC is that it ships no schema. You declare your collections in `product.config.yaml`:
+The important design decision in KeelSpec is that it ships no schema. You declare your collections in `product.config.yaml`:
 
 ```yaml
 types:

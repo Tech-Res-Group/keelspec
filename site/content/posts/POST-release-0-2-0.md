@@ -1,25 +1,25 @@
 ---
 id: POST-release-0-2-0
-title: FastPDLC 0.2.0 — evidence records and the agent-built lifecycle
+title: KeelSpec 0.2.0 — evidence records and the agent-built lifecycle
 slug: release-0-2-0
 date: 2026-08-23
 summary: Two new surfaces on top of the compiler and the gate. The core is unchanged - two dependencies, no network, still the thing CI runs.
-author: FastPDLC
+author: KeelSpec
 category: reference
 tags: [release, orchestration, audit]
 related: [POST-the-staleness-gate, POST-plugins-deep-dive]
 reading_minutes: 5
 ---
 
-`pip install fastpdlc` now gets you 0.2.0. `build` and `validate` are untouched:
+`pip install keelspec` now gets you 0.2.0. `build` and `validate` are untouched:
 same two dependencies, same absence of network access, same job. Everything below
 is additive.
 
 ## The agent-built lifecycle
 
 ```bash
-pip install 'fastpdlc[agents]'
-fastpdlc orchestrate FEAT-refunds
+pip install 'keelspec[agents]'
+keelspec orchestrate FEAT-refunds
 ```
 
 A station line runs over one artifact: **Understand → Disambiguate → Design →
@@ -91,7 +91,7 @@ discovered.
 ## Evidence records
 
 ```bash
-fastpdlc evidence -o build/evidence.json
+keelspec evidence -o build/evidence.json
 ```
 
 What was checked, when, on which commit, with what result. Every artifact, the
@@ -101,7 +101,7 @@ signature here, since a signature proves who made a claim and a digest proves th
 claim is true.
 
 There is deliberately no `--since`. Historical evidence is a checkout away: bundles
-are byte-stable, so `git checkout <sha> && fastpdlc evidence` reproduces the same
+are byte-stable, so `git checkout <sha> && keelspec evidence` reproduces the same
 digests. Walking history inside the tool would only have hidden the property that
 makes the whole thing work.
 

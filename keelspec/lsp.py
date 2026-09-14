@@ -1,11 +1,11 @@
-"""``fastpdlc lsp`` — the product graph, in your editor.
+"""``keelspec lsp`` — the product graph, in your editor.
 
 Authoring an artifact means writing cross-references by hand: a ``governed_by`` that
 must name a real decision, a ``constraints`` list whose every entry must resolve, a
 ``status`` from a closed set. Today you learn you typed ``CON-residency-pen`` when CI
 goes red. The graph already knows the answer at the moment you type it.
 
-**One judge.** Diagnostics here are :func:`fastpdlc.engine.validate`'s, unmodified,
+**One judge.** Diagnostics here are :func:`keelspec.engine.validate`'s, unmodified,
 and they are computed from the file *on disk* — the same bytes CI will read. An
 editor that validated your unsaved buffer would be a second opinion about
 correctness, and a project whose whole claim is a deterministic gate cannot afford
@@ -20,8 +20,8 @@ they take an index, some text and a cursor, and return plain data — so the
 interesting logic is testable without a language client or ``pygls`` installed. Same
 split as the orchestrator and its runners, for the same reason.
 
-    pip install 'fastpdlc[lsp]'
-    fastpdlc lsp                 # speaks LSP on stdio; editors launch this
+    pip install 'keelspec[lsp]'
+    keelspec lsp                 # speaks LSP on stdio; editors launch this
 """
 from __future__ import annotations
 
@@ -205,8 +205,8 @@ def serve(  # pragma: no cover - protocol glue; needs the optional pygls extra
         import sys
 
         print(
-            "fastpdlc lsp needs the language-server extra:\n\n"
-            "    pip install 'fastpdlc[lsp]'\n",
+            "keelspec lsp needs the language-server extra:\n\n"
+            "    pip install 'keelspec[lsp]'\n",
             file=sys.stderr,
         )
         return 2
@@ -216,7 +216,7 @@ def serve(  # pragma: no cover - protocol glue; needs the optional pygls extra
     from .plugin import load_plugin
 
     root_path = pathlib.Path(root).resolve()
-    server = LanguageServer("fastpdlc", __version__)
+    server = LanguageServer("keelspec", __version__)
     state: dict = {"index": None}
 
     def rel(uri: str) -> str:
@@ -263,7 +263,7 @@ def serve(  # pragma: no cover - protocol glue; needs the optional pygls extra
                             if d.severity == "warning"
                             else lsp.DiagnosticSeverity.Error
                         ),
-                        source="fastpdlc",
+                        source="keelspec",
                         code=d.code,
                     )
                     for loc, d in found

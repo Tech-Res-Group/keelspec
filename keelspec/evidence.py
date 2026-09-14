@@ -1,6 +1,6 @@
 """Evidence records — what was checked, when, on what, and with what result.
 
-The audit claim FastPDLC makes is that your product model is *provable* rather than
+The audit claim KeelSpec makes is that your product model is *provable* rather than
 asserted. Git plus determinism already make that true; this module makes it
 portable, so the answer to "show me your controls and the evidence they ran" is a
 file rather than a walkthrough of somebody's terminal.
@@ -27,7 +27,7 @@ from .config import Config
 from .diagnostics import CODES
 from .engine import load, render_bundle, validate
 
-SCHEMA = "fastpdlc-evidence/1"
+SCHEMA = "keelspec-evidence/1"
 
 
 def _sha256(path: pathlib.Path) -> str | None:
@@ -68,7 +68,7 @@ def _repository(root: pathlib.Path) -> dict:
 def _version() -> str:
     try:
         from importlib.metadata import version
-        return version("fastpdlc")
+        return version("keelspec")
     except Exception:
         return "unknown"
 
@@ -108,7 +108,7 @@ def build_record(config: Config, root: str | pathlib.Path = ".", registry=None) 
     return {
         "schema": SCHEMA,
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "tool": {"name": "fastpdlc", "version": _version()},
+        "tool": {"name": "keelspec", "version": _version()},
         "repository": _repository(root_path),
         "config": {
             "product_dir": str(config.product_dir),

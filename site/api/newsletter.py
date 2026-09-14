@@ -25,11 +25,11 @@ import httpx
 from store import active_subscribers, cursor, now
 
 MODEL = "claude-opus-5"
-FROM_EMAIL = os.getenv("NEWSLETTER_FROM", "marketing@fastpdlc.com")
+FROM_EMAIL = os.getenv("NEWSLETTER_FROM", "marketing@keelspec.com")
 POSTMARK_TOKEN = os.getenv("POSTMARK_TOKEN", "")
 AUTOSEND = os.getenv("NEWSLETTER_AUTOSEND", "off").lower() == "on"
 MAX_RECIPIENTS = int(os.getenv("NEWSLETTER_MAX_RECIPIENTS", "2000"))
-SITE = "https://fastpdlc.com"
+SITE = "https://keelspec.com"
 
 PUBLIC = pathlib.Path(os.getenv("PUBLIC_DIR", "/srv/public"))
 BUNDLE = pathlib.Path(os.getenv("BLOG_BUNDLE", "/srv/content/build/blog.generated.json"))
@@ -64,7 +64,7 @@ def _cli_surface_block() -> str:
     lines = []
     for name, meta in sorted(SURFACE["subcommands"].items()):
         help_text = meta.get("help", "")
-        lines.append(f"      fastpdlc {name:<10} {help_text}")
+        lines.append(f"      keelspec {name:<10} {help_text}")
         if meta.get("flags"):
             lines.append(f"        flags: {', '.join(sorted(meta['flags']))}")
     lines.append(f"      global flags: {', '.join(sorted(SURFACE.get('global_flags', [])))}")
@@ -72,9 +72,9 @@ def _cli_surface_block() -> str:
 
 
 SYSTEM = f"""\
-You write the FastPDLC newsletter.
+You write the KeelSpec newsletter.
 
-FastPDLC is a Python tool that turns product intent -- glossaries, business rules,
+KeelSpec is a Python tool that turns product intent -- glossaries, business rules,
 features, decisions -- into typed artifacts, validates them as a reference graph,
 compiles a JSON bundle, and fails CI when the committed bundle drifts from its
 sources. Diagnostics carry stable codes (PAC-001 required field, PAC-020 dangling
@@ -94,8 +94,8 @@ Rules:
 - THE ENTIRE CLI SURFACE IS:
 {_cli_surface_block()}
   There are no other subcommands and no other flags. Never write `--check`,
-  `--strict`, `--fix`, `fastpdlc lint`, or anything else. Staleness is checked by
-  `fastpdlc validate` -- it is not a separate command.
+  `--strict`, `--fix`, `keelspec lint`, or anything else. Staleness is checked by
+  `keelspec validate` -- it is not a separate command.
 - The config file is `product.config.yaml` and it is YAML. There is no TOML, JSON
   or INI config. Do not invent filenames or extensions for it.
 - Artifacts are markdown with YAML frontmatter under the configured `product_dir`.
@@ -201,13 +201,13 @@ body: the newsletter in plain markdown, 250-400 words."""
         raise ValueError("body contains markup that should not be there")
 
     # Guard against invented CLI surface. An unattended send has no reviewer to
-    # notice that `fastpdlc build --check` is not a real command, and a reader who
+    # notice that `keelspec build --check` is not a real command, and a reader who
     # copies it gets an argparse error and concludes the tool is broken.
-    for verb in re.findall(r"fastpdlc\s+(?:-\w+\s+\S+\s+)*([a-z][a-z-]*)", body):
+    for verb in re.findall(r"keelspec\s+(?:-\w+\s+\S+\s+)*([a-z][a-z-]*)", body):
         if verb not in CLI_VERBS:
-            raise ValueError(f"invented CLI subcommand: fastpdlc {verb}")
+            raise ValueError(f"invented CLI subcommand: keelspec {verb}")
     for line in body.splitlines():
-        for flag in re.findall(r"fastpdlc.*?(--[a-z-]+)", line):
+        for flag in re.findall(r"keelspec.*?(--[a-z-]+)", line):
             if flag not in CLI_FLAGS:
                 raise ValueError(f"invented CLI flag: {flag}")
 
@@ -260,7 +260,7 @@ def email_html(subject: str, body_md: str, unsubscribe_url: str) -> str:
   <tr><td style="padding-bottom:24px">
     <span style="display:inline-block;background:#191919;color:#ffffff;padding:8px 14px;
                  border-radius:10px;font-family:Arial Black,Arial,sans-serif;
-                 font-size:18px;letter-spacing:0.5px">FastPDLC</span>
+                 font-size:18px;letter-spacing:0.5px">KeelSpec</span>
   </td></tr>
   <tr><td style="font-family:Helvetica,Arial,sans-serif;color:#191919;
                  font-size:24px;font-weight:bold;line-height:1.25;padding-bottom:18px;
@@ -275,7 +275,7 @@ def email_html(subject: str, body_md: str, unsubscribe_url: str) -> str:
   <tr><td style="padding-top:34px;border-top:2px solid #e5e5e5;margin-top:20px;
                  font-family:Helvetica,Arial,sans-serif;color:#6b6b6b;font-size:12px;
                  line-height:1.6">
-    You are receiving this because you subscribed at fastpdlc.com.<br>
+    You are receiving this because you subscribed at keelspec.com.<br>
     <a href="{unsubscribe_url}" style="color:#6b6b6b">Unsubscribe</a> &middot;
     <a href="{SITE}/privacy.html" style="color:#6b6b6b">Privacy</a>
   </td></tr>
@@ -432,14 +432,14 @@ def archive(issue_id: int | None = None) -> None:
     for issue in issues:
         when = datetime.fromtimestamp(issue["created"], timezone.utc).strftime("%d %B %Y")
         (out / f"{issue['slug']}.html").write_text(_page(
-            f"{issue['subject']} — FastPDLC newsletter",
+            f"{issue['subject']} — KeelSpec newsletter",
             f"""<main class="section"><div class="wrap prose">
   <a class="back-link" href="/newsletters/">&larr; All issues</a>
   <span class="eyebrow">Newsletter</span>
   <h1>{html.escape(issue['subject'])}</h1>
   <p class="updated">{when}</p>
   <div class="post-body">{issue['body_html']}</div>
-  <p style="margin-top:2.6rem"><a class="btn btn-primary" href="/#start">Get started with FastPDLC</a></p>
+  <p style="margin-top:2.6rem"><a class="btn btn-primary" href="/#start">Get started with KeelSpec</a></p>
 </div></main>"""), encoding="utf-8", newline="\n")
 
     rows = "".join(
@@ -452,7 +452,7 @@ def archive(issue_id: int | None = None) -> None:
     ) or '<p class="lede">No issues yet. The first one is on its way.</p>'
 
     (out / "index.html").write_text(_page(
-        "Newsletter archive — FastPDLC",
+        "Newsletter archive — KeelSpec",
         f"""<main class="section"><div class="wrap">
   <div class="section-head">
     <span class="eyebrow">Newsletter</span>
@@ -478,16 +478,16 @@ def _page(title: str, body: str) -> str:
 <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/blog.css">
 </head><body>
 <header class="nav"><div class="wrap nav-inner">
-  <a class="logo" href="/"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+  <a class="logo" href="/"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
   <nav class="nav-links">
     <a href="/#how">How it works</a><a href="/blog/">Blog</a>
     <a href="/newsletters/">Newsletters</a>
-    <a href="https://github.com/tarvitave/fastpdlc">GitHub</a>
+    <a href="https://github.com/tarvitave/keelspec">GitHub</a>
   </nav>
 </div></header>
 {body}
 <footer class="footer"><div class="wrap"><div class="footer-base" style="border:0;margin:0">
-  <span>&copy; 2026 FastPDLC</span>
+  <span>&copy; 2026 KeelSpec</span>
   <span><a href="/privacy.html">Privacy</a> &middot; <a href="/terms.html">Terms</a></span>
 </div></div></footer>
 </body></html>"""

@@ -4,7 +4,7 @@ title: Feeding an LLM your product truth
 slug: llm-context
 date: 2026-05-06
 summary: A validated bundle is the best context you can give a model, precisely because something guarantees it is current.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [llm, context]
 related: [POST-docs-from-bundles, POST-what-is-product-as-code]

@@ -2,13 +2,13 @@
 
 Your product is defined as a typed, validated graph under [`{{ product_dir }}/`]({{ product_dir }}/),
 and generated into [`{{ output_bundle }}`]({{ output_bundle }}) by
-[FastPDLC](https://github.com/tarvitave/fastpdlc).
+[KeelSpec](https://github.com/tarvitave/keelspec).
 
 ## Try the thing that makes this different
 
 ```bash
-pip install fastpdlc=={{ fastpdlc_version }}
-fastpdlc -p product_hooks.py validate      # passes
+pip install keelspec=={{ keelspec_version }}
+keelspec -p product_hooks.py validate      # passes
 ```
 
 Now rename `test_the_example_holds_for_empty_input` in
@@ -30,9 +30,9 @@ a committed bundle so what your docs render is what your repo actually says.
 ## Workflow
 
 ```bash
-fastpdlc -p product_hooks.py validate    # the CI gate
-fastpdlc -p product_hooks.py build       # regenerate {{ output_bundle }} after an edit
-fastpdlc -p product_hooks.py validate --watch   # re-run it on every save
+keelspec -p product_hooks.py validate    # the CI gate
+keelspec -p product_hooks.py build       # regenerate {{ output_bundle }} after an edit
+keelspec -p product_hooks.py validate --watch   # re-run it on every save
 ```
 
 Commit `{{ output_bundle }}` alongside your edits; the `product-validate` workflow

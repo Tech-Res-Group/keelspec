@@ -1,9 +1,9 @@
-# FastPDLC
+# KeelSpec
 
 **Product-as-code as a validated graph — for any project.**
 
 Your product intent — the glossary, the constraints, the business rules, the
-features, the decisions — usually lives as hopeful markdown that quietly rots. FastPDLC
+features, the decisions — usually lives as hopeful markdown that quietly rots. KeelSpec
 turns it into **code**: you declare your typed artifacts in one config file, and it
 loads them, enforces the schema and the cross-references, compiles a JSON bundle your
 app or docs can render, and **fails CI when the committed bundle drifts**.
@@ -12,7 +12,7 @@ It started as the product-as-code engine inside a payments platform and was extr
 so any team can use it.
 
 ```bash
-pip install fastpdlc
+pip install keelspec
 ```
 
 ## Quickstart
@@ -53,8 +53,8 @@ pip install fastpdlc
 3. Build the bundle and gate it in CI:
 
    ```bash
-   fastpdlc build       # -> build/product.generated.json  (commit it)
-   fastpdlc validate    # schema + graph + staleness; non-zero exit on errors
+   keelspec build       # -> build/product.generated.json  (commit it)
+   keelspec validate    # schema + graph + staleness; non-zero exit on errors
    ```
 
 ## While you author
@@ -66,9 +66,9 @@ said `PAC-020` would be a second judge, and a project whose whole claim is a
 deterministic gate cannot afford two.
 
 ```bash
-fastpdlc validate --watch          # the gate, re-run on every save
-fastpdlc lsp                       # language server (pip install 'fastpdlc[lsp]')
-fastpdlc mcp                       # the graph as tools (pip install 'fastpdlc[mcp]')
+keelspec validate --watch          # the gate, re-run on every save
+keelspec lsp                       # language server (pip install 'keelspec[lsp]')
+keelspec mcp                       # the graph as tools (pip install 'keelspec[mcp]')
 ```
 
 ### `--watch`
@@ -108,20 +108,20 @@ on purpose — an agent proposes with its own tools, and a server that could als
 would let the thing being judged edit the evidence.
 
 ```json
-{ "mcpServers": { "fastpdlc": { "command": "fastpdlc", "args": ["mcp"] } } }
+{ "mcpServers": { "keelspec": { "command": "keelspec", "args": ["mcp"] } } }
 ```
 
 ## The agent-built lifecycle
 
-`fastpdlc orchestrate` runs a station line over one artifact: **Understand →
+`keelspec orchestrate` runs a station line over one artifact: **Understand →
 Disambiguate (human gate) → Design → Develop → Test → adversarial Verify**, with a
 bounded repair loop.
 
 ```bash
-fastpdlc orchestrate FEAT-refunds                  # needs ANTHROPIC_API_KEY
-fastpdlc orchestrate FEAT-refunds --no-clean       # skip the simplification pass
-fastpdlc orchestrate FEAT-refunds --dry-run        # offline; exercises the pipeline
-pip install 'fastpdlc[agents]'                     # the reasoning stations
+keelspec orchestrate FEAT-refunds                  # needs ANTHROPIC_API_KEY
+keelspec orchestrate FEAT-refunds --no-clean       # skip the simplification pass
+keelspec orchestrate FEAT-refunds --dry-run        # offline; exercises the pipeline
+pip install 'keelspec[agents]'                     # the reasoning stations
 ```
 
 Four critics attack the result through independent lenses — **correctness,
@@ -134,7 +134,7 @@ reports honestly rather than proposing.
 Open questions stop the line *before* design — building the wrong thing correctly is
 the expensive failure. A blocking human gate cannot live inside one autonomous run,
 so it is two-phase: run 1 writes the questions to
-`.fastpdlc/disambiguations/<id>.json` and stops, a person fills in each `answer`,
+`.keelspec/disambiguations/<id>.json` and stops, a person fills in each `answer`,
 run 2 reads them and proceeds.
 
 ```json
@@ -157,8 +157,8 @@ symlink escapes are refused, not sanitised; there is no shell, no network, and n
 delete.
 
 ```bash
-fastpdlc orchestrate FEAT-refunds            # proposes a diff, writes nothing
-fastpdlc orchestrate FEAT-refunds --write    # lets it edit your working tree
+keelspec orchestrate FEAT-refunds            # proposes a diff, writes nothing
+keelspec orchestrate FEAT-refunds --write    # lets it edit your working tree
 ```
 
 `--write` is opt-in on purpose. Run it on a clean branch.
@@ -166,7 +166,7 @@ fastpdlc orchestrate FEAT-refunds --write    # lets it edit your working tree
 ### A critic that does not share the builder's blind spots
 
 ```bash
-OPENROUTER_API_KEY=... fastpdlc orchestrate FEAT-refunds --cross-provider
+OPENROUTER_API_KEY=... keelspec orchestrate FEAT-refunds --cross-provider
 ```
 
 Adds a fifth verdict from a non-Claude model, joining the same refute/repair logic.
@@ -188,13 +188,13 @@ Control flow is ordinary code; reasoning lives inside a station. Supply your own
 
 ## Evidence
 
-`fastpdlc evidence` emits a content-addressed record of what was checked, when, on
+`keelspec evidence` emits a content-addressed record of what was checked, when, on
 which commit, and with what result — for the audit conversation that starts *"prove
 your documented rules matched your implementation"*:
 
 ```bash
-fastpdlc evidence -o build/evidence.json      # make a record
-fastpdlc evidence --verify build/evidence.json # check one against this tree
+keelspec evidence -o build/evidence.json      # make a record
+keelspec evidence --verify build/evidence.json # check one against this tree
 ```
 
 Every artifact, the config and the bundle carry a SHA-256, so the record is verified
@@ -236,12 +236,12 @@ Each entry under `types`:
 Real projects need more than schema: cross-file checks ("does this `links.code` path
 exist?"), derived bundle fields (reverse edges, rollups), extra generated outputs (a
 runtime catalogue), and their own diagnostic codes. A **plugin** registers those without
-forking the engine — which is how a large project migrates onto FastPDLC with **no loss
+forking the engine — which is how a large project migrates onto KeelSpec with **no loss
 of functionality**:
 
 ```python
 # product_hooks.py
-from fastpdlc import register
+from keelspec import register
 
 def register(reg):
     register("PAC-900", "links.code path does not exist on disk")
@@ -261,7 +261,7 @@ def register(reg):
 ```
 
 ```bash
-fastpdlc -p product_hooks.py validate
+keelspec -p product_hooks.py validate
 ```
 
 ## Start a new repo in one command
@@ -270,15 +270,15 @@ Scaffold a ready-to-go product-as-code repo (config, example artifacts, and the 
 gate) with the [copier](https://copier.readthedocs.io) template:
 
 ```bash
-pipx run copier copy --trust gh:tarvitave/fastpdlc my-product-repo
+pipx run copier copy --trust gh:tarvitave/keelspec my-product-repo
 ```
 
-`--trust` lets the template run `fastpdlc build` once so the new repo is valid on its
+`--trust` lets the template run `keelspec build` once so the new repo is valid on its
 first commit.
 
 ## CI
 
-Use the reusable Action — it installs FastPDLC and runs the gate:
+Use the reusable Action — it installs KeelSpec and runs the gate:
 
 ```yaml
 # .github/workflows/product.yml
@@ -289,7 +289,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tarvitave/fastpdlc@v0.4.0
+      - uses: tarvitave/keelspec@v0.4.0
         with:
           config: product.config.yaml     # optional (default)
           plugin: product_hooks.py         # optional project checks
@@ -300,16 +300,16 @@ jobs:
 ```yaml
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install fastpdlc
-      - run: fastpdlc validate
+      - run: pip install keelspec
+      - run: keelspec validate
 ```
 </details>
 
 ## Used in production
 
-FastPDLC is the product-as-code engine of the **pharthing / KibiPay** payments
+KeelSpec is the product-as-code engine of the **pharthing / KibiPay** payments
 platform (50 features, a concept catalogue, 70 decisions, and a ~490 KB render bundle). pharthing's
-CI runs `fastpdlc validate` as its sole gate via a plugin that adds domain checks — a
+CI runs `keelspec validate` as its sole gate via a plugin that adds domain checks — a
 byte-identical parity test proves nothing was lost in the extraction. That's the
 plugin system above, doing real work.
 
@@ -324,5 +324,5 @@ Publishing to PyPI is automated via GitHub Releases + Trusted Publishing — see
 Apache-2.0. Permissive: use it, embed it, ship it, no obligations back beyond the
 notice. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
-Versions up to 0.6.3 were published as `fastpdlc` under LGPL-3.0-or-later. That
+Versions up to 0.6.3 were published as `keelspec` under LGPL-3.0-or-later. That
 package has been removed from PyPI; `keelspec` is the only name.

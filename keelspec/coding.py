@@ -12,7 +12,7 @@ Every path is resolved and checked against the root before any I/O, so `..`,
 absolute paths and symlink escapes are refused rather than sanitised. The loop is
 bounded; a run that will not converge stops and says so.
 
-    from fastpdlc.coding import CodingRunner
+    from keelspec.coding import CodingRunner
     runner = CodingRunner(root=".", write=True)
 
 `write=False` is the default: the agent sees the tree and proposes a diff without
@@ -155,7 +155,7 @@ class CodingRunner:
         self._client: Any = None
         # Same thinking resolution + graceful-degrade path as ClaudeRunner, so a
         # non-thinking model here won't sink the tool loop either. `_UNSET` means
-        # "resolve from FASTPDLC_THINKING"; an explicit value (incl. None) wins.
+        # "resolve from KEELSPEC_THINKING"; an explicit value (incl. None) wins.
         from .runners import _UNSET, ClaudeRunner, resolve_thinking
         self._thinking = resolve_thinking(_UNSET if thinking is None else thinking)
         # Non-Develop stations do not need tools; delegate them (same thinking arg).
@@ -171,7 +171,7 @@ class CodingRunner:
             import anthropic
         except ModuleNotFoundError as exc:
             raise RuntimeError(
-                "the anthropic package is not installed: pip install 'fastpdlc[agents]'"
+                "the anthropic package is not installed: pip install 'keelspec[agents]'"
             ) from exc
         self._client = anthropic.Anthropic(api_key=self._api_key)
         return self._client

@@ -4,8 +4,8 @@ The orchestrator owns control flow; a runner owns one step's reasoning. Keeping
 them apart is the spec's second principle, and it is why the pipeline is testable
 without a network: swap `ClaudeRunner` for `StubRunner` and the wiring is unchanged.
 
-`anthropic` is an optional dependency. FastPDLC's core job is validation, and a
-missing SDK must not stop `fastpdlc validate` from running in CI.
+`anthropic` is an optional dependency. KeelSpec's core job is validation, and a
+missing SDK must not stop `keelspec validate` from running in CI.
 """
 from __future__ import annotations
 
@@ -37,13 +37,13 @@ def resolve_thinking(explicit: Any = _UNSET) -> dict | None:
     Not every model supports extended thinking — Haiku, in particular, rejects
     ``{"type": "adaptive"}`` with a 400 — so this must be controllable rather than
     hard-wired on. Precedence: an explicit value passed to the runner (including an
-    explicit ``None``) wins; otherwise the ``FASTPDLC_THINKING`` env var; otherwise
+    explicit ``None``) wins; otherwise the ``KEELSPEC_THINKING`` env var; otherwise
     adaptive. Accepted env values: ``adaptive`` (default), ``off``/``none``/``0``/``""``
     to omit, or ``enabled:<budget_tokens>`` for fixed-budget extended thinking.
     """
     if explicit is not _UNSET:
         return explicit
-    raw = os.getenv("FASTPDLC_THINKING", "adaptive").strip().lower()
+    raw = os.getenv("KEELSPEC_THINKING", "adaptive").strip().lower()
     if raw in ("", "off", "none", "no", "0", "false"):
         return None
     if raw.startswith("enabled"):
@@ -130,7 +130,7 @@ class ClaudeRunner:
             import anthropic
         except ModuleNotFoundError as exc:
             raise RuntimeError(
-                "the anthropic package is not installed: pip install 'fastpdlc[agents]'"
+                "the anthropic package is not installed: pip install 'keelspec[agents]'"
             ) from exc
         self._client = anthropic.Anthropic(api_key=self._api_key)
         return self._client
@@ -243,7 +243,7 @@ def dataclasses_asdict(obj) -> dict:
 
 
 # ── OpenAI-compatible runner: the config bridge to any chat-completions gateway ──
-# fastpdlc's native runners speak the Anthropic Messages API. This one speaks the
+# keelspec's native runners speak the Anthropic Messages API. This one speaks the
 # OpenAI ``/chat/completions`` shape, so the pipeline can be pointed — by ``base_url`` —
 # at ANY OpenAI-compatible endpoint: a routing gateway (e.g. Muchty), OpenRouter, a
 # local vLLM/Ollama, or OpenAI itself. That is what turns "no config bridge" into a

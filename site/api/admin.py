@@ -85,11 +85,11 @@ def shell(title: str, body: str, tab: str = "") -> HTMLResponse:
     return HTMLResponse(f"""<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>{html.escape(title)} · FastPDLC admin</title>
+<title>{html.escape(title)} · KeelSpec admin</title>
 <link rel="stylesheet" href="/fonts/fonts.css">
 <style>{CSS}</style></head><body>
 <div class="top"><div class="wrap">
-  <a class="brand" href="/admin/"><svg viewBox="0 0 40 40" width="22" height="22" style="vertical-align:-4px;margin-right:6px"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg>FastPDLC</a>
+  <a class="brand" href="/admin/"><svg viewBox="0 0 40 40" width="22" height="22" style="vertical-align:-4px;margin-right:6px"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg>KeelSpec</a>
   <nav>
     <a href="/admin/"{cls('home')}>Dashboard</a>
     <a href="/admin/analytics"{cls('analytics')}>Analytics</a>
@@ -111,7 +111,7 @@ def when(ts: int | None) -> str:
 # ── login ────────────────────────────────────────────────────────────────────
 LOGIN_PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><title>Sign in · FastPDLC admin</title>
+<meta name="robots" content="noindex,nofollow"><title>Sign in · KeelSpec admin</title>
 <link rel="stylesheet" href="/fonts/fonts.css">
 <style>%s</style></head><body><div class="wrap login">
 <div class="card">

@@ -1,6 +1,6 @@
-# FastPDLC for VS Code
+# KeelSpec for VS Code
 
-Diagnostics, completion and navigation for a [FastPDLC](https://github.com/tarvitave/fastpdlc)
+Diagnostics, completion and navigation for a [KeelSpec](https://github.com/tarvitave/keelspec)
 `product/` tree — the glossary, the constraints, the rules, the features and the
 decisions that CI already gates.
 
@@ -23,7 +23,7 @@ decisions that CI already gates.
 The extension is a client. The server is the Python package:
 
 ```bash
-pip install 'fastpdlc[lsp]'
+pip install 'keelspec[lsp]'
 ```
 
 It activates in any workspace containing a `product.config.yaml`.
@@ -32,17 +32,17 @@ It activates in any workspace containing a `product.config.yaml`.
 
 | Setting | Default | What it is |
 |---|---|---|
-| `fastpdlc.enable` | `true` | Run the server in this workspace. |
-| `fastpdlc.path` | `fastpdlc` | The executable. Set an absolute path to pin a virtualenv. |
-| `fastpdlc.config` | `product.config.yaml` | Config path, relative to the workspace root. |
-| `fastpdlc.plugin` | `""` | Project plugin module or file (the `-p` flag). |
+| `keelspec.enable` | `true` | Run the server in this workspace. |
+| `keelspec.path` | `keelspec` | The executable. Set an absolute path to pin a virtualenv. |
+| `keelspec.config` | `product.config.yaml` | Config path, relative to the workspace root. |
+| `keelspec.plugin` | `""` | Project plugin module or file (the `-p` flag). |
 
-Using a virtualenv? Point `fastpdlc.path` at it — `.venv/bin/fastpdlc`, or
-`.venv/Scripts/fastpdlc.exe` on Windows.
+Using a virtualenv? Point `keelspec.path` at it — `.venv/bin/keelspec`, or
+`.venv/Scripts/keelspec.exe` on Windows.
 
 ## One judge
 
-Diagnostics come from `fastpdlc validate` itself, run over the files **on disk** —
+Diagnostics come from `keelspec validate` itself, run over the files **on disk** —
 the same bytes CI will read. Nothing is re-implemented in TypeScript, so the editor
 cannot tell you something is fine when the gate disagrees. The consequence worth
 knowing: underlines refresh on **save**, not on every keystroke. That is the trade,

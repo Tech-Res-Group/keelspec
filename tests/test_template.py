@@ -1,6 +1,6 @@
 """The scaffold has to work, and its README has to be telling the truth.
 
-`template/` is the front door: someone's first ten minutes with FastPDLC are a
+`template/` is the front door: someone's first ten minutes with KeelSpec are a
 `copier copy` and a `validate`. Its README promises a specific demo — rename a test,
 get PAC-902 — and a promise about a diagnostic code with nothing gating it is the
 exact drift this project exists to catch. So the demo is a test.
@@ -24,7 +24,7 @@ ANSWERS = {
     "project_name": "Acme Payments",
     "product_dir": "product",
     "output_bundle": "build/product.generated.json",
-    "fastpdlc_version": "0.4.0",
+    "keelspec_version": "0.4.0",
 }
 
 
@@ -44,7 +44,7 @@ def _render(dest: pathlib.Path) -> None:
 
 def _run(root: pathlib.Path, *args: str) -> tuple[int, str]:
     result = subprocess.run(
-        [sys.executable, "-m", "fastpdlc.cli", "-C", str(root),
+        [sys.executable, "-m", "keelspec.cli", "-C", str(root),
          "-p", str(root / "product_hooks.py"), *args],
         capture_output=True, text=True,
     )

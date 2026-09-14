@@ -1,6 +1,6 @@
 """The resolved graph, with positions — what an editor and an agent both need.
 
-:func:`fastpdlc.engine.validate` answers "is this tree correct?". An editor asks
+:func:`keelspec.engine.validate` answers "is this tree correct?". An editor asks
 narrower questions about the same graph — *what may go here, what does this id mean,
 who else points at it, and where exactly is the offending text* — and so does an
 agent authoring an artifact. Answering them twice, once in ``lsp`` and once in
@@ -89,7 +89,7 @@ class Artifact:
 def frontmatter_bounds(lines: list[str]) -> tuple[int, int]:
     """The half-open line range of the frontmatter block, or ``(0, 0)`` if there is none.
 
-    Matches :func:`fastpdlc.engine.parse_frontmatter`'s view of a file: a leading
+    Matches :func:`keelspec.engine.parse_frontmatter`'s view of a file: a leading
     ``---`` and everything up to the next one.
     """
     if not lines or lines[0].strip() != "---":

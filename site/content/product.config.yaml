@@ -1,8 +1,8 @@
-# The fastpdlc.com blog, as product-as-code.
+# The keelspec.com blog, as product-as-code.
 #
 # The blog you are reading is compiled by the tool it describes. Posts are typed
 # artifacts: ids must match filenames, categories must be in the allowed set, and
-# every `related` link must resolve to a real post. `fastpdlc validate` gates it,
+# every `related` link must resolve to a real post. `keelspec validate` gates it,
 # so a broken cross-link fails CI instead of shipping a dead link.
 product_dir: .
 output: build/blog.generated.json

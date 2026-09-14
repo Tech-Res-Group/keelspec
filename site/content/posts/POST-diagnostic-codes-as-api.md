@@ -4,7 +4,7 @@ title: Diagnostic codes are an API
 slug: diagnostic-codes-as-api
 date: 2026-03-18
 summary: Treat your error codes with the same seriousness as your function signatures, because downstream systems depend on both.
-author: FastPDLC
+author: KeelSpec
 category: reference
 tags: [diagnostics, design]
 related: [POST-ci-gate-anatomy, POST-plugins-deep-dive]
@@ -17,7 +17,7 @@ Validation tools usually do not learn it, and then wonder why nobody automates a
 
 ## The contract
 
-FastPDLC's core codes occupy documented ranges:
+KeelSpec's core codes occupy documented ranges:
 
 - `00x` required-field and schema
 - `01x` id and graph integrity

@@ -41,7 +41,7 @@ LOGO = (
 def slide(n: int, body: str, *, bg: str = PAPER, dark: bool = False,
           footer: bool = True) -> str:
     cls = "slide" + (" dark" if dark else "")
-    foot = (f'<div class="foot"><span class="fmark">{LOGO}<b>FastPDLC</b></span>'
+    foot = (f'<div class="foot"><span class="fmark">{LOGO}<b>KeelSpec</b></span>'
             f'<span class="num">{n:02d}</span></div>') if footer else ""
     return f'<section class="{cls}" style="--bg:{bg}">{body}{foot}</section>'
 
@@ -98,7 +98,7 @@ SLIDES.append(slide(4, f"""
     <div class="flow">
       <div class="node" style="background:{CRM}">glossary<br>rules<br>features</div>
       <div class="arrow">&rarr;</div>
-      <div class="node" style="background:{YEL}">the gate<span class="sm">fastpdlc validate</span></div>
+      <div class="node" style="background:{YEL}">the gate<span class="sm">keelspec validate</span></div>
       <div class="arrow">&rarr;</div>
       <div class="node" style="background:{PAPER}">one bundle<span class="sm">byte-stable</span></div>
     </div>
@@ -181,8 +181,8 @@ SLIDES.append(slide(10, f"""
 SLIDES.append(slide(11, """
   <div class="pad center">
     <h1 class="giant">Your product<br>spec,<br>compiled.</h1>
-    <div class="cta mono">pip install fastpdlc</div>
-    <div class="url">fastpdlc.com</div>
+    <div class="cta mono">pip install keelspec</div>
+    <div class="url">keelspec.com</div>
   </div>""", bg=YEL, footer=False))
 
 
@@ -192,7 +192,7 @@ PAGE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>FastPDLC — LinkedIn carousel</title>
+<title>KeelSpec — LinkedIn carousel</title>
 <link rel="stylesheet" href="/fonts/fonts.css">
 <style>
   :root{

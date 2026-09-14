@@ -22,8 +22,8 @@ LOGO_SVG = (
     '</svg>'
 )
 
-NEW = f'{LOGO_SVG}<span class="logo-word">FastPDLC</span>'
-OLD = '<span class="logo-mark">FastPDLC</span>'
+NEW = f'{LOGO_SVG}<span class="logo-word">KeelSpec</span>'
+OLD = '<span class="logo-mark">KeelSpec</span>'
 
 TARGETS = [
     "tools/render_blog.py",

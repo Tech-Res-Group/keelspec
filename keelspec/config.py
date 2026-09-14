@@ -1,4 +1,4 @@
-"""The FastPDLC config schema — ``product.config.yaml``.
+"""The KeelSpec config schema — ``product.config.yaml``.
 
 A project declares its typed artifacts here. This is the seam that separates the
 generic engine (loading, schema validation, cross-references, staleness) from a

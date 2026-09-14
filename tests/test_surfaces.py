@@ -14,12 +14,12 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
-from fastpdlc import lsp
-from fastpdlc import mcp as mcp_tools
-from fastpdlc.config import ArtifactType, Config, Reference
-from fastpdlc.diagnostics import Report
-from fastpdlc.engine import build, validate
-from fastpdlc.index import ProductIndex, field_at, frontmatter_bounds, locate, token_at
+from keelspec import lsp
+from keelspec import mcp as mcp_tools
+from keelspec.config import ArtifactType, Config, Reference
+from keelspec.diagnostics import Report
+from keelspec.engine import build, validate
+from keelspec.index import ProductIndex, field_at, frontmatter_bounds, locate, token_at
 
 
 def _write(root: pathlib.Path, rel: str, meta: dict, body: str = "body") -> None:
@@ -349,7 +349,7 @@ def test_validate_tool_reports_the_gate_verbatim(tmp_path):
 
 # ── the watcher ──────────────────────────────────────────────────────────────
 def test_watch_validates_once_then_stays_quiet(tmp_path, capsys):
-    from fastpdlc.watch import watch
+    from keelspec.watch import watch
 
     _tree(tmp_path)
     assert watch(str(tmp_path / "product.config.yaml"), tmp_path, ticks=3) == 0
@@ -359,7 +359,7 @@ def test_watch_validates_once_then_stays_quiet(tmp_path, capsys):
 
 def test_watch_is_not_a_gate(tmp_path, capsys):
     """A red tree you are mid-fix must not kill the terminal you are fixing it in."""
-    from fastpdlc.watch import watch
+    from keelspec.watch import watch
 
     cfg = _tree(tmp_path)
     _write(tmp_path, "features/broken.md", {"id": "broken", "title": "B", "rules": ["BR-ghost"]})
@@ -369,7 +369,7 @@ def test_watch_is_not_a_gate(tmp_path, capsys):
 
 
 def test_watch_survives_a_config_it_cannot_load(tmp_path, capsys):
-    from fastpdlc.watch import watch
+    from keelspec.watch import watch
 
     _tree(tmp_path)
     (tmp_path / "product.config.yaml").write_text("types: [oh no\n", encoding="utf-8")
@@ -381,7 +381,7 @@ def test_watch_survives_a_config_it_cannot_load(tmp_path, capsys):
 def test_cli_rejects_watch_with_json(tmp_path, capsys):
     """A JSON document per tick is not a format anything consumes; say so rather than
     emitting a stream nobody can parse."""
-    from fastpdlc.cli import main
+    from keelspec.cli import main
 
     _tree(tmp_path)
     assert main(["-C", str(tmp_path), "validate", "--watch", "--json"]) == 2
@@ -390,7 +390,7 @@ def test_cli_rejects_watch_with_json(tmp_path, capsys):
 
 @pytest.mark.parametrize(
     ("command", "module", "extra"),
-    [("lsp", "pygls", "fastpdlc[lsp]"), ("mcp", "mcp", "fastpdlc[mcp]")],
+    [("lsp", "pygls", "keelspec[lsp]"), ("mcp", "mcp", "keelspec[mcp]")],
 )
 def test_optional_surfaces_explain_their_extra(tmp_path, capsys, command, module, extra):
     """Without the dependency the command must say what to install -- not traceback,
@@ -402,7 +402,7 @@ def test_optional_surfaces_explain_their_extra(tmp_path, capsys, command, module
     else:
         pytest.skip(f"{module} is installed; this asserts the missing-dependency path")
 
-    from fastpdlc.cli import main
+    from keelspec.cli import main
 
     _tree(tmp_path)
     assert main(["-C", str(tmp_path), command]) == 2

@@ -4,7 +4,7 @@ title: What product-as-code actually means
 slug: what-is-product-as-code
 date: 2026-02-04
 summary: Not docs in a repo. Typed artifacts with a schema, a reference graph, and a build that fails when they stop being true.
-author: FastPDLC
+author: KeelSpec
 category: concept
 tags: [product-as-code, fundamentals]
 related: [POST-why-specs-rot, POST-typed-artifacts]

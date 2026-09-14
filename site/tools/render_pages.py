@@ -32,15 +32,15 @@ def prose(title: str, body: str, updated: bool = True) -> str:
 
 # ── terms of use ─────────────────────────────────────────────────────────────
 PAGES["terms.html"] = (
-    "Terms of Use — FastPDLC",
-    "The terms governing use of fastpdlc.com and the FastPDLC software.",
+    "Terms of Use — KeelSpec",
+    "The terms governing use of keelspec.com and the KeelSpec software.",
     prose("Terms", """
 <span class="eyebrow">Legal</span>
 <h1>Terms of use</h1>
 <!--STAMP-->
 
-<p>These terms govern your use of <strong>fastpdlc.com</strong> (the &ldquo;site&rdquo;) and any
-services offered through it. The FastPDLC software itself is licensed separately &mdash; see
+<p>These terms govern your use of <strong>keelspec.com</strong> (the &ldquo;site&rdquo;) and any
+services offered through it. The KeelSpec software itself is licensed separately &mdash; see
 <a href="#software">The software</a> below.</p>
 
 <h2>Using the site</h2>
@@ -50,11 +50,11 @@ service for others. Reasonable crawling that respects
 <a href="/robots.txt">robots.txt</a> is welcome.</p>
 
 <h2 id="software">The software</h2>
-<p>FastPDLC is distributed under the <strong>GNU Lesser General Public License, version 3 or
+<p>KeelSpec is distributed under the <strong>GNU Lesser General Public License, version 3 or
 later</strong>. That licence &mdash; not this page &mdash; governs your rights to use, modify and
-redistribute the software. In particular, importing FastPDLC as a library or running it in your
+redistribute the software. In particular, importing KeelSpec as a library or running it in your
 CI places no obligation on your own project beyond the notice. The full text ships with the package and is
-available in the <a href="https://github.com/tarvitave/fastpdlc/blob/main/LICENSE">repository</a>.</p>
+available in the <a href="https://github.com/tarvitave/keelspec/blob/main/LICENSE">repository</a>.</p>
 <p>The software is provided <strong>as is, without warranty of any kind</strong>, as set out in
 the licence. Nothing on this site modifies or expands that licence.</p>
 
@@ -89,13 +89,13 @@ date above. Continuing to use the site after a change constitutes acceptance.</p
 
 <h2>Contact</h2>
 <p>Questions about these terms: <a href="/contact.html">contact us</a>, or open an issue on
-<a href="https://github.com/tarvitave/fastpdlc/issues">GitHub</a>.</p>
+<a href="https://github.com/tarvitave/keelspec/issues">GitHub</a>.</p>
 """))
 
 # ── SMS opt-in ───────────────────────────────────────────────────────────────
 PAGES["sms-opt-in.html"] = (
-    "SMS Opt-In — FastPDLC",
-    "How SMS messaging from FastPDLC works: consent, frequency, cost, and how to stop.",
+    "SMS Opt-In — KeelSpec",
+    "How SMS messaging from KeelSpec works: consent, frequency, cost, and how to stop.",
     prose("SMS", """
 <span class="eyebrow">Messaging</span>
 <h1>SMS opt-in</h1>
@@ -106,10 +106,10 @@ if and when we do, so that consent is never collected without them being availab
 
 <h2>What you are consenting to</h2>
 <p>If you provide your mobile number and tick the SMS consent box, you agree to receive text
-messages from FastPDLC about product updates, release announcements, and service notifications
+messages from KeelSpec about product updates, release announcements, and service notifications
 relevant to your account.</p>
 <p>Consent to receive SMS is <strong>never a condition of purchase</strong> and is never required
-to use FastPDLC, download the software, or subscribe to the email newsletter.</p>
+to use KeelSpec, download the software, or subscribe to the email newsletter.</p>
 
 <h2>Message frequency</h2>
 <p>Message frequency varies. We expect no more than <strong>four messages per month</strong>.
@@ -147,13 +147,13 @@ affecting active subscribers will be notified by message before taking effect.</
 
 # ── who we are ───────────────────────────────────────────────────────────────
 PAGES["who-we-are.html"] = (
-    "Who We Are — FastPDLC",
-    "The people behind FastPDLC and the payments platform it was extracted from.",
+    "Who We Are — KeelSpec",
+    "The people behind KeelSpec and the payments platform it was extracted from.",
     prose("Who we are", """
 <span class="eyebrow">Company</span>
 <h1>Who we are</h1>
 
-<p class="lede">FastPDLC was not built as a product. It was built because a payments platform
+<p class="lede">KeelSpec was not built as a product. It was built because a payments platform
 needed its product intent to stop rotting, and the thing that fixed it turned out to be worth
 extracting.</p>
 
@@ -161,10 +161,10 @@ extracting.</p>
   <div class="person-avatar">CW</div>
   <div>
     <h2>Colin Wynd</h2>
-    <div class="role">Founder &middot; author of FastPDLC</div>
+    <div class="role">Founder &middot; author of KeelSpec</div>
     <p style="margin-top:0.9rem">Built the product-as-code engine inside the pharthing /
     KibiPay payments platform, where it grew to cover 39 features, a concept catalogue and a
-    rulebook, and became the platform's sole product CI gate. Extracted it as FastPDLC so
+    rulebook, and became the platform's sole product CI gate. Extracted it as KeelSpec so
     other teams could use it &mdash; verified by a byte-identical parity test proving nothing
     was lost on the way out.</p>
     <p>Every design decision in the tool came from something going wrong first: the staleness
@@ -183,7 +183,7 @@ extracting.</p>
 </div>
 
 <h2>Where it came from</h2>
-<p>The pharthing / KibiPay payments platform runs <code>fastpdlc validate</code> as its only
+<p>The pharthing / KibiPay payments platform runs <code>keelspec validate</code> as its only
 product gate, via a plugin that adds domain-specific checks. Every feature in the tool exists
 because something went wrong without it: the staleness gate because specs silently diverged from
 builds, typed references because renames quietly orphaned business rules, plugins because a real
@@ -203,14 +203,14 @@ migration cannot afford to lose any of its bespoke checks.</p>
 
 <h2>Get in touch</h2>
 <p>Bugs and feature requests belong on
-<a href="https://github.com/tarvitave/fastpdlc/issues">GitHub</a>, where they are public and
+<a href="https://github.com/tarvitave/keelspec/issues">GitHub</a>, where they are public and
 tracked. Anything else, use the <a href="/contact.html">contact page</a>.</p>
 """, updated=False))
 
 # ── contact ──────────────────────────────────────────────────────────────────
 PAGES["contact.html"] = (
-    "Contact Us — FastPDLC",
-    "Get in touch with the FastPDLC team about the software, licensing, or anything else.",
+    "Contact Us — KeelSpec",
+    "Get in touch with the KeelSpec team about the software, licensing, or anything else.",
     f"""<main class="section">
   <div class="wrap prose">
     <span class="eyebrow">Contact</span>
@@ -242,7 +242,7 @@ PAGES["contact.html"] = (
                          border:var(--bd);border-radius:10px;box-shadow:var(--sh-sm)">
             <option>General question</option>
             <option>Licensing</option>
-            <option>Using FastPDLC at scale</option>
+            <option>Using KeelSpec at scale</option>
             <option>Press or speaking</option>
             <option>Something else</option>
           </select>
@@ -272,12 +272,12 @@ PAGES["contact.html"] = (
     <h2>Other ways</h2>
     <ul>
       <li><strong>Bugs and features</strong> &mdash;
-        <a href="https://github.com/tarvitave/fastpdlc/issues">GitHub issues</a></li>
+        <a href="https://github.com/tarvitave/keelspec/issues">GitHub issues</a></li>
       <li><strong>Source and releases</strong> &mdash;
-        <a href="https://github.com/tarvitave/fastpdlc">github.com/tarvitave/fastpdlc</a></li>
+        <a href="https://github.com/tarvitave/keelspec">github.com/tarvitave/keelspec</a></li>
       <li><strong>Packages</strong> &mdash;
-        <a href="https://pypi.org/project/fastpdlc/">PyPI</a></li>
-      <li><strong>Email</strong> &mdash; marketing@fastpdlc.com</li>
+        <a href="https://pypi.org/project/keelspec/">PyPI</a></li>
+      <li><strong>Email</strong> &mdash; marketing@keelspec.com</li>
     </ul>
 
     <h2>Data</h2>
@@ -290,7 +290,7 @@ PAGES["contact.html"] = (
 
 
 PAGES["lifecycle.html"] = (
-    "One lifecycle, not two — FastPDLC",
+    "One lifecycle, not two — KeelSpec",
     "PDLC and SDLC in one repository, behind one gate, with a reproducible audit trail. "
     "Checks on every edge where product intent fans out into code, tests and docs.",
     PDLC_BODY)

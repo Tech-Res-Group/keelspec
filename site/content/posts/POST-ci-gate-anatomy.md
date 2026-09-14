@@ -4,7 +4,7 @@ title: Anatomy of a product CI gate
 slug: ci-gate-anatomy
 date: 2026-03-11
 summary: What a good product gate checks, what it must never do, and why its exit code is the entire contract.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [ci, workflow]
 related: [POST-the-staleness-gate, POST-review-culture]
@@ -41,7 +41,7 @@ Never renumber a code. Retire it and add a new one.
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: tarvitave/fastpdlc@v0.2.0
+- uses: tarvitave/keelspec@v0.2.0
 ```
 
 The gate should be a single step with no bespoke scripting around it. Every line of glue in a workflow file is a line that rots, and a gate that requires maintenance is a gate that gets deleted during the next CI cleanup.

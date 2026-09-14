@@ -4,7 +4,7 @@ title: Finding the artifacts nobody references
 slug: orphan-detection
 date: 2026-06-10
 summary: A graph makes absence visible. Orphans are usually either dead weight or a missing link, and both are worth knowing about.
-author: FastPDLC
+author: KeelSpec
 category: practice
 tags: [graph, plugins]
 related: [POST-plugins-deep-dive, POST-dangling-references]
