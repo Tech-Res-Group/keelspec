@@ -1474,3 +1474,76 @@ def test_openai_runner_omits_temperature_by_default(monkeypatch):
     assert "temperature" not in seen["body"]
     runners.OpenAIRunner("https://gw/v1", api_key="k", temperature=0).run(BY_ID["ST-01"], "x")
     assert seen["body"]["temperature"] == 0                       # opt-in still works
+
+
+# ── routing by concept, per station ──────────────────────────────────────────
+# `extra_headers` is fixed for a whole run, so every station reaches the gateway
+# looking like the same kind of request. `concepts` varies the one header that says
+# otherwise, which is what lets a router apply a policy per KIND of work.
+
+def _capture_headers(monkeypatch):
+    from fastpdlc import runners
+    seen = {}
+
+    def fake(base_url, api_key, body, timeout=120.0, extra_headers=None):
+        seen.setdefault("calls", []).append(dict(extra_headers or {}))
+        return _oai_msg('{"ok":true}')
+
+    monkeypatch.setattr(runners, "openai_chat", fake)
+    return seen
+
+
+def test_concept_routing_is_off_unless_asked_for(monkeypatch):
+    """The default request must stay byte-identical to before this existed."""
+    from fastpdlc import runners
+    from fastpdlc.orchestration import BY_ID
+    seen = _capture_headers(monkeypatch)
+    runners.OpenAIRunner("https://gw/v1", api_key="k").run(BY_ID["ST-03"], "x", {})
+    assert seen["calls"][0] == {}
+
+
+def test_each_station_carries_its_own_concept(monkeypatch):
+    from fastpdlc import runners
+    from fastpdlc.orchestration import BY_ID
+    seen = _capture_headers(monkeypatch)
+    r = runners.OpenAIRunner("https://gw/v1", api_key="k",
+                             concepts=runners.STATION_CONCEPTS)
+    for sid in ("ST-01", "ST-03", "ST-04"):
+        r.run(BY_ID[sid], "x", {})
+    assert [c["x-muchty-concept"] for c in seen["calls"]] == [
+        "content.summarize", "spec.disambiguate", "code.repair"]
+
+
+def test_an_unmapped_station_falls_back_to_the_default_concept(monkeypatch):
+    """Adding a station must not silently route it as if it were code repair."""
+    from fastpdlc import runners
+    from fastpdlc.orchestration import BY_ID
+    seen = _capture_headers(monkeypatch)
+    runners.OpenAIRunner("https://gw/v1", api_key="k",
+                         concepts=runners.STATION_CONCEPTS).run(BY_ID["ST-07"], "x", {})
+    assert seen["calls"][0]["x-muchty-concept"] == runners.DEFAULT_CONCEPT
+    assert "ST-07" not in runners.STATION_CONCEPTS
+
+
+def test_the_catalogue_and_header_belong_to_the_operator(monkeypatch):
+    """Concept names are the router operator's, not this library's."""
+    from fastpdlc import runners
+    from fastpdlc.orchestration import BY_ID
+    seen = _capture_headers(monkeypatch)
+    runners.OpenAIRunner("https://gw/v1", api_key="k",
+                         concepts={"ST-03": "planning.deep"},
+                         concept_header="x-route-concept",
+                         extra_headers={"x-project": "keel"}).run(BY_ID["ST-03"], "x", {})
+    assert seen["calls"][0] == {"x-project": "keel", "x-route-concept": "planning.deep"}
+
+
+def test_develop_gets_its_concept_too(monkeypatch, tmp_path):
+    """ST-04 runs its own tool loop rather than delegating, so it has to ask the
+    fallback for the same headers every other station would have been given."""
+    from fastpdlc import runners
+    from fastpdlc.coding import OpenAICodingRunner
+    from fastpdlc.orchestration import BY_ID
+    seen = _capture_headers(monkeypatch)
+    OpenAICodingRunner(tmp_path, base_url="https://gw/v1", api_key="k",
+                       concepts=runners.STATION_CONCEPTS).run(BY_ID["ST-04"], "build it")
+    assert seen["calls"][0]["x-muchty-concept"] == "code.repair"

@@ -286,6 +286,8 @@ class OpenAICodingRunner(CodingRunner):
     def __init__(self, root: str | pathlib.Path = ".", *, write: bool = False,
                  base_url: str, api_key: str | None = None, model: str = "auto",
                  max_turns: int = MAX_TURNS, fallback: Any = None,
+                 concepts: dict[str, str] | None = None,
+                 concept_header: str = "x-muchty-concept",
                  extra_headers: dict | None = None, timeout: float = 120.0):
         self.sandbox = Sandbox(root, write=write)
         self.max_turns = max_turns
@@ -297,7 +299,14 @@ class OpenAICodingRunner(CodingRunner):
         from .runners import OpenAIRunner
         self.fallback = fallback or OpenAIRunner(
             base_url=base_url, api_key=self._api_key, model=model,
+            concepts=concepts, concept_header=concept_header,
             extra_headers=self._extra_headers, timeout=timeout)
+
+    def _headers_for(self, station: Station) -> dict:
+        """Develop runs its own loop instead of delegating, so it has to ask the
+        fallback for the same headers the other stations would have been given."""
+        getter = getattr(self.fallback, "headers_for", None)
+        return getter(station) if callable(getter) else self._extra_headers
 
     def run(self, station: Station, prompt: str, schema: dict | None = None) -> dict:
         if station.id not in ("ST-04", "ST-04b"):
@@ -309,7 +318,7 @@ class OpenAICodingRunner(CodingRunner):
         for _turn in range(self.max_turns):
             body = {"model": self.model, "max_tokens": 8192,
                     "tools": OPENAI_TOOLS, "tool_choice": "auto", "messages": messages}
-            payload, _ = openai_chat(self.base_url, self._api_key, body, self._timeout, self._extra_headers)
+            payload, _ = openai_chat(self.base_url, self._api_key, body, self._timeout, self._headers_for(station))
             msg = payload["choices"][0]["message"]
             tool_calls = msg.get("tool_calls") or []
             if not tool_calls:
@@ -340,7 +349,7 @@ class OpenAICodingRunner(CodingRunner):
                                     "JSON object (files_changed, diff_summary, self_notes) — no prose, "
                                     "no markdown fences."})
         body = {"model": self.model, "max_tokens": 4096, "messages": messages}
-        payload, _ = openai_chat(self.base_url, self._api_key, body, self._timeout, self._extra_headers)
+        payload, _ = openai_chat(self.base_url, self._api_key, body, self._timeout, self._headers_for(station))
         text = payload["choices"][0]["message"].get("content") or ""
         try:
             data = extract_json_object(text)
