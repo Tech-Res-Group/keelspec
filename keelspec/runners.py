@@ -245,14 +245,14 @@ def dataclasses_asdict(obj) -> dict:
 # ── OpenAI-compatible runner: the config bridge to any chat-completions gateway ──
 # keelspec's native runners speak the Anthropic Messages API. This one speaks the
 # OpenAI ``/chat/completions`` shape, so the pipeline can be pointed — by ``base_url`` —
-# at ANY OpenAI-compatible endpoint: a routing gateway (e.g. Muchty), OpenRouter, a
+# at ANY OpenAI-compatible endpoint: a routing gateway (e.g. FifeRouter), OpenRouter, a
 # local vLLM/Ollama, or OpenAI itself. That is what turns "no config bridge" into a
 # base_url. stdlib-only, matching CrossProviderLens — no SDK dependency.
 
 def openai_chat(base_url: str, api_key: str, body: dict, timeout: float = 120.0,
                 extra_headers: dict | None = None) -> tuple[dict, str | None]:
     """POST one OpenAI chat-completions request. Returns ``(payload, served_model)`` —
-    the served model is read from a gateway header when present (``x-muchty-model``).
+    the served model is read from a gateway header when present (``x-fife-model``).
 
     On an HTTP error the gateway's response *body* is surfaced in the raised message: a
     bare ``502 Bad Gateway`` is useless for debugging a routing gateway, whereas the body
@@ -267,7 +267,7 @@ def openai_chat(base_url: str, api_key: str, body: dict, timeout: float = 120.0,
     req = urllib.request.Request(url, data=json.dumps(body).encode(), method="POST", headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            served = resp.headers.get("x-muchty-model") or resp.headers.get("x-model")
+            served = resp.headers.get("x-fife-model") or resp.headers.get("x-model")
             return json.loads(resp.read().decode()), served
     except urllib.error.HTTPError as exc:
         try:
@@ -309,7 +309,7 @@ def extract_json_object(text: str) -> Any:
 #
 # The names on the right belong to the ROUTER OPERATOR's catalogue, not to this
 # library, which is why this is a plain dict you pass in and can replace wholesale.
-# These match MuchtyRouter's shipped catalogue.
+# These match FifeRouter's shipped catalogue.
 STATION_CONCEPTS = {
     "ST-01": "content.summarize",   # read the graph, report what it says
     "ST-03": "spec.disambiguate",   # design against an intent that may be underspecified
@@ -335,7 +335,7 @@ class OpenAIRunner:
                  system: str = SYSTEM, max_tokens: int = 8192, json_mode: bool = False,
                  temperature: float | None = None,
                  concepts: dict[str, str] | None = None,
-                 concept_header: str = "x-muchty-concept",
+                 concept_header: str = "x-fife-concept",
                  extra_headers: dict | None = None, timeout: float = 120.0):
         self.base_url = base_url
         self._api_key = api_key or os.getenv("OPENAI_API_KEY", "")

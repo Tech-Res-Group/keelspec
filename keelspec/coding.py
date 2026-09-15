@@ -275,7 +275,7 @@ OPENAI_TOOLS = [
 
 
 class OpenAICodingRunner(CodingRunner):
-    """A CodingRunner against any OpenAI-compatible endpoint (a gateway like Muchty,
+    """A CodingRunner against any OpenAI-compatible endpoint (a gateway like FifeRouter,
     OpenRouter, a local server, or OpenAI). Same Sandbox, same tools, same
     source-of-truth accounting as CodingRunner — but the Develop tool loop uses OpenAI
     function-calling instead of Anthropic tool-use blocks, so a build can be routed
@@ -287,7 +287,7 @@ class OpenAICodingRunner(CodingRunner):
                  base_url: str, api_key: str | None = None, model: str = "auto",
                  max_turns: int = MAX_TURNS, fallback: Any = None,
                  concepts: dict[str, str] | None = None,
-                 concept_header: str = "x-muchty-concept",
+                 concept_header: str = "x-fife-concept",
                  extra_headers: dict | None = None, timeout: float = 120.0):
         self.sandbox = Sandbox(root, write=write)
         self.max_turns = max_turns

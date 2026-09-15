@@ -1510,7 +1510,7 @@ def test_each_station_carries_its_own_concept(monkeypatch):
                              concepts=runners.STATION_CONCEPTS)
     for sid in ("ST-01", "ST-03", "ST-04"):
         r.run(BY_ID[sid], "x", {})
-    assert [c["x-muchty-concept"] for c in seen["calls"]] == [
+    assert [c["x-fife-concept"] for c in seen["calls"]] == [
         "content.summarize", "spec.disambiguate", "code.repair"]
 
 
@@ -1521,7 +1521,7 @@ def test_an_unmapped_station_falls_back_to_the_default_concept(monkeypatch):
     seen = _capture_headers(monkeypatch)
     runners.OpenAIRunner("https://gw/v1", api_key="k",
                          concepts=runners.STATION_CONCEPTS).run(BY_ID["ST-07"], "x", {})
-    assert seen["calls"][0]["x-muchty-concept"] == runners.DEFAULT_CONCEPT
+    assert seen["calls"][0]["x-fife-concept"] == runners.DEFAULT_CONCEPT
     assert "ST-07" not in runners.STATION_CONCEPTS
 
 
@@ -1546,4 +1546,4 @@ def test_develop_gets_its_concept_too(monkeypatch, tmp_path):
     seen = _capture_headers(monkeypatch)
     OpenAICodingRunner(tmp_path, base_url="https://gw/v1", api_key="k",
                        concepts=runners.STATION_CONCEPTS).run(BY_ID["ST-04"], "build it")
-    assert seen["calls"][0]["x-muchty-concept"] == "code.repair"
+    assert seen["calls"][0]["x-fife-concept"] == "code.repair"
