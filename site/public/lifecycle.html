@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>One lifecycle, not two — FastPDLC</title>
+<title>One lifecycle, not two — KeelSpec</title>
 <meta name="description" content="PDLC and SDLC in one repository, behind one gate, with a reproducible audit trail. Checks on every edge where product intent fans out into code, tests and docs.">
-<link rel="canonical" href="https://fastpdlc.com/lifecycle.html">
+<link rel="canonical" href="https://keelspec.com/lifecycle.html">
 <meta property="og:type" content="article">
-<meta property="og:title" content="One lifecycle, not two — FastPDLC">
+<meta property="og:title" content="One lifecycle, not two — KeelSpec">
 <meta property="og:description" content="PDLC and SDLC in one repository, behind one gate, with a reproducible audit trail. Checks on every edge where product intent fans out into code, tests and docs.">
-<meta property="og:url" content="https://fastpdlc.com/lifecycle.html">
+<meta property="og:url" content="https://keelspec.com/lifecycle.html">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:image" content="https://fastpdlc.com/og.png">
+<meta property="og:image" content="https://keelspec.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='9' fill='%23191919'/><path d='M10.5 21.5 L17 28 L29.5 12.5' fill='none' stroke='%23fbcc00' stroke-width='4.6' stroke-linecap='round' stroke-linejoin='round'/><circle cx='10.5' cy='21.5' r='3.6' fill='%23fff'/><circle cx='29.5' cy='12.5' r='3.6' fill='%2300b67a'/></svg>">
-<link rel="stylesheet" href="/styles.css?v=ef971950ff">
+<link rel="stylesheet" href="/styles.css?v=2087441c60">
 <link rel="stylesheet" href="/blog.css?v=ec4b67b85c">
 
 </head>
 <body>
 <header class="nav">
   <div class="wrap nav-inner">
-    <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+    <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
     <nav class="nav-links" id="navLinks">
       <a href="/#how">How it works</a>
@@ -30,7 +30,7 @@
       <a href="/#diagnostics">Diagnostics</a>
       <a href="/blog/">Blog</a>
       <a href="/#faq">FAQ</a>
-      <a href="https://github.com/tarvitave/fastpdlc">GitHub</a>
+      <a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a>
       <a class="btn btn-primary nav-cta" href="/#start">Get started</a>
     </nav>
   </div>
@@ -44,17 +44,17 @@
       <p class="lede">Most organisations run a <strong>product development lifecycle (PDLC)</strong>
         and a <strong>software development lifecycle (SDLC)</strong> side by side, connected by
         meetings. The SDLC has been mechanised for thirty years &mdash; compilers, type checkers,
-        tests, continuous integration (CI). The PDLC has almost none of it. FastPDLC puts both in
+        tests, continuous integration (CI). The PDLC has almost none of it. KeelSpec puts both in
         the same repository, behind the same gate, with the same evidence trail.</p>
     </div>
 
     <div class="card" style="padding:1.6rem 1.4rem;overflow-x:auto">
-      <svg viewBox="0 0 1160 600" role="img" aria-label="Product intent and code share one repository, one gate, and fan out to every surface, with a check on each edge and an audit record of every run." style="width:100%;height:auto"><defs><marker id="head" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#191919"/></marker></defs><rect x="25" y="65" width="250" height="250" rx="14" fill="#191919"/><rect x="20" y="60" width="250" height="250" rx="14" fill="#fff9e6" stroke="#191919" stroke-width="3.5"/><text x="38" y="90" font-family="Anton, Impact, sans-serif" font-size="19" letter-spacing="0.4" fill="#191919">PRODUCT INTENT</text><rect x="42" y="92" width="206" height="30" rx="7" fill="#fff" stroke="#191919" stroke-width="2.5"/><text x="145.0" y="112" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#191919">terms</text><rect x="42" y="136" width="206" height="30" rx="7" fill="#fff" stroke="#191919" stroke-width="2.5"/><text x="145.0" y="156" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#191919">rules</text><rect x="42" y="180" width="206" height="30" rx="7" fill="#fff" stroke="#191919" stroke-width="2.5"/><text x="145.0" y="200" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#191919">features</text><rect x="42" y="224" width="206" height="30" rx="7" fill="#fff" stroke="#191919" stroke-width="2.5"/><text x="145.0" y="244" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#191919">decisions</text><text x="145" y="330" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#6b6b6b">markdown + frontmatter, in your repo</text><line x1="275" y1="185" x2="340" y2="185" stroke="#191919" stroke-width="3.5" marker-end="url(#head)"/><rect x="350" y="110" width="190" height="160" rx="14" fill="#191919"/><rect x="345" y="105" width="190" height="160" rx="14" fill="#fbcc00" stroke="#191919" stroke-width="3.5"/><text x="363" y="135" font-family="Anton, Impact, sans-serif" font-size="19" letter-spacing="0.4" fill="#191919">THE GATE</text><text x="363" y="152" font-family="IBM Plex Mono, monospace" font-size="13" fill="#191919">fastpdlc validate</text><text x="363" y="178" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="#191919">PAC-001  schema</text><text x="363" y="200" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="#191919">PAC-020  graph</text><text x="363" y="222" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="#191919">PAC-060  staleness</text><text x="440" y="288" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#6b6b6b">non-zero exit blocks the merge</text><line x1="540" y1="185" x2="605" y2="185" stroke="#191919" stroke-width="3.5" marker-end="url(#head)"/><rect x="615" y="130" width="200" height="120" rx="14" fill="#191919"/><rect x="610" y="125" width="200" height="120" rx="14" fill="#fff" stroke="#191919" stroke-width="3.5"/><text x="628" y="155" font-family="Anton, Impact, sans-serif" font-size="19" letter-spacing="0.4" fill="#191919">ONE BUNDLE</text><text x="628" y="168" font-family="IBM Plex Mono, monospace" font-size="12" fill="#191919">product.generated</text><text x="628" y="186" font-family="IBM Plex Mono, monospace" font-size="12" fill="#191919">.json</text><text x="628" y="215" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="#6b6b6b">committed, byte-stable</text><line x1="815" y1="185" x2="930" y2="90" stroke="#191919" stroke-width="3.5" marker-end="url(#head)"/><rect x="940" y="74" width="200" height="38" rx="9" fill="#4a90e2" stroke="#191919" stroke-width="3"/><text x="1040" y="99" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="16" fill="#191919">Document</text><line x1="815" y1="185" x2="930" y2="198" stroke="#191919" stroke-width="3.5" marker-end="url(#head)"/><rect x="940" y="182" width="200" height="38" rx="9" fill="#b47cff" stroke="#191919" stroke-width="3"/><text x="1040" y="207" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="16" fill="#191919">Roadmap</text><line x1="815" y1="185" x2="930" y2="306" stroke="#191919" stroke-width="3.5" marker-end="url(#head)"/><rect x="940" y="290" width="200" height="38" rx="9" fill="#00b67a" stroke="#191919" stroke-width="3"/><text x="1040" y="315" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="16" fill="#191919">Operations</text><rect x="610" y="268" width="200" height="32" rx="8" fill="#fff" stroke="#191919" stroke-width="2.5" stroke-dasharray="6 4"/><text x="710" y="289" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12.5" fill="#191919">PAC-9xx on each edge</text><text x="710" y="320" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12.5" fill="#6b6b6b">your plugin checks</text><rect x="25" y="400" width="1105" height="150" rx="16" fill="#191919"/><text x="55" y="440" font-family="Anton, Impact, sans-serif" font-size="21" fill="#fbcc00" letter-spacing="0.5">THE AUDIT TRAIL</text><text x="55" y="466" font-family="IBM Plex Sans, sans-serif" font-size="14" fill="#c9c9c9">Every box above is a file in git. Every arrow is a check that ran in CI.</text><rect x="55" y="486" width="250" height="46" rx="9" fill="#232323" stroke="#3a3a3a" stroke-width="2"/><text x="71" y="506" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="700" fill="#00b67a">Every change</text><text x="71" y="523" font-family="IBM Plex Sans, sans-serif" font-size="12.5" fill="#b8b8b8">is a reviewed commit</text><rect x="327" y="486" width="250" height="46" rx="9" fill="#232323" stroke="#3a3a3a" stroke-width="2"/><text x="343" y="506" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="700" fill="#00b67a">Every gate run</text><text x="343" y="523" font-family="IBM Plex Sans, sans-serif" font-size="12.5" fill="#b8b8b8">is a CI record</text><rect x="599" y="486" width="250" height="46" rx="9" fill="#232323" stroke="#3a3a3a" stroke-width="2"/><text x="615" y="506" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="700" fill="#00b67a">Every finding</text><text x="615" y="523" font-family="IBM Plex Sans, sans-serif" font-size="12.5" fill="#b8b8b8">has a stable code</text><rect x="871" y="486" width="250" height="46" rx="9" fill="#232323" stroke="#3a3a3a" stroke-width="2"/><text x="887" y="506" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="700" fill="#00b67a">Every bundle</text><text x="887" y="523" font-family="IBM Plex Sans, sans-serif" font-size="12.5" fill="#b8b8b8">is byte-reproducible</text></svg>
+      <svg viewBox="0 0 1160 600" role="img" aria-label="Product intent and code share one repository, one gate, and fan out to every surface, with a check on each edge and an audit record of every run." style="width:100%;height:auto"><defs><marker id="head" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#191919"/></marker></defs><rect x="25" y="65" width="250" height="250" rx="14" fill="#191919"/><rect x="20" y="60" width="250" height="250" rx="14" fill="#fff9e6" stroke="#191919" stroke-width="3.5"/><text x="38" y="90" font-family="Anton, Impact, sans-serif" font-size="19" letter-spacing="0.4" fill="#191919">PRODUCT INTENT</text><rect x="42" y="92" width="206" height="30" rx="7" fill="#fff" stroke="#191919" stroke-width="2.5"/><text x="145.0" y="112" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#191919">terms</text><rect x="42" y="136" width="206" height="30" rx="7" fill="#fff" stroke="#191919" stroke-width="2.5"/><text x="145.0" y="156" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#191919">rules</text><rect x="42" y="180" width="206" height="30" rx="7" fill="#fff" stroke="#191919" stroke-width="2.5"/><text x="145.0" y="200" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#191919">features</text><rect x="42" y="224" width="206" height="30" rx="7" fill="#fff" stroke="#191919" stroke-width="2.5"/><text x="145.0" y="244" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#191919">decisions</text><text x="145" y="330" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#6b6b6b">markdown + frontmatter, in your repo</text><line x1="275" y1="185" x2="340" y2="185" stroke="#191919" stroke-width="3.5" marker-end="url(#head)"/><rect x="350" y="110" width="190" height="160" rx="14" fill="#191919"/><rect x="345" y="105" width="190" height="160" rx="14" fill="#fbcc00" stroke="#191919" stroke-width="3.5"/><text x="363" y="135" font-family="Anton, Impact, sans-serif" font-size="19" letter-spacing="0.4" fill="#191919">THE GATE</text><text x="363" y="152" font-family="IBM Plex Mono, monospace" font-size="13" fill="#191919">keelspec validate</text><text x="363" y="178" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="#191919">PAC-001  schema</text><text x="363" y="200" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="#191919">PAC-020  graph</text><text x="363" y="222" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="#191919">PAC-060  staleness</text><text x="440" y="288" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#6b6b6b">non-zero exit blocks the merge</text><line x1="540" y1="185" x2="605" y2="185" stroke="#191919" stroke-width="3.5" marker-end="url(#head)"/><rect x="615" y="130" width="200" height="120" rx="14" fill="#191919"/><rect x="610" y="125" width="200" height="120" rx="14" fill="#fff" stroke="#191919" stroke-width="3.5"/><text x="628" y="155" font-family="Anton, Impact, sans-serif" font-size="19" letter-spacing="0.4" fill="#191919">ONE BUNDLE</text><text x="628" y="168" font-family="IBM Plex Mono, monospace" font-size="12" fill="#191919">product.generated</text><text x="628" y="186" font-family="IBM Plex Mono, monospace" font-size="12" fill="#191919">.json</text><text x="628" y="215" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="#6b6b6b">committed, byte-stable</text><line x1="815" y1="185" x2="930" y2="90" stroke="#191919" stroke-width="3.5" marker-end="url(#head)"/><rect x="940" y="74" width="200" height="38" rx="9" fill="#4a90e2" stroke="#191919" stroke-width="3"/><text x="1040" y="99" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="16" fill="#191919">Document</text><line x1="815" y1="185" x2="930" y2="198" stroke="#191919" stroke-width="3.5" marker-end="url(#head)"/><rect x="940" y="182" width="200" height="38" rx="9" fill="#b47cff" stroke="#191919" stroke-width="3"/><text x="1040" y="207" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="16" fill="#191919">Roadmap</text><line x1="815" y1="185" x2="930" y2="306" stroke="#191919" stroke-width="3.5" marker-end="url(#head)"/><rect x="940" y="290" width="200" height="38" rx="9" fill="#00b67a" stroke="#191919" stroke-width="3"/><text x="1040" y="315" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="16" fill="#191919">Operations</text><rect x="610" y="268" width="200" height="32" rx="8" fill="#fff" stroke="#191919" stroke-width="2.5" stroke-dasharray="6 4"/><text x="710" y="289" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12.5" fill="#191919">PAC-9xx on each edge</text><text x="710" y="320" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12.5" fill="#6b6b6b">your plugin checks</text><rect x="25" y="400" width="1105" height="150" rx="16" fill="#191919"/><text x="55" y="440" font-family="Anton, Impact, sans-serif" font-size="21" fill="#fbcc00" letter-spacing="0.5">THE AUDIT TRAIL</text><text x="55" y="466" font-family="IBM Plex Sans, sans-serif" font-size="14" fill="#c9c9c9">Every box above is a file in git. Every arrow is a check that ran in CI.</text><rect x="55" y="486" width="250" height="46" rx="9" fill="#232323" stroke="#3a3a3a" stroke-width="2"/><text x="71" y="506" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="700" fill="#00b67a">Every change</text><text x="71" y="523" font-family="IBM Plex Sans, sans-serif" font-size="12.5" fill="#b8b8b8">is a reviewed commit</text><rect x="327" y="486" width="250" height="46" rx="9" fill="#232323" stroke="#3a3a3a" stroke-width="2"/><text x="343" y="506" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="700" fill="#00b67a">Every gate run</text><text x="343" y="523" font-family="IBM Plex Sans, sans-serif" font-size="12.5" fill="#b8b8b8">is a CI record</text><rect x="599" y="486" width="250" height="46" rx="9" fill="#232323" stroke="#3a3a3a" stroke-width="2"/><text x="615" y="506" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="700" fill="#00b67a">Every finding</text><text x="615" y="523" font-family="IBM Plex Sans, sans-serif" font-size="12.5" fill="#b8b8b8">has a stable code</text><rect x="871" y="486" width="250" height="46" rx="9" fill="#232323" stroke="#3a3a3a" stroke-width="2"/><text x="887" y="506" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="700" fill="#00b67a">Every bundle</text><text x="887" y="523" font-family="IBM Plex Sans, sans-serif" font-size="12.5" fill="#b8b8b8">is byte-reproducible</text></svg>
     </div>
 
     <p class="muted" style="margin-top:1rem;font-size:0.92rem;max-width:52rem">
-      <strong>What ships today:</strong> <code style="font-family:var(--mono)">fastpdlc
-      orchestrate</code> runs ST-01 to ST-06, and <code style="font-family:var(--mono)">fastpdlc
+      <strong>What ships today:</strong> <code style="font-family:var(--mono)">keelspec
+      orchestrate</code> runs ST-01 to ST-06, and <code style="font-family:var(--mono)">keelspec
       validate</code> is ST-08. Assembling a pull request (ST-07) and reading production
       back into intent (ST-10) are your pipeline's job &mdash; the library has no git,
       no network and no way to merge, by design.
@@ -175,7 +175,7 @@
         <div class="tl-time">02</div>
         <div>
           <h3>The control is the gate</h3>
-          <p><code>fastpdlc validate</code> runs on every pull request (PR) and its exit code decides
+          <p><code>keelspec validate</code> runs on every pull request (PR) and its exit code decides
             whether the change merges. That is a control with an enforcement mechanism, not a
             policy document asking people to be careful.</p>
         </div>
@@ -194,7 +194,7 @@
         <div class="tl-time">04</div>
         <div>
           <h3>The record is exportable</h3>
-          <p><code>fastpdlc evidence -o build/evidence.json</code> emits what was checked, when,
+          <p><code>keelspec evidence -o build/evidence.json</code> emits what was checked, when,
             on which commit, and with what result &mdash; every artifact, the config and the
             bundle carrying a SHA-256. An auditor verifies it by recomputing digests, not by
             trusting the issuer. For a date in the past, check out that commit and run it again.</p>
@@ -233,7 +233,7 @@
   <div class="wrap">
     <div class="footer-grid">
       <div>
-        <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+        <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
         <p class="footer-blurb">Product-as-code as a validated graph &mdash; for any project.
           Typed artifacts in, a compiled bundle out, and a CI gate in between.</p>
       </div>
@@ -252,8 +252,8 @@
         <ul>
           <li><a href="/who-we-are.html">Who we are</a></li>
           <li><a href="/contact.html">Contact us</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc">GitHub</a></li>
-          <li><a href="https://pypi.org/project/fastpdlc/">PyPI</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a></li>
+          <li><a href="https://pypi.org/project/keelspec/">PyPI</a></li>
         </ul>
       </div>
       <div>
@@ -262,16 +262,16 @@
           <li><a href="/privacy.html">Privacy policy</a></li>
           <li><a href="/terms.html">Terms of use</a></li>
           <li><a href="/sms-opt-in.html">SMS opt-in</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc/blob/main/LICENSE">LGPL-3.0-or-later</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec/blob/main/LICENSE">Apache-2.0</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-base">
-      <span>&copy; <span id="year">2026</span> FastPDLC. This blog is compiled and validated by FastPDLC itself.</span>
-      <span><code style="font-family:var(--mono)">pip install fastpdlc</code></span>
+      <span>&copy; <span id="year">2026</span> KeelSpec. This blog is compiled and validated by KeelSpec itself.</span>
+      <span><code style="font-family:var(--mono)">pip install keelspec</code></span>
     </div>
   </div>
 </footer>
-<script src="/main.js?v=5cff99773b" defer></script>
+<script src="/main.js?v=83d8314a2b" defer></script>
 </body>
 </html>

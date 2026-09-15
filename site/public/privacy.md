@@ -1,7 +1,7 @@
 ---
-title: Privacy · FastPDLC
+title: Privacy · KeelSpec
 description: Short version: an email address if you type one into the form, and aggregate page counts. No cookies, no third-party trackers, no advertising networks.
-url: https://fastpdlc.com/privacy.html
+url: https://keelspec.com/privacy.html
 ---
 # What this site collects.
 
@@ -29,7 +29,7 @@ Page views are counted with a self-hosted, cookieless analytics instance running
 ## Third parties
 
 There are none on this site. Fonts, stylesheets and scripts are all served from
- `fastpdlc.com`, so your browser makes no request to any other host while
+ `keelspec.com`, so your browser makes no request to any other host while
  reading it — no font CDN, no analytics vendor, no tag manager, no embedded
  widgets. Nothing about your visit reaches anyone but us.
 
@@ -42,7 +42,7 @@ The site runs on a server in the European Union. Standard web server logs (IP ad
 ## Your rights and contact
 
 You can ask what is stored about you, ask for a copy, or ask for it to be deleted.
- Open an issue on [GitHub](https://github.com/tarvitave/fastpdlc/issues), or
+ Open an issue on [GitHub](https://github.com/tarvitave/keelspec/issues), or
  write to the address listed in the repository.
 
 [Back to the front page](/)

@@ -1,7 +1,7 @@
 ---
-title: What a dangling reference actually costs — FastPDLC
+title: What a dangling reference actually costs — KeelSpec
 description: PAC-020 looks like a link checker. It is really a rename detector, and renames are where product knowledge goes to die.
-url: https://fastpdlc.com/blog/dangling-references.html
+url: https://keelspec.com/blog/dangling-references.html
 ---
 # What a dangling reference actually costs
 

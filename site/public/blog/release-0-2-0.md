@@ -1,19 +1,19 @@
 ---
-title: FastPDLC 0.2.0 — evidence records and the agent-built lifecycle — FastPDLC
+title: KeelSpec 0.2.0 — evidence records and the agent-built lifecycle — KeelSpec
 description: Two new surfaces on top of the compiler and the gate. The core is unchanged - two dependencies, no network, still the thing CI runs.
-url: https://fastpdlc.com/blog/release-0-2-0.html
+url: https://keelspec.com/blog/release-0-2-0.html
 ---
-# FastPDLC 0.2.0 — evidence records and the agent-built lifecycle
+# KeelSpec 0.2.0 — evidence records and the agent-built lifecycle
 
 Two new surfaces on top of the compiler and the gate. The core is unchanged - two dependencies, no network, still the thing CI runs.
 
-`pip install fastpdlc` now gets you 0.2.0. `build` and `validate` are untouched: same two dependencies, same absence of network access, same job. Everything below is additive.
+`pip install keelspec` now gets you 0.2.0. `build` and `validate` are untouched: same two dependencies, same absence of network access, same job. Everything below is additive.
 
 ## The agent-built lifecycle
 
 ```
-pip install 'fastpdlc[agents]'
-fastpdlc orchestrate FEAT-refunds
+pip install 'keelspec[agents]'
+keelspec orchestrate FEAT-refunds
 ```
 
 A station line runs over one artifact: **Understand → Disambiguate → Design → Develop → Test → adversarial Verify**, with a bounded repair loop.
@@ -61,12 +61,12 @@ It cannot merge. The terminal state is a report; every station past the gate is 
 ## Evidence records
 
 ```
-fastpdlc evidence -o build/evidence.json
+keelspec evidence -o build/evidence.json
 ```
 
 What was checked, when, on which commit, with what result. Every artifact, the config and the bundle carry a SHA-256, so the record is verified by recomputing digests rather than by trusting whoever produced it — a stronger property than a signature here, since a signature proves who made a claim and a digest proves the claim is true.
 
-There is deliberately no `--since`. Historical evidence is a checkout away: bundles are byte-stable, so `git checkout <sha> && fastpdlc evidence` reproduces the same digests. Walking history inside the tool would only have hidden the property that makes the whole thing work.
+There is deliberately no `--since`. Historical evidence is a checkout away: bundles are byte-stable, so `git checkout <sha> && keelspec evidence` reproduces the same digests. Walking history inside the tool would only have hidden the property that makes the whole thing work.
 
 ## One fix worth naming
 

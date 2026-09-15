@@ -1,7 +1,7 @@
 ---
-title: Why specs rot, and why discipline will not fix it — FastPDLC
+title: Why specs rot, and why discipline will not fix it — KeelSpec
 description: Documentation decay is a structural problem, not a motivational one. Teams that resolve to try harder produce the same rot, slightly later.
-url: https://fastpdlc.com/blog/why-specs-rot.html
+url: https://keelspec.com/blog/why-specs-rot.html
 ---
 # Why specs rot, and why discipline will not fix it
 

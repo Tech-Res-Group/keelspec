@@ -1,6 +1,6 @@
 ---
-title: Newsletter archive — FastPDLC
-url: https://fastpdlc.com/newsletters/
+title: Newsletter archive — KeelSpec
+url: https://keelspec.com/newsletters/
 ---
 # Every issue, archived.
 

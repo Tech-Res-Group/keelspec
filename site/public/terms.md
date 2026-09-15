@@ -1,14 +1,14 @@
 ---
-title: Terms of Use — FastPDLC
-description: The terms governing use of fastpdlc.com and the FastPDLC software.
-url: https://fastpdlc.com/terms.html
+title: Terms of Use — KeelSpec
+description: The terms governing use of keelspec.com and the KeelSpec software.
+url: https://keelspec.com/terms.html
 ---
 # Terms of use
 
 Last updated 23 August 2026
 
-These terms govern your use of **fastpdlc.com** (the “site”) and any
-services offered through it. The FastPDLC software itself is licensed separately — see
+These terms govern your use of **keelspec.com** (the “site”) and any
+services offered through it. The KeelSpec software itself is licensed separately — see
 [The software](#software) below.
 
 ## Using the site
@@ -20,11 +20,11 @@ service for others. Reasonable crawling that respects
 
 ## The software
 
-FastPDLC is distributed under the **GNU Lesser General Public License, version 3 or
+KeelSpec is distributed under the **GNU Lesser General Public License, version 3 or
 later**. That licence — not this page — governs your rights to use, modify and
-redistribute the software. In particular, importing FastPDLC as a library or running it in your
-CI does not place your own project under the LGPL. The full text ships with the package and is
-available in the [repository](https://github.com/tarvitave/fastpdlc/blob/main/LICENSE).
+redistribute the software. In particular, importing KeelSpec as a library or running it in your
+CI places no obligation on your own project beyond the notice. The full text ships with the package and is
+available in the [repository](https://github.com/Tech-Res-Group/keelspec/blob/main/LICENSE).
 
 The software is provided **as is, without warranty of any kind**, as set out in
 the licence. Nothing on this site modifies or expands that licence.
@@ -67,6 +67,6 @@ date above. Continuing to use the site after a change constitutes acceptance.
 ## Contact
 
 Questions about these terms: [contact us](/contact.html), or open an issue on
-[GitHub](https://github.com/tarvitave/fastpdlc/issues).
+[GitHub](https://github.com/Tech-Res-Group/keelspec/issues).
 
 [Back to the front page](/)

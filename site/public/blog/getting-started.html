@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Product-as-code in thirty minutes — FastPDLC</title>
+<title>Product-as-code in thirty minutes — KeelSpec</title>
 <meta name="description" content="A working glossary, a rulebook, and a CI gate, starting from an empty directory.">
-<link rel="canonical" href="https://fastpdlc.com/blog/getting-started.html">
+<link rel="canonical" href="https://keelspec.com/blog/getting-started.html">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Product-as-code in thirty minutes — FastPDLC">
+<meta property="og:title" content="Product-as-code in thirty minutes — KeelSpec">
 <meta property="og:description" content="A working glossary, a rulebook, and a CI gate, starting from an empty directory.">
-<meta property="og:url" content="https://fastpdlc.com/blog/getting-started.html">
+<meta property="og:url" content="https://keelspec.com/blog/getting-started.html">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:image" content="https://fastpdlc.com/og.png">
+<meta property="og:image" content="https://keelspec.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='9' fill='%23191919'/><path d='M10.5 21.5 L17 28 L29.5 12.5' fill='none' stroke='%23fbcc00' stroke-width='4.6' stroke-linecap='round' stroke-linejoin='round'/><circle cx='10.5' cy='21.5' r='3.6' fill='%23fff'/><circle cx='29.5' cy='12.5' r='3.6' fill='%2300b67a'/></svg>">
-<link rel="stylesheet" href="/styles.css?v=ef971950ff">
+<link rel="stylesheet" href="/styles.css?v=2087441c60">
 <link rel="stylesheet" href="/blog.css?v=ec4b67b85c">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Product-as-code in thirty minutes", "description": "A working glossary, a rulebook, and a CI gate, starting from an empty directory.", "datePublished": "2026-06-17", "author": {"@type": "Organization", "name": "FastPDLC"}, "url": "https://fastpdlc.com/blog/getting-started.html"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Product-as-code in thirty minutes", "description": "A working glossary, a rulebook, and a CI gate, starting from an empty directory.", "datePublished": "2026-06-17", "author": {"@type": "Organization", "name": "KeelSpec"}, "url": "https://keelspec.com/blog/getting-started.html"}</script>
 </head>
 <body>
 <header class="nav">
   <div class="wrap nav-inner">
-    <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+    <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
     <nav class="nav-links" id="navLinks">
       <a href="/#how">How it works</a>
@@ -30,7 +30,7 @@
       <a href="/#diagnostics">Diagnostics</a>
       <a href="/blog/">Blog</a>
       <a href="/#faq">FAQ</a>
-      <a href="https://github.com/tarvitave/fastpdlc">GitHub</a>
+      <a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a>
       <a class="btn btn-primary nav-cta" href="/#start">Get started</a>
     </nav>
   </div>
@@ -43,14 +43,14 @@
     <h1>Product-as-code in thirty minutes</h1>
     <p class="lede post-summary">A working glossary, a rulebook, and a CI gate, starting from an empty directory.</p>
     <div class="post-meta">17 June 2026 &middot; 5 min read
-      &middot; FastPDLC</div>
+      &middot; KeelSpec</div>
     <div class="post-body">
       <p>The fastest way to understand this is to run it. Thirty minutes, start to finish.</p>
 <h2>Install</h2>
-<pre><code>pip install fastpdlc</code></pre>
+<pre><code>pip install keelspec</code></pre>
 <p>Or scaffold a complete repository -- config, example artifacts and the CI gate -- in one command:</p>
-<pre><code>pipx run copier copy --trust gh:tarvitave/fastpdlc my-product-repo</code></pre>
-<p><code>--trust</code> lets the template run <code>fastpdlc build</code> once so the new repository is valid on its first commit.</p>
+<pre><code>pipx run copier copy --trust gh:Tech-Res-Group/keelspec my-product-repo</code></pre>
+<p><code>--trust</code> lets the template run <code>keelspec build</code> once so the new repository is valid on its first commit.</p>
 <h2>Declare two types</h2>
 <p><code>product.config.yaml</code>:</p>
 <pre><code>product_dir: product
@@ -80,8 +80,8 @@ see_also: [TERM-ledger]
 The canonical unit of work in the system.</code></pre>
 <p>Note <code>see_also</code> points at <code>TERM-ledger</code>. Build now and it fails, because that term does not exist yet -- which is the tool working correctly. Write it, or drop the reference.</p>
 <h2>Build and validate</h2>
-<pre><code>fastpdlc build       # -&gt; build/product.generated.json  (commit it)
-fastpdlc validate    # schema + graph + staleness</code></pre>
+<pre><code>keelspec build       # -&gt; build/product.generated.json  (commit it)
+keelspec validate    # schema + graph + staleness</code></pre>
 <p><code>validate</code> exits non-zero when it finds errors. That exit code is the entire contract.</p>
 <h2>Gate it</h2>
 <pre><code>name: product-as-code
@@ -91,7 +91,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tarvitave/fastpdlc@v0.2.0</code></pre>
+      - uses: Tech-Res-Group/keelspec@v0.2.0</code></pre>
 <p>Commit the bundle alongside the artifacts. That is what makes staleness detectable.</p>
 <h2>Now break it on purpose</h2>
 <p>Worth five minutes: rename <code>TERM-ledger</code> and push. Watch <code>PAC-020</code> name the file that still references the old id. Delete a required field and watch <code>PAC-001</code>. Edit the committed bundle by hand and watch <code>PAC-060</code>.</p>
@@ -123,7 +123,7 @@ jobs:
   <div class="wrap">
     <div class="footer-grid">
       <div>
-        <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+        <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
         <p class="footer-blurb">Product-as-code as a validated graph &mdash; for any project.
           Typed artifacts in, a compiled bundle out, and a CI gate in between.</p>
       </div>
@@ -142,8 +142,8 @@ jobs:
         <ul>
           <li><a href="/who-we-are.html">Who we are</a></li>
           <li><a href="/contact.html">Contact us</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc">GitHub</a></li>
-          <li><a href="https://pypi.org/project/fastpdlc/">PyPI</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a></li>
+          <li><a href="https://pypi.org/project/keelspec/">PyPI</a></li>
         </ul>
       </div>
       <div>
@@ -152,16 +152,16 @@ jobs:
           <li><a href="/privacy.html">Privacy policy</a></li>
           <li><a href="/terms.html">Terms of use</a></li>
           <li><a href="/sms-opt-in.html">SMS opt-in</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc/blob/main/LICENSE">LGPL-3.0-or-later</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec/blob/main/LICENSE">Apache-2.0</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-base">
-      <span>&copy; <span id="year">2026</span> FastPDLC. This blog is compiled and validated by FastPDLC itself.</span>
-      <span><code style="font-family:var(--mono)">pip install fastpdlc</code></span>
+      <span>&copy; <span id="year">2026</span> KeelSpec. This blog is compiled and validated by KeelSpec itself.</span>
+      <span><code style="font-family:var(--mono)">pip install keelspec</code></span>
     </div>
   </div>
 </footer>
-<script src="/main.js?v=5cff99773b" defer></script>
+<script src="/main.js?v=83d8314a2b" defer></script>
 </body>
 </html>

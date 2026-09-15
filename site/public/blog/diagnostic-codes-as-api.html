@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Diagnostic codes are an API — FastPDLC</title>
+<title>Diagnostic codes are an API — KeelSpec</title>
 <meta name="description" content="Treat your error codes with the same seriousness as your function signatures, because downstream systems depend on both.">
-<link rel="canonical" href="https://fastpdlc.com/blog/diagnostic-codes-as-api.html">
+<link rel="canonical" href="https://keelspec.com/blog/diagnostic-codes-as-api.html">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Diagnostic codes are an API — FastPDLC">
+<meta property="og:title" content="Diagnostic codes are an API — KeelSpec">
 <meta property="og:description" content="Treat your error codes with the same seriousness as your function signatures, because downstream systems depend on both.">
-<meta property="og:url" content="https://fastpdlc.com/blog/diagnostic-codes-as-api.html">
+<meta property="og:url" content="https://keelspec.com/blog/diagnostic-codes-as-api.html">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:image" content="https://fastpdlc.com/og.png">
+<meta property="og:image" content="https://keelspec.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='9' fill='%23191919'/><path d='M10.5 21.5 L17 28 L29.5 12.5' fill='none' stroke='%23fbcc00' stroke-width='4.6' stroke-linecap='round' stroke-linejoin='round'/><circle cx='10.5' cy='21.5' r='3.6' fill='%23fff'/><circle cx='29.5' cy='12.5' r='3.6' fill='%2300b67a'/></svg>">
-<link rel="stylesheet" href="/styles.css?v=ef971950ff">
+<link rel="stylesheet" href="/styles.css?v=2087441c60">
 <link rel="stylesheet" href="/blog.css?v=ec4b67b85c">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Diagnostic codes are an API", "description": "Treat your error codes with the same seriousness as your function signatures, because downstream systems depend on both.", "datePublished": "2026-03-18", "author": {"@type": "Organization", "name": "FastPDLC"}, "url": "https://fastpdlc.com/blog/diagnostic-codes-as-api.html"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Diagnostic codes are an API", "description": "Treat your error codes with the same seriousness as your function signatures, because downstream systems depend on both.", "datePublished": "2026-03-18", "author": {"@type": "Organization", "name": "KeelSpec"}, "url": "https://keelspec.com/blog/diagnostic-codes-as-api.html"}</script>
 </head>
 <body>
 <header class="nav">
   <div class="wrap nav-inner">
-    <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+    <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
     <nav class="nav-links" id="navLinks">
       <a href="/#how">How it works</a>
@@ -30,7 +30,7 @@
       <a href="/#diagnostics">Diagnostics</a>
       <a href="/blog/">Blog</a>
       <a href="/#faq">FAQ</a>
-      <a href="https://github.com/tarvitave/fastpdlc">GitHub</a>
+      <a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a>
       <a class="btn btn-primary nav-cta" href="/#start">Get started</a>
     </nav>
   </div>
@@ -43,12 +43,12 @@
     <h1>Diagnostic codes are an API</h1>
     <p class="lede post-summary">Treat your error codes with the same seriousness as your function signatures, because downstream systems depend on both.</p>
     <div class="post-meta">18 March 2026 &middot; 3 min read
-      &middot; FastPDLC</div>
+      &middot; KeelSpec</div>
     <div class="post-body">
       <p>Compilers learned this decades ago. <code>error: C2065</code> means something specific, forever, and an entire ecosystem of tooling depends on it.</p>
 <p>Validation tools usually do not learn it, and then wonder why nobody automates around them.</p>
 <h2>The contract</h2>
-<p>FastPDLC&#x27;s core codes occupy documented ranges:</p>
+<p>KeelSpec&#x27;s core codes occupy documented ranges:</p>
 <ul><li><code>00x</code> required-field and schema</li><li><code>01x</code> id and graph integrity</li><li><code>02x</code> cross-reference resolution</li><li><code>03x</code> enum and allowed values</li><li><code>06x</code> generated-bundle staleness</li></ul>
 <p>The rule is short: <strong>never renumber an existing code.</strong> If a check changes meaning, retire the old number and add a new one. Renumbering silently breaks everything downstream, and it breaks it quietly, which is the worst way.</p>
 <h2>What depends on codes</h2>
@@ -89,7 +89,7 @@
   <div class="wrap">
     <div class="footer-grid">
       <div>
-        <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+        <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
         <p class="footer-blurb">Product-as-code as a validated graph &mdash; for any project.
           Typed artifacts in, a compiled bundle out, and a CI gate in between.</p>
       </div>
@@ -108,8 +108,8 @@
         <ul>
           <li><a href="/who-we-are.html">Who we are</a></li>
           <li><a href="/contact.html">Contact us</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc">GitHub</a></li>
-          <li><a href="https://pypi.org/project/fastpdlc/">PyPI</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a></li>
+          <li><a href="https://pypi.org/project/keelspec/">PyPI</a></li>
         </ul>
       </div>
       <div>
@@ -118,16 +118,16 @@
           <li><a href="/privacy.html">Privacy policy</a></li>
           <li><a href="/terms.html">Terms of use</a></li>
           <li><a href="/sms-opt-in.html">SMS opt-in</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc/blob/main/LICENSE">LGPL-3.0-or-later</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec/blob/main/LICENSE">Apache-2.0</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-base">
-      <span>&copy; <span id="year">2026</span> FastPDLC. This blog is compiled and validated by FastPDLC itself.</span>
-      <span><code style="font-family:var(--mono)">pip install fastpdlc</code></span>
+      <span>&copy; <span id="year">2026</span> KeelSpec. This blog is compiled and validated by KeelSpec itself.</span>
+      <span><code style="font-family:var(--mono)">pip install keelspec</code></span>
     </div>
   </div>
 </footer>
-<script src="/main.js?v=5cff99773b" defer></script>
+<script src="/main.js?v=83d8314a2b" defer></script>
 </body>
 </html>

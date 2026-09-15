@@ -1,11 +1,11 @@
 ---
-title: Who We Are — FastPDLC
-description: The people behind FastPDLC and the payments platform it was extracted from.
-url: https://fastpdlc.com/who-we-are.html
+title: Who We Are — KeelSpec
+description: The people behind KeelSpec and the payments platform it was extracted from.
+url: https://keelspec.com/who-we-are.html
 ---
 # Who we are
 
-FastPDLC was not built as a product. It was built because a payments platform
+KeelSpec was not built as a product. It was built because a payments platform
 needed its product intent to stop rotting, and the thing that fixed it turned out to be worth
 extracting.
 
@@ -13,7 +13,7 @@ extracting.
 
 Built the product-as-code engine inside the pharthing /
  KibiPay payments platform, where it grew to cover 39 features, a concept catalogue and a
- rulebook, and became the platform's sole product CI gate. Extracted it as FastPDLC so
+ rulebook, and became the platform's sole product CI gate. Extracted it as KeelSpec so
  other teams could use it — verified by a byte-identical parity test proving nothing
  was lost on the way out.
 
@@ -27,7 +27,7 @@ He writes about software and other preoccupations at
 
 ## Where it came from
 
-The pharthing / KibiPay payments platform runs `fastpdlc validate` as its only
+The pharthing / KibiPay payments platform runs `keelspec validate` as its only
 product gate, via a plugin that adds domain-specific checks. Every feature in the tool exists
 because something went wrong without it: the staleness gate because specs silently diverged from
 builds, typed references because renames quietly orphaned business rules, plugins because a real
@@ -48,7 +48,7 @@ You can read more about what survived contact with production in
 ## Get in touch
 
 Bugs and feature requests belong on
-[GitHub](https://github.com/tarvitave/fastpdlc/issues), where they are public and
+[GitHub](https://github.com/Tech-Res-Group/keelspec/issues), where they are public and
 tracked. Anything else, use the [contact page](/contact.html).
 
 [Back to the front page](/)

@@ -1,7 +1,7 @@
 ---
-title: Naming artifact ids you will not regret — FastPDLC
+title: Naming artifact ids you will not regret — KeelSpec
 description: Ids are the most permanent thing you will write. A few conventions keep them from becoming a source of churn.
-url: https://fastpdlc.com/blog/naming-ids.html
+url: https://keelspec.com/blog/naming-ids.html
 ---
 # Naming artifact ids you will not regret
 
@@ -11,7 +11,7 @@ An id is a promise that other artifacts can depend on. Renaming one is a graph-w
 
 ## Prefix by collection
 
-`TERM-`, `BR-`, `FEAT-`, `ADR-`. FastPDLC enforces this with `id_prefix`, and the value is not bureaucratic: a bare id in a reference field tells a reader nothing, while `BR-idempotent` announces its collection. When you see it in a diff, in a log line, or in a support conversation, you know what kind of thing it is.
+`TERM-`, `BR-`, `FEAT-`, `ADR-`. KeelSpec enforces this with `id_prefix`, and the value is not bureaucratic: a bare id in a reference field tells a reader nothing, while `BR-idempotent` announces its collection. When you see it in a diff, in a log line, or in a support conversation, you know what kind of thing it is.
 
 ## Match the filename
 

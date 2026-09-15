@@ -1,13 +1,13 @@
 ---
-title: PAC-060, the check nobody else has — FastPDLC
+title: PAC-060, the check nobody else has — KeelSpec
 description: Schema validation is common. Reference checking is rare. Proving the committed build still matches its sources is the one that catches real drift.
-url: https://fastpdlc.com/blog/the-staleness-gate.html
+url: https://keelspec.com/blog/the-staleness-gate.html
 ---
 # PAC-060, the check nobody else has
 
 Schema validation is common. Reference checking is rare. Proving the committed build still matches its sources is the one that catches real drift.
 
-FastPDLC emits seven core diagnostic codes. Six of them do what you would expect: required fields, id prefixes, filename agreement, duplicates, enum membership, reference resolution. Useful, unremarkable.
+KeelSpec emits seven core diagnostic codes. Six of them do what you would expect: required fields, id prefixes, filename agreement, duplicates, enum membership, reference resolution. Useful, unremarkable.
 
 `PAC-060` is the one that earns its place.
 
@@ -16,7 +16,7 @@ FastPDLC emits seven core diagnostic codes. Six of them do what you would expect
 The artifacts compile to a JSON bundle, and that bundle is committed to the repository. `PAC-060` recomputes the bundle from the current sources and compares it to the committed one. If they differ, the build fails:
 
 ```
-PAC-060  build/product.generated.json is stale - run: fastpdlc build (and commit it)
+PAC-060  build/product.generated.json is stale - run: keelspec build (and commit it)
 ```
 
 That is it. It is almost embarrassingly simple, and it catches a class of failure that nothing else does.

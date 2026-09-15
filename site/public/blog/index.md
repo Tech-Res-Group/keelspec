@@ -1,15 +1,15 @@
 ---
-title: Blog — FastPDLC
+title: Blog — KeelSpec
 description: Notes on product-as-code: why specs rot, what a validated graph buys you, and what breaks in real repositories.
-url: https://fastpdlc.com/blog/
+url: https://keelspec.com/blog/
 ---
 # Notes on product-as-code.
 
 Why specs rot, what a validated graph buys you, and what breaks in real
  repositories. Every post on this page is a typed artifact — ids, categories and
- cross-links are validated by `fastpdlc` in CI.
+ cross-links are validated by `keelspec` in CI.
 
-### FastPDLC 0.2.0 — evidence records and the agent-built lifecycle
+### KeelSpec 0.2.0 — evidence records and the agent-built lifecycle
 
 Two new surfaces on top of the compiler and the gate. The core is unchanged - two dependencies, no network, still the thing CI runs.
 
@@ -27,7 +27,7 @@ One compiled artifact, many surfaces. The point is not convenience -- it is that
 
 ### What we learned running this in payments
 
-FastPDLC was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.
+KeelSpec was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.
 
 ### Modelling lifecycles with enums
 

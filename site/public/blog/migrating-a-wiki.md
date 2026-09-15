@@ -1,7 +1,7 @@
 ---
-title: Migrating a wiki to product-as-code — FastPDLC
+title: Migrating a wiki to product-as-code — KeelSpec
 description: How to move years of accumulated pages without a six-month project or a big-bang rewrite.
-url: https://fastpdlc.com/blog/migrating-a-wiki.html
+url: https://keelspec.com/blog/migrating-a-wiki.html
 ---
 # Migrating a wiki to product-as-code
 
@@ -33,7 +33,7 @@ Move the terms. Do not improve them yet -- copy them across as they are. Improvi
 
 ## Step two: turn on the gate before you feel ready
 
-Add `fastpdlc validate` to CI while the glossary is still incomplete. The gate does not care that you have twelve terms instead of two hundred. What it does is stop the twelve from rotting while you migrate the rest.
+Add `keelspec validate` to CI while the glossary is still incomplete. The gate does not care that you have twelve terms instead of two hundred. What it does is stop the twelve from rotting while you migrate the rest.
 
 Teams that wait until the migration is complete before enabling the gate spend the whole migration re-fixing things.
 

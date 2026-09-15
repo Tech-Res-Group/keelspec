@@ -1,4 +1,4 @@
-/* FastPDLC — fastpdlc.com
+/* KeelSpec — keelspec.com
    No dependencies. Everything degrades to a working page if this never loads. */
 (function () {
   'use strict';

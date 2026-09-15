@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Writing business rules that survive contact with code — FastPDLC</title>
+<title>Writing business rules that survive contact with code — KeelSpec</title>
 <meta name="description" content="A rule that cannot be violated by a specific line of code is not a rule. It is a sentiment.">
-<link rel="canonical" href="https://fastpdlc.com/blog/business-rules.html">
+<link rel="canonical" href="https://keelspec.com/blog/business-rules.html">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Writing business rules that survive contact with code — FastPDLC">
+<meta property="og:title" content="Writing business rules that survive contact with code — KeelSpec">
 <meta property="og:description" content="A rule that cannot be violated by a specific line of code is not a rule. It is a sentiment.">
-<meta property="og:url" content="https://fastpdlc.com/blog/business-rules.html">
+<meta property="og:url" content="https://keelspec.com/blog/business-rules.html">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:image" content="https://fastpdlc.com/og.png">
+<meta property="og:image" content="https://keelspec.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='9' fill='%23191919'/><path d='M10.5 21.5 L17 28 L29.5 12.5' fill='none' stroke='%23fbcc00' stroke-width='4.6' stroke-linecap='round' stroke-linejoin='round'/><circle cx='10.5' cy='21.5' r='3.6' fill='%23fff'/><circle cx='29.5' cy='12.5' r='3.6' fill='%2300b67a'/></svg>">
-<link rel="stylesheet" href="/styles.css?v=ef971950ff">
+<link rel="stylesheet" href="/styles.css?v=2087441c60">
 <link rel="stylesheet" href="/blog.css?v=ec4b67b85c">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Writing business rules that survive contact with code", "description": "A rule that cannot be violated by a specific line of code is not a rule. It is a sentiment.", "datePublished": "2026-04-01", "author": {"@type": "Organization", "name": "FastPDLC"}, "url": "https://fastpdlc.com/blog/business-rules.html"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Writing business rules that survive contact with code", "description": "A rule that cannot be violated by a specific line of code is not a rule. It is a sentiment.", "datePublished": "2026-04-01", "author": {"@type": "Organization", "name": "KeelSpec"}, "url": "https://keelspec.com/blog/business-rules.html"}</script>
 </head>
 <body>
 <header class="nav">
   <div class="wrap nav-inner">
-    <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+    <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
     <nav class="nav-links" id="navLinks">
       <a href="/#how">How it works</a>
@@ -30,7 +30,7 @@
       <a href="/#diagnostics">Diagnostics</a>
       <a href="/blog/">Blog</a>
       <a href="/#faq">FAQ</a>
-      <a href="https://github.com/tarvitave/fastpdlc">GitHub</a>
+      <a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a>
       <a class="btn btn-primary nav-cta" href="/#start">Get started</a>
     </nav>
   </div>
@@ -43,7 +43,7 @@
     <h1>Writing business rules that survive contact with code</h1>
     <p class="lede post-summary">A rule that cannot be violated by a specific line of code is not a rule. It is a sentiment.</p>
     <div class="post-meta">1 April 2026 &middot; 4 min read
-      &middot; FastPDLC</div>
+      &middot; KeelSpec</div>
     <div class="post-body">
       <p>Most documents labelled &quot;business rules&quot; contain a mixture of three things: actual invariants, product decisions, and encouragement. Only the first kind is worth the ceremony of an id.</p>
 <h2>The test</h2>
@@ -96,7 +96,7 @@ Without this guarantee, every one of those becomes a double charge...</code></pr
   <div class="wrap">
     <div class="footer-grid">
       <div>
-        <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+        <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
         <p class="footer-blurb">Product-as-code as a validated graph &mdash; for any project.
           Typed artifacts in, a compiled bundle out, and a CI gate in between.</p>
       </div>
@@ -115,8 +115,8 @@ Without this guarantee, every one of those becomes a double charge...</code></pr
         <ul>
           <li><a href="/who-we-are.html">Who we are</a></li>
           <li><a href="/contact.html">Contact us</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc">GitHub</a></li>
-          <li><a href="https://pypi.org/project/fastpdlc/">PyPI</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a></li>
+          <li><a href="https://pypi.org/project/keelspec/">PyPI</a></li>
         </ul>
       </div>
       <div>
@@ -125,16 +125,16 @@ Without this guarantee, every one of those becomes a double charge...</code></pr
           <li><a href="/privacy.html">Privacy policy</a></li>
           <li><a href="/terms.html">Terms of use</a></li>
           <li><a href="/sms-opt-in.html">SMS opt-in</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc/blob/main/LICENSE">LGPL-3.0-or-later</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec/blob/main/LICENSE">Apache-2.0</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-base">
-      <span>&copy; <span id="year">2026</span> FastPDLC. This blog is compiled and validated by FastPDLC itself.</span>
-      <span><code style="font-family:var(--mono)">pip install fastpdlc</code></span>
+      <span>&copy; <span id="year">2026</span> KeelSpec. This blog is compiled and validated by KeelSpec itself.</span>
+      <span><code style="font-family:var(--mono)">pip install keelspec</code></span>
     </div>
   </div>
 </footer>
-<script src="/main.js?v=5cff99773b" defer></script>
+<script src="/main.js?v=83d8314a2b" defer></script>
 </body>
 </html>

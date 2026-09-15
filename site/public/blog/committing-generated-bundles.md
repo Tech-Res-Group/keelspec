@@ -1,7 +1,7 @@
 ---
-title: Commit the generated bundle — FastPDLC
+title: Commit the generated bundle — KeelSpec
 description: Build artifacts usually do not belong in git. This one does, and the reason is that it turns invisible drift into a reviewable diff.
-url: https://fastpdlc.com/blog/committing-generated-bundles.html
+url: https://keelspec.com/blog/committing-generated-bundles.html
 ---
 # Commit the generated bundle
 

@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PAC-060, the check nobody else has — FastPDLC</title>
+<title>PAC-060, the check nobody else has — KeelSpec</title>
 <meta name="description" content="Schema validation is common. Reference checking is rare. Proving the committed build still matches its sources is the one that catches real drift.">
-<link rel="canonical" href="https://fastpdlc.com/blog/the-staleness-gate.html">
+<link rel="canonical" href="https://keelspec.com/blog/the-staleness-gate.html">
 <meta property="og:type" content="article">
-<meta property="og:title" content="PAC-060, the check nobody else has — FastPDLC">
+<meta property="og:title" content="PAC-060, the check nobody else has — KeelSpec">
 <meta property="og:description" content="Schema validation is common. Reference checking is rare. Proving the committed build still matches its sources is the one that catches real drift.">
-<meta property="og:url" content="https://fastpdlc.com/blog/the-staleness-gate.html">
+<meta property="og:url" content="https://keelspec.com/blog/the-staleness-gate.html">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:image" content="https://fastpdlc.com/og.png">
+<meta property="og:image" content="https://keelspec.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='9' fill='%23191919'/><path d='M10.5 21.5 L17 28 L29.5 12.5' fill='none' stroke='%23fbcc00' stroke-width='4.6' stroke-linecap='round' stroke-linejoin='round'/><circle cx='10.5' cy='21.5' r='3.6' fill='%23fff'/><circle cx='29.5' cy='12.5' r='3.6' fill='%2300b67a'/></svg>">
-<link rel="stylesheet" href="/styles.css?v=ef971950ff">
+<link rel="stylesheet" href="/styles.css?v=2087441c60">
 <link rel="stylesheet" href="/blog.css?v=ec4b67b85c">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "PAC-060, the check nobody else has", "description": "Schema validation is common. Reference checking is rare. Proving the committed build still matches its sources is the one that catches real drift.", "datePublished": "2026-02-18", "author": {"@type": "Organization", "name": "FastPDLC"}, "url": "https://fastpdlc.com/blog/the-staleness-gate.html"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "PAC-060, the check nobody else has", "description": "Schema validation is common. Reference checking is rare. Proving the committed build still matches its sources is the one that catches real drift.", "datePublished": "2026-02-18", "author": {"@type": "Organization", "name": "KeelSpec"}, "url": "https://keelspec.com/blog/the-staleness-gate.html"}</script>
 </head>
 <body>
 <header class="nav">
   <div class="wrap nav-inner">
-    <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+    <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
     <nav class="nav-links" id="navLinks">
       <a href="/#how">How it works</a>
@@ -30,7 +30,7 @@
       <a href="/#diagnostics">Diagnostics</a>
       <a href="/blog/">Blog</a>
       <a href="/#faq">FAQ</a>
-      <a href="https://github.com/tarvitave/fastpdlc">GitHub</a>
+      <a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a>
       <a class="btn btn-primary nav-cta" href="/#start">Get started</a>
     </nav>
   </div>
@@ -43,13 +43,13 @@
     <h1>PAC-060, the check nobody else has</h1>
     <p class="lede post-summary">Schema validation is common. Reference checking is rare. Proving the committed build still matches its sources is the one that catches real drift.</p>
     <div class="post-meta">18 February 2026 &middot; 4 min read
-      &middot; FastPDLC</div>
+      &middot; KeelSpec</div>
     <div class="post-body">
-      <p>FastPDLC emits seven core diagnostic codes. Six of them do what you would expect: required fields, id prefixes, filename agreement, duplicates, enum membership, reference resolution. Useful, unremarkable.</p>
+      <p>KeelSpec emits seven core diagnostic codes. Six of them do what you would expect: required fields, id prefixes, filename agreement, duplicates, enum membership, reference resolution. Useful, unremarkable.</p>
 <p><code>PAC-060</code> is the one that earns its place.</p>
 <h2>What it checks</h2>
 <p>The artifacts compile to a JSON bundle, and that bundle is committed to the repository. <code>PAC-060</code> recomputes the bundle from the current sources and compares it to the committed one. If they differ, the build fails:</p>
-<pre><code>PAC-060  build/product.generated.json is stale - run: fastpdlc build (and commit it)</code></pre>
+<pre><code>PAC-060  build/product.generated.json is stale - run: keelspec build (and commit it)</code></pre>
 <p>That is it. It is almost embarrassingly simple, and it catches a class of failure that nothing else does.</p>
 <h2>Why it matters</h2>
 <p>Consider what &quot;stale&quot; actually means here. Either:</p>
@@ -93,7 +93,7 @@
   <div class="wrap">
     <div class="footer-grid">
       <div>
-        <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+        <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
         <p class="footer-blurb">Product-as-code as a validated graph &mdash; for any project.
           Typed artifacts in, a compiled bundle out, and a CI gate in between.</p>
       </div>
@@ -112,8 +112,8 @@
         <ul>
           <li><a href="/who-we-are.html">Who we are</a></li>
           <li><a href="/contact.html">Contact us</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc">GitHub</a></li>
-          <li><a href="https://pypi.org/project/fastpdlc/">PyPI</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a></li>
+          <li><a href="https://pypi.org/project/keelspec/">PyPI</a></li>
         </ul>
       </div>
       <div>
@@ -122,16 +122,16 @@
           <li><a href="/privacy.html">Privacy policy</a></li>
           <li><a href="/terms.html">Terms of use</a></li>
           <li><a href="/sms-opt-in.html">SMS opt-in</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc/blob/main/LICENSE">LGPL-3.0-or-later</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec/blob/main/LICENSE">Apache-2.0</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-base">
-      <span>&copy; <span id="year">2026</span> FastPDLC. This blog is compiled and validated by FastPDLC itself.</span>
-      <span><code style="font-family:var(--mono)">pip install fastpdlc</code></span>
+      <span>&copy; <span id="year">2026</span> KeelSpec. This blog is compiled and validated by KeelSpec itself.</span>
+      <span><code style="font-family:var(--mono)">pip install keelspec</code></span>
     </div>
   </div>
 </footer>
-<script src="/main.js?v=5cff99773b" defer></script>
+<script src="/main.js?v=83d8314a2b" defer></script>
 </body>
 </html>

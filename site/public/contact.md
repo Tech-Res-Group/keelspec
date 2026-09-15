@@ -1,7 +1,7 @@
 ---
-title: Contact Us — FastPDLC
-description: Get in touch with the FastPDLC team about the software, licensing, or anything else.
-url: https://fastpdlc.com/contact.html
+title: Contact Us — KeelSpec
+description: Get in touch with the KeelSpec team about the software, licensing, or anything else.
+url: https://keelspec.com/contact.html
 ---
 # Contact us
 
@@ -21,12 +21,12 @@ Bugs and feature requests are best raised on GitHub,
 ## Other ways
 
 - **Bugs and features** —
- [GitHub issues](https://github.com/tarvitave/fastpdlc/issues)
+ [GitHub issues](https://github.com/Tech-Res-Group/keelspec/issues)
 - **Source and releases** —
- [github.com/tarvitave/fastpdlc](https://github.com/tarvitave/fastpdlc)
+ [github.com/Tech-Res-Group/keelspec](https://github.com/Tech-Res-Group/keelspec)
 - **Packages** —
- [PyPI](https://pypi.org/project/fastpdlc/)
-- **Email** — marketing@fastpdlc.com
+ [PyPI](https://pypi.org/project/keelspec/)
+- **Email** — marketing@keelspec.com
 
 ## Data
 

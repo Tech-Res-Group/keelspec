@@ -1,7 +1,7 @@
 ---
-title: ADRs, RFCs and where product-as-code fits — FastPDLC
+title: ADRs, RFCs and where product-as-code fits — KeelSpec
 description: Decision records answer why. Product-as-code answers what is true now. Conflating them is why both rot.
-url: https://fastpdlc.com/blog/adr-and-product-as-code.html
+url: https://keelspec.com/blog/adr-and-product-as-code.html
 ---
 # ADRs, RFCs and where product-as-code fits
 

@@ -1,7 +1,7 @@
 ---
-title: Writing business rules that survive contact with code — FastPDLC
+title: Writing business rules that survive contact with code — KeelSpec
 description: A rule that cannot be violated by a specific line of code is not a rule. It is a sentiment.
-url: https://fastpdlc.com/blog/business-rules.html
+url: https://keelspec.com/blog/business-rules.html
 ---
 # Writing business rules that survive contact with code
 

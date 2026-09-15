@@ -1,7 +1,7 @@
 ---
-title: SMS Opt-In — FastPDLC
-description: How SMS messaging from FastPDLC works: consent, frequency, cost, and how to stop.
-url: https://fastpdlc.com/sms-opt-in.html
+title: SMS Opt-In — KeelSpec
+description: How SMS messaging from KeelSpec works: consent, frequency, cost, and how to stop.
+url: https://keelspec.com/sms-opt-in.html
 ---
 # SMS opt-in
 
@@ -13,11 +13,11 @@ Last updated 23 August 2026
 ## What you are consenting to
 
 If you provide your mobile number and tick the SMS consent box, you agree to receive text
-messages from FastPDLC about product updates, release announcements, and service notifications
+messages from KeelSpec about product updates, release announcements, and service notifications
 relevant to your account.
 
 Consent to receive SMS is **never a condition of purchase** and is never required
-to use FastPDLC, download the software, or subscribe to the email newsletter.
+to use KeelSpec, download the software, or subscribe to the email newsletter.
 
 ## Message frequency
 

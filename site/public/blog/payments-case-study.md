@@ -1,17 +1,17 @@
 ---
-title: What we learned running this in payments — FastPDLC
-description: FastPDLC was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.
-url: https://fastpdlc.com/blog/payments-case-study.html
+title: What we learned running this in payments — KeelSpec
+description: KeelSpec was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.
+url: https://keelspec.com/blog/payments-case-study.html
 ---
 # What we learned running this in payments
 
-FastPDLC was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.
+KeelSpec was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.
 
-FastPDLC did not begin as a tool. It began as the product-as-code engine inside the pharthing / KibiPay payments platform, and it was extracted so other teams could use it. That order matters: every feature exists because something went wrong without it.
+KeelSpec did not begin as a tool. It began as the product-as-code engine inside the pharthing / KibiPay payments platform, and it was extracted so other teams could use it. That order matters: every feature exists because something went wrong without it.
 
 ## The numbers
 
-39 features under the gate, a concept catalogue, a rulebook, and a compiled render bundle of about 283 KB. `fastpdlc validate` is the sole product gate in CI, running through a plugin that adds domain-specific checks.
+39 features under the gate, a concept catalogue, a rulebook, and a compiled render bundle of about 283 KB. `keelspec validate` is the sole product gate in CI, running through a plugin that adds domain-specific checks.
 
 The extraction was verified by a **byte-identical parity test**: the extracted engine produces exactly the bundle the in-house one did. Not equivalent -- identical. That test is the reason the extraction could be trusted, and it is only possible because the build is deterministic.
 

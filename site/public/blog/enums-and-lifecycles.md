@@ -1,7 +1,7 @@
 ---
-title: Modelling lifecycles with enums — FastPDLC
+title: Modelling lifecycles with enums — KeelSpec
 description: Four spellings of in-progress is not a naming problem. It is a missing constraint, and PAC-030 is the fix.
-url: https://fastpdlc.com/blog/enums-and-lifecycles.html
+url: https://keelspec.com/blog/enums-and-lifecycles.html
 ---
 # Modelling lifecycles with enums
 

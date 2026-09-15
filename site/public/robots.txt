@@ -6,6 +6,6 @@ Disallow: /og.html
 Disallow: /carousel.html
 
 # Agent guidance: what this is for and when to reach for it
-# https://fastpdlc.com/llms.txt
+# https://keelspec.com/llms.txt
 
-Sitemap: https://fastpdlc.com/sitemap.xml
+Sitemap: https://keelspec.com/sitemap.xml

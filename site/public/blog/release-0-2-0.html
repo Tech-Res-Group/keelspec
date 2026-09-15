@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FastPDLC 0.2.0 — evidence records and the agent-built lifecycle — FastPDLC</title>
+<title>KeelSpec 0.2.0 — evidence records and the agent-built lifecycle — KeelSpec</title>
 <meta name="description" content="Two new surfaces on top of the compiler and the gate. The core is unchanged - two dependencies, no network, still the thing CI runs.">
-<link rel="canonical" href="https://fastpdlc.com/blog/release-0-2-0.html">
+<link rel="canonical" href="https://keelspec.com/blog/release-0-2-0.html">
 <meta property="og:type" content="article">
-<meta property="og:title" content="FastPDLC 0.2.0 — evidence records and the agent-built lifecycle — FastPDLC">
+<meta property="og:title" content="KeelSpec 0.2.0 — evidence records and the agent-built lifecycle — KeelSpec">
 <meta property="og:description" content="Two new surfaces on top of the compiler and the gate. The core is unchanged - two dependencies, no network, still the thing CI runs.">
-<meta property="og:url" content="https://fastpdlc.com/blog/release-0-2-0.html">
+<meta property="og:url" content="https://keelspec.com/blog/release-0-2-0.html">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:image" content="https://fastpdlc.com/og.png">
+<meta property="og:image" content="https://keelspec.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='9' fill='%23191919'/><path d='M10.5 21.5 L17 28 L29.5 12.5' fill='none' stroke='%23fbcc00' stroke-width='4.6' stroke-linecap='round' stroke-linejoin='round'/><circle cx='10.5' cy='21.5' r='3.6' fill='%23fff'/><circle cx='29.5' cy='12.5' r='3.6' fill='%2300b67a'/></svg>">
-<link rel="stylesheet" href="/styles.css?v=ef971950ff">
+<link rel="stylesheet" href="/styles.css?v=2087441c60">
 <link rel="stylesheet" href="/blog.css?v=ec4b67b85c">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "FastPDLC 0.2.0 \u2014 evidence records and the agent-built lifecycle", "description": "Two new surfaces on top of the compiler and the gate. The core is unchanged - two dependencies, no network, still the thing CI runs.", "datePublished": "2026-08-23", "author": {"@type": "Organization", "name": "FastPDLC"}, "url": "https://fastpdlc.com/blog/release-0-2-0.html"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "KeelSpec 0.2.0 \u2014 evidence records and the agent-built lifecycle", "description": "Two new surfaces on top of the compiler and the gate. The core is unchanged - two dependencies, no network, still the thing CI runs.", "datePublished": "2026-08-23", "author": {"@type": "Organization", "name": "KeelSpec"}, "url": "https://keelspec.com/blog/release-0-2-0.html"}</script>
 </head>
 <body>
 <header class="nav">
   <div class="wrap nav-inner">
-    <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+    <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
     <nav class="nav-links" id="navLinks">
       <a href="/#how">How it works</a>
@@ -30,7 +30,7 @@
       <a href="/#diagnostics">Diagnostics</a>
       <a href="/blog/">Blog</a>
       <a href="/#faq">FAQ</a>
-      <a href="https://github.com/tarvitave/fastpdlc">GitHub</a>
+      <a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a>
       <a class="btn btn-primary nav-cta" href="/#start">Get started</a>
     </nav>
   </div>
@@ -40,15 +40,15 @@
   <div class="wrap post-wrap">
     <a class="back-link" href="/blog/">&larr; All posts</a>
     <span class="badge" style="background:#ff6b4a;color:#fff">reference</span>
-    <h1>FastPDLC 0.2.0 — evidence records and the agent-built lifecycle</h1>
+    <h1>KeelSpec 0.2.0 — evidence records and the agent-built lifecycle</h1>
     <p class="lede post-summary">Two new surfaces on top of the compiler and the gate. The core is unchanged - two dependencies, no network, still the thing CI runs.</p>
     <div class="post-meta">23 August 2026 &middot; 5 min read
-      &middot; FastPDLC</div>
+      &middot; KeelSpec</div>
     <div class="post-body">
-      <p><code>pip install fastpdlc</code> now gets you 0.2.0. <code>build</code> and <code>validate</code> are untouched: same two dependencies, same absence of network access, same job. Everything below is additive.</p>
+      <p><code>pip install keelspec</code> now gets you 0.2.0. <code>build</code> and <code>validate</code> are untouched: same two dependencies, same absence of network access, same job. Everything below is additive.</p>
 <h2>The agent-built lifecycle</h2>
-<pre><code>pip install &#x27;fastpdlc[agents]&#x27;
-fastpdlc orchestrate FEAT-refunds</code></pre>
+<pre><code>pip install &#x27;keelspec[agents]&#x27;
+keelspec orchestrate FEAT-refunds</code></pre>
 <p>A station line runs over one artifact: <strong>Understand → Disambiguate → Design → Develop → Test → adversarial Verify</strong>, with a bounded repair loop.</p>
 <p>Control flow is ordinary code and reasoning happens inside a station. That split is the whole design: a pipeline where steps depend on each other, fan-out where they do not, and a barrier only for synthesis. Nothing about the wiring is left to a model to remember.</p>
 <h3>Four critics, each trying to refute</h3>
@@ -73,9 +73,9 @@ fastpdlc orchestrate FEAT-refunds</code></pre>
 <h3>What the line cannot do</h3>
 <p>It cannot merge. The terminal state is a report; every station past the gate is deterministic or human by construction, and a test asserts it. It also cannot run tests — Develop has no shell — so a passing test report is a <em>claim</em> your CI still has to check. That split is arguably correct, but it should be stated rather than discovered.</p>
 <h2>Evidence records</h2>
-<pre><code>fastpdlc evidence -o build/evidence.json</code></pre>
+<pre><code>keelspec evidence -o build/evidence.json</code></pre>
 <p>What was checked, when, on which commit, with what result. Every artifact, the config and the bundle carry a SHA-256, so the record is verified by recomputing digests rather than by trusting whoever produced it — a stronger property than a signature here, since a signature proves who made a claim and a digest proves the claim is true.</p>
-<p>There is deliberately no <code>--since</code>. Historical evidence is a checkout away: bundles are byte-stable, so <code>git checkout &lt;sha&gt; &amp;&amp; fastpdlc evidence</code> reproduces the same digests. Walking history inside the tool would only have hidden the property that makes the whole thing work.</p>
+<p>There is deliberately no <code>--since</code>. Historical evidence is a checkout away: bundles are byte-stable, so <code>git checkout &lt;sha&gt; &amp;&amp; keelspec evidence</code> reproduces the same digests. Walking history inside the tool would only have hidden the property that makes the whole thing work.</p>
 <h2>One fix worth naming</h2>
 <p>YAML parses an unquoted <code>date: 2026-02-04</code> into a <code>datetime.date</code>, which <code>json.dumps</code> cannot serialize. Any project with a date field hit this. Bundles now emit ISO-8601 strings.</p>
 <p>It was found by using the tool on this blog, which is itself a product-as-code collection — ids matching filenames, categories from an allowed set, every <code>related</code> link resolving. The post you are reading had to pass the gate to exist.</p>
@@ -106,7 +106,7 @@ fastpdlc orchestrate FEAT-refunds</code></pre>
   <div class="wrap">
     <div class="footer-grid">
       <div>
-        <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+        <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
         <p class="footer-blurb">Product-as-code as a validated graph &mdash; for any project.
           Typed artifacts in, a compiled bundle out, and a CI gate in between.</p>
       </div>
@@ -125,8 +125,8 @@ fastpdlc orchestrate FEAT-refunds</code></pre>
         <ul>
           <li><a href="/who-we-are.html">Who we are</a></li>
           <li><a href="/contact.html">Contact us</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc">GitHub</a></li>
-          <li><a href="https://pypi.org/project/fastpdlc/">PyPI</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a></li>
+          <li><a href="https://pypi.org/project/keelspec/">PyPI</a></li>
         </ul>
       </div>
       <div>
@@ -135,16 +135,16 @@ fastpdlc orchestrate FEAT-refunds</code></pre>
           <li><a href="/privacy.html">Privacy policy</a></li>
           <li><a href="/terms.html">Terms of use</a></li>
           <li><a href="/sms-opt-in.html">SMS opt-in</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc/blob/main/LICENSE">LGPL-3.0-or-later</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec/blob/main/LICENSE">Apache-2.0</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-base">
-      <span>&copy; <span id="year">2026</span> FastPDLC. This blog is compiled and validated by FastPDLC itself.</span>
-      <span><code style="font-family:var(--mono)">pip install fastpdlc</code></span>
+      <span>&copy; <span id="year">2026</span> KeelSpec. This blog is compiled and validated by KeelSpec itself.</span>
+      <span><code style="font-family:var(--mono)">pip install keelspec</code></span>
     </div>
   </div>
 </footer>
-<script src="/main.js?v=5cff99773b" defer></script>
+<script src="/main.js?v=83d8314a2b" defer></script>
 </body>
 </html>

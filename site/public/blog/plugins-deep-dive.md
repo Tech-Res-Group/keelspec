@@ -1,7 +1,7 @@
 ---
-title: Extending the validator with plugins — FastPDLC
+title: Extending the validator with plugins — KeelSpec
 description: Validators, bundle transformers, extra outputs and custom codes -- the four hooks, and when to reach for each.
-url: https://fastpdlc.com/blog/plugins-deep-dive.html
+url: https://keelspec.com/blog/plugins-deep-dive.html
 ---
 # Extending the validator with plugins
 
@@ -10,7 +10,7 @@ Validators, bundle transformers, extra outputs and custom codes -- the four hook
 The config file handles schema, ids, enums and references. Everything beyond that is a plugin -- a single Python file that registers hooks, loaded with `-p`.
 
 ```
-fastpdlc -p product_hooks.py validate
+keelspec -p product_hooks.py validate
 ```
 
 There are four hooks, and choosing the right one matters more than the code you write in it.

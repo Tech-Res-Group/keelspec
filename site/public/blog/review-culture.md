@@ -1,7 +1,7 @@
 ---
-title: Reviewing product changes in pull requests — FastPDLC
+title: Reviewing product changes in pull requests — KeelSpec
 description: When intent lives in the repository, product decisions get the same review rigour as code. That changes the conversation more than the tooling does.
-url: https://fastpdlc.com/blog/review-culture.html
+url: https://keelspec.com/blog/review-culture.html
 ---
 # Reviewing product changes in pull requests
 

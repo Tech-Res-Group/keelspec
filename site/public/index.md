@@ -1,7 +1,7 @@
 ---
-title: FastPDLC — A workforce builds it. A gate judges it.
+title: KeelSpec — A workforce builds it. A gate judges it.
 description: Product intent as versioned source, a workforce of agents building against it, and a deterministic PAC-NNN gate that judges every pull request. Agents propose, gates enforce, a human merges.
-url: https://fastpdlc.com/
+url: https://keelspec.com/
 ---
 The line — six agent stations, two human gates, three deterministic
 
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tarvitave/fastpdlc@v0.2.0
+      - uses: tarvitave/keelspec@v0.2.0
         with:
           config: product.config.yaml
           plugin: product_hooks.py
@@ -151,7 +151,7 @@ Provenance is not correctness. Knowing which agent wrote a line tells you nothin
 ## Life of a pull request.
 
 Someone renames one term. Here is what happens
- with FastPDLC in the loop — and what would have happened without it.
+ with KeelSpec in the loop — and what would have happened without it.
 
 ### A rename lands.
 
@@ -166,7 +166,7 @@ Three artifacts referenced the old id — two terms and a business rule. The
 
 ### The graph gets fixed, not the prose.
 
-Three `see_also` values updated, `fastpdlc build` run
+Three `see_also` values updated, `keelspec build` run
  once. The bundle regenerates deterministically — sorted keys, byte-stable
  output, so the diff is exactly the change and nothing else.
 
@@ -191,7 +191,7 @@ The rename merges. Three documents keep pointing at a term that no longer
 
 Real projects need more than schema. A plugin
  registers project-specific validators, enriches the bundle, and emits extra generated
- outputs — which is how a large codebase migrates onto FastPDLC with no loss of
+ outputs — which is how a large codebase migrates onto KeelSpec with no loss of
  functionality.
 
 - fn
@@ -209,7 +209,7 @@ Real projects need more than schema. A plugin
 
 ```
 # product_hooks.py
-from fastpdlc import register
+from keelspec import register
 
 def register(reg):
     register("PAC-900", "links.code path does not exist")
@@ -232,11 +232,11 @@ def register(reg):
 
 ## Extracted from a payments platform, not a demo.
 
-FastPDLC is the product-as-code engine of the
+KeelSpec is the product-as-code engine of the
  **pharthing / KibiPay** payments platform. It was pulled out of a
  working system so any team could use it.
 
-pharthing's CI runs **fastpdlc validate** as its sole product gate,
+pharthing's CI runs **keelspec validate** as its sole product gate,
  via a plugin that adds its domain-specific checks. A
  **byte-identical parity test** proves the extracted engine produces
  exactly the bundle the original in-house one did — nothing was lost on the way out.
@@ -246,7 +246,7 @@ pharthing's CI runs **fastpdlc validate** as its sole product gate,
 
 The copier template scaffolds the config, example artifacts and the CI gate.
  `--trust` lets it run
- `fastpdlc build` once so
+ `keelspec build` once so
  the new repo is green before you've written a line.
 
 ## The obvious objections.

@@ -1,7 +1,7 @@
 ---
-title: What product-as-code actually means — FastPDLC
+title: What product-as-code actually means — KeelSpec
 description: Not docs in a repo. Typed artifacts with a schema, a reference graph, and a build that fails when they stop being true.
-url: https://fastpdlc.com/blog/what-is-product-as-code.html
+url: https://keelspec.com/blog/what-is-product-as-code.html
 ---
 # What product-as-code actually means
 

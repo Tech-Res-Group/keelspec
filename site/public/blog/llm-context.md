@@ -1,7 +1,7 @@
 ---
-title: Feeding an LLM your product truth — FastPDLC
+title: Feeding an LLM your product truth — KeelSpec
 description: A validated bundle is the best context you can give a model, precisely because something guarantees it is current.
-url: https://fastpdlc.com/blog/llm-context.html
+url: https://keelspec.com/blog/llm-context.html
 ---
 # Feeding an LLM your product truth
 

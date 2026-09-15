@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>What we learned running this in payments — FastPDLC</title>
-<meta name="description" content="FastPDLC was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.">
-<link rel="canonical" href="https://fastpdlc.com/blog/payments-case-study.html">
+<title>What we learned running this in payments — KeelSpec</title>
+<meta name="description" content="KeelSpec was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.">
+<link rel="canonical" href="https://keelspec.com/blog/payments-case-study.html">
 <meta property="og:type" content="article">
-<meta property="og:title" content="What we learned running this in payments — FastPDLC">
-<meta property="og:description" content="FastPDLC was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.">
-<meta property="og:url" content="https://fastpdlc.com/blog/payments-case-study.html">
+<meta property="og:title" content="What we learned running this in payments — KeelSpec">
+<meta property="og:description" content="KeelSpec was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.">
+<meta property="og:url" content="https://keelspec.com/blog/payments-case-study.html">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:image" content="https://fastpdlc.com/og.png">
+<meta property="og:image" content="https://keelspec.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='9' fill='%23191919'/><path d='M10.5 21.5 L17 28 L29.5 12.5' fill='none' stroke='%23fbcc00' stroke-width='4.6' stroke-linecap='round' stroke-linejoin='round'/><circle cx='10.5' cy='21.5' r='3.6' fill='%23fff'/><circle cx='29.5' cy='12.5' r='3.6' fill='%2300b67a'/></svg>">
-<link rel="stylesheet" href="/styles.css?v=ef971950ff">
+<link rel="stylesheet" href="/styles.css?v=2087441c60">
 <link rel="stylesheet" href="/blog.css?v=ec4b67b85c">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "What we learned running this in payments", "description": "FastPDLC was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.", "datePublished": "2026-05-27", "author": {"@type": "Organization", "name": "FastPDLC"}, "url": "https://fastpdlc.com/blog/payments-case-study.html"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "What we learned running this in payments", "description": "KeelSpec was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.", "datePublished": "2026-05-27", "author": {"@type": "Organization", "name": "KeelSpec"}, "url": "https://keelspec.com/blog/payments-case-study.html"}</script>
 </head>
 <body>
 <header class="nav">
   <div class="wrap nav-inner">
-    <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+    <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
     <nav class="nav-links" id="navLinks">
       <a href="/#how">How it works</a>
@@ -30,7 +30,7 @@
       <a href="/#diagnostics">Diagnostics</a>
       <a href="/blog/">Blog</a>
       <a href="/#faq">FAQ</a>
-      <a href="https://github.com/tarvitave/fastpdlc">GitHub</a>
+      <a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a>
       <a class="btn btn-primary nav-cta" href="/#start">Get started</a>
     </nav>
   </div>
@@ -41,13 +41,13 @@
     <a class="back-link" href="/blog/">&larr; All posts</a>
     <span class="badge" style="background:#b47cff;color:#fff">case-study</span>
     <h1>What we learned running this in payments</h1>
-    <p class="lede post-summary">FastPDLC was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.</p>
+    <p class="lede post-summary">KeelSpec was extracted from a payments platform running 39 features and a 283 KB bundle. Here is what survived contact with production.</p>
     <div class="post-meta">27 May 2026 &middot; 5 min read
-      &middot; FastPDLC</div>
+      &middot; KeelSpec</div>
     <div class="post-body">
-      <p>FastPDLC did not begin as a tool. It began as the product-as-code engine inside the pharthing / KibiPay payments platform, and it was extracted so other teams could use it. That order matters: every feature exists because something went wrong without it.</p>
+      <p>KeelSpec did not begin as a tool. It began as the product-as-code engine inside the pharthing / KibiPay payments platform, and it was extracted so other teams could use it. That order matters: every feature exists because something went wrong without it.</p>
 <h2>The numbers</h2>
-<p>39 features under the gate, a concept catalogue, a rulebook, and a compiled render bundle of about 283 KB. <code>fastpdlc validate</code> is the sole product gate in CI, running through a plugin that adds domain-specific checks.</p>
+<p>39 features under the gate, a concept catalogue, a rulebook, and a compiled render bundle of about 283 KB. <code>keelspec validate</code> is the sole product gate in CI, running through a plugin that adds domain-specific checks.</p>
 <p>The extraction was verified by a <strong>byte-identical parity test</strong>: the extracted engine produces exactly the bundle the in-house one did. Not equivalent -- identical. That test is the reason the extraction could be trusted, and it is only possible because the build is deterministic.</p>
 <h2>What earned its place</h2>
 <p><strong>The staleness gate.</strong> In a domain where a business rule is the difference between a correct ledger and an incident, a spec that has silently diverged from the build is a real risk. <code>PAC-060</code> fires more often than any other code during normal work, almost always because someone edited an artifact and forgot to rebuild. Fourteen seconds of CI, every time.</p>
@@ -86,7 +86,7 @@
   <div class="wrap">
     <div class="footer-grid">
       <div>
-        <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+        <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
         <p class="footer-blurb">Product-as-code as a validated graph &mdash; for any project.
           Typed artifacts in, a compiled bundle out, and a CI gate in between.</p>
       </div>
@@ -105,8 +105,8 @@
         <ul>
           <li><a href="/who-we-are.html">Who we are</a></li>
           <li><a href="/contact.html">Contact us</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc">GitHub</a></li>
-          <li><a href="https://pypi.org/project/fastpdlc/">PyPI</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a></li>
+          <li><a href="https://pypi.org/project/keelspec/">PyPI</a></li>
         </ul>
       </div>
       <div>
@@ -115,16 +115,16 @@
           <li><a href="/privacy.html">Privacy policy</a></li>
           <li><a href="/terms.html">Terms of use</a></li>
           <li><a href="/sms-opt-in.html">SMS opt-in</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc/blob/main/LICENSE">LGPL-3.0-or-later</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec/blob/main/LICENSE">Apache-2.0</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-base">
-      <span>&copy; <span id="year">2026</span> FastPDLC. This blog is compiled and validated by FastPDLC itself.</span>
-      <span><code style="font-family:var(--mono)">pip install fastpdlc</code></span>
+      <span>&copy; <span id="year">2026</span> KeelSpec. This blog is compiled and validated by KeelSpec itself.</span>
+      <span><code style="font-family:var(--mono)">pip install keelspec</code></span>
     </div>
   </div>
 </footer>
-<script src="/main.js?v=5cff99773b" defer></script>
+<script src="/main.js?v=83d8314a2b" defer></script>
 </body>
 </html>

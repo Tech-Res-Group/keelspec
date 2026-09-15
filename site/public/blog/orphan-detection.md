@@ -1,7 +1,7 @@
 ---
-title: Finding the artifacts nobody references — FastPDLC
+title: Finding the artifacts nobody references — KeelSpec
 description: A graph makes absence visible. Orphans are usually either dead weight or a missing link, and both are worth knowing about.
-url: https://fastpdlc.com/blog/orphan-detection.html
+url: https://keelspec.com/blog/orphan-detection.html
 ---
 # Finding the artifacts nobody references
 

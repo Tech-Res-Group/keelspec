@@ -1,7 +1,7 @@
 ---
-title: Diagnostic codes are an API — FastPDLC
+title: Diagnostic codes are an API — KeelSpec
 description: Treat your error codes with the same seriousness as your function signatures, because downstream systems depend on both.
-url: https://fastpdlc.com/blog/diagnostic-codes-as-api.html
+url: https://keelspec.com/blog/diagnostic-codes-as-api.html
 ---
 # Diagnostic codes are an API
 
@@ -13,7 +13,7 @@ Validation tools usually do not learn it, and then wonder why nobody automates a
 
 ## The contract
 
-FastPDLC's core codes occupy documented ranges:
+KeelSpec's core codes occupy documented ranges:
 
 - `00x` required-field and schema
 - `01x` id and graph integrity

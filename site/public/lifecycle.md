@@ -1,18 +1,18 @@
 ---
-title: One lifecycle, not two — FastPDLC
+title: One lifecycle, not two — KeelSpec
 description: PDLC and SDLC in one repository, behind one gate, with a reproducible audit trail. Checks on every edge where product intent fans out into code, tests and docs.
-url: https://fastpdlc.com/lifecycle.html
+url: https://keelspec.com/lifecycle.html
 ---
 # One lifecycle, not two.
 
 Most organisations run a **product development lifecycle (PDLC)**
  and a **software development lifecycle (SDLC)** side by side, connected by
  meetings. The SDLC has been mechanised for thirty years — compilers, type checkers,
- tests, continuous integration (CI). The PDLC has almost none of it. FastPDLC puts both in
+ tests, continuous integration (CI). The PDLC has almost none of it. KeelSpec puts both in
  the same repository, behind the same gate, with the same evidence trail.
 
-**What ships today:** `fastpdlc
- orchestrate` runs ST-01 to ST-06, and `fastpdlc
+**What ships today:** `keelspec
+ orchestrate` runs ST-01 to ST-06, and `keelspec
  validate` is ST-08. Assembling a pull request (ST-07) and reading production
  back into intent (ST-10) are your pipeline's job — the library has no git,
  no network and no way to merge, by design.
@@ -88,7 +88,7 @@ Every artifact is a file, every change is a reviewed commit with an author and a
 
 ### The control is the gate
 
-`fastpdlc validate` runs on every pull request (PR) and its exit code decides
+`keelspec validate` runs on every pull request (PR) and its exit code decides
  whether the change merges. That is a control with an enforcement mechanism, not a
  policy document asking people to be careful.
 
@@ -100,7 +100,7 @@ Bundles are byte-stable: sorted keys, fixed formatting, no timestamps. Check out
 
 ### The record is exportable
 
-`fastpdlc evidence -o build/evidence.json` emits what was checked, when,
+`keelspec evidence -o build/evidence.json` emits what was checked, when,
  on which commit, and with what result — every artifact, the config and the
  bundle carrying a SHA-256. An auditor verifies it by recomputing digests, not by
  trusting the issuer. For a date in the past, check out that commit and run it again.

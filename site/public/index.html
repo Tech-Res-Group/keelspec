@@ -3,33 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FastPDLC — A workforce builds it. A gate judges it.</title>
+<title>KeelSpec — A workforce builds it. A gate judges it.</title>
 <meta name="description" content="Product intent as versioned source, a workforce of agents building against it, and a deterministic PAC-NNN gate that judges every pull request. Agents propose, gates enforce, a human merges.">
-<link rel="canonical" href="https://fastpdlc.com/">
+<link rel="canonical" href="https://keelspec.com/">
 
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://fastpdlc.com/">
-<meta property="og:title" content="FastPDLC — A workforce builds it. A gate judges it.">
+<meta property="og:url" content="https://keelspec.com/">
+<meta property="og:title" content="KeelSpec — A workforce builds it. A gate judges it.">
 <meta property="og:description" content="A workforce of agents builds from versioned intent. A deterministic gate judges every pull request, including an agent's own.">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:image" content="https://fastpdlc.com/og.png">
+<meta property="og:image" content="https://keelspec.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="FastPDLC — a workforce builds it, a gate judges it.">
+<meta property="og:image:alt" content="KeelSpec — a workforce builds it, a gate judges it.">
 
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='9' fill='%23191919'/><path d='M10.5 21.5 L17 28 L29.5 12.5' fill='none' stroke='%23fbcc00' stroke-width='4.6' stroke-linecap='round' stroke-linejoin='round'/><circle cx='10.5' cy='21.5' r='3.6' fill='%23fff'/><circle cx='29.5' cy='12.5' r='3.6' fill='%2300b67a'/></svg>">
-<link rel="stylesheet" href="/styles.css?v=ef971950ff">
+<link rel="stylesheet" href="/styles.css?v=2087441c60">
 <link rel="stylesheet" href="/blog.css?v=ec4b67b85c">
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "FastPDLC",
+  "name": "KeelSpec",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Linux, macOS, Windows",
   "description": "Product-as-code as a validated graph. Declare typed product artifacts, validate the reference graph, compile a JSON bundle, and gate CI on drift.",
-  "url": "https://fastpdlc.com/",
+  "url": "https://keelspec.com/",
   "license": "https://www.gnu.org/licenses/lgpl-3.0.html",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
 }
@@ -38,9 +38,9 @@
 {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "FastPDLC",
-  "url": "https://fastpdlc.com/",
-  "logo": "https://fastpdlc.com/og.png",
+  "name": "KeelSpec",
+  "url": "https://keelspec.com/",
+  "logo": "https://keelspec.com/og.png",
   "description": "Product intent as a validated graph, with an agent-built lifecycle and a deterministic gate.",
   "founder": {
     "@type": "Person",
@@ -51,16 +51,16 @@
     ]
   },
   "sameAs": [
-    "https://github.com/tarvitave/fastpdlc",
-    "https://pypi.org/project/fastpdlc/",
+    "https://github.com/tarvitave/keelspec",
+    "https://pypi.org/project/keelspec/",
     "https://www.linkedin.com/in/colinwynd"
   ],
   "contactPoint": [
     {
       "@type": "ContactPoint",
       "contactType": "customer support",
-      "email": "marketing@fastpdlc.com",
-      "url": "https://fastpdlc.com/contact.html",
+      "email": "marketing@keelspec.com",
+      "url": "https://keelspec.com/contact.html",
       "availableLanguage": [
         "English"
       ]
@@ -82,7 +82,7 @@
 <!-- ══ nav ══════════════════════════════════════════════════════════════ -->
 <header class="nav">
   <div class="wrap nav-inner">
-    <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+    <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
 
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
 
@@ -94,7 +94,7 @@
       <a href="#plugins">Plugins</a>
       <a href="/blog/">Blog</a>
       <a href="#faq">FAQ</a>
-      <a href="https://github.com/tarvitave/fastpdlc">GitHub</a>
+      <a href="https://github.com/tarvitave/keelspec">GitHub</a>
       <a class="btn btn-primary nav-cta" href="#start">Get started</a>
     </nav>
   </div>
@@ -205,7 +205,7 @@
     </div>
   </div>
   <p class="st-role">the judge</p>
-  <code class="st-model">fastpdlc</code>
+  <code class="st-model">keelspec</code>
   <span class="badge st-kind" style="background:#191919;color:#fbcc00">deterministic</span>
 </article><article class="station" data-kind="human">
   <div class="st-head">
@@ -246,14 +246,14 @@
 
       <div class="hero-actions">
         <div class="copy-block">
-          <code id="cmdInstall">pip install 'fastpdlc[agents]'</code>
+          <code id="cmdInstall">pip install 'keelspec[agents]'</code>
           <button class="copy-btn" data-copy="#cmdInstall">Copy</button>
         </div>
         <a class="btn btn-primary" href="#start">Get started</a>
       </div>
 
       <div class="copy-block" style="margin-top:0.9rem;max-width:30rem">
-        <code id="cmdOrchestrate">fastpdlc orchestrate FEAT-refunds</code>
+        <code id="cmdOrchestrate">keelspec orchestrate FEAT-refunds</code>
         <button class="copy-btn" data-copy="#cmdOrchestrate">Copy</button>
       </div>
 
@@ -272,15 +272,15 @@
         <span class="term-name">ci / product-as-code</span>
       </div>
       <div class="term-body">
-        <span class="l t-cmd">fastpdlc validate</span>
+        <span class="l t-cmd">keelspec validate</span>
         <span class="l t-err">ERROR <span class="t-code">PAC-020</span> <span class="t-path">product/terms/TERM-payment.md:</span> see_also 'TERM-leger'</span>
         <span class="l t-err">                does not resolve to a terms id</span>
         <span class="l t-err">ERROR <span class="t-code">PAC-060</span> build/product.generated.json is stale —</span>
-        <span class="l t-err">                run: fastpdlc build (and commit it)</span>
+        <span class="l t-err">                run: keelspec build (and commit it)</span>
         <span class="l t-warn">WARN  <span class="t-code">PAC-030</span> <span class="t-path">product/features/FEAT-refunds.md:</span> status</span>
         <span class="l t-warn">                'in-progres' not in ['done', 'in-progress']</span>
         <span class="l">&nbsp;</span>
-        <span class="l t-dim">fastpdlc: terms 42, rules 18, features 39 — 2 error(s), 1 warning(s).</span>
+        <span class="l t-dim">keelspec: terms 42, rules 18, features 39 — 2 error(s), 1 warning(s).</span>
         <span class="l t-cmd">echo $?</span>
         <span class="l t-err">1</span>
         <span class="l t-cmd"><span class="caret"></span></span>
@@ -392,7 +392,7 @@ the system.</code></pre>
     <span class="k">runs-on</span>: ubuntu-latest
     <span class="k">steps</span>:
       - <span class="k">uses</span>: actions/checkout@v4
-      - <span class="k">uses</span>: <span class="p">tarvitave/fastpdlc@v0.2.0</span>
+      - <span class="k">uses</span>: <span class="p">tarvitave/keelspec@v0.2.0</span>
         <span class="k">with</span>:
           <span class="k">config</span>: product.config.yaml
           <span class="k">plugin</span>: product_hooks.py</code></pre>
@@ -475,7 +475,7 @@ the system.</code></pre>
             company — and CI says so, in the diff, on the pull request.</p>
         </div>
         <div>
-          <code class="sample" style="font-size:0.78rem;line-height:1.7">build/product.generated.json is stale<br>— run: fastpdlc build (and commit it)</code>
+          <code class="sample" style="font-size:0.78rem;line-height:1.7">build/product.generated.json is stale<br>— run: keelspec build (and commit it)</code>
           <p style="margin-top:0.9rem;font-size:0.9rem;font-weight:600">
             Plugin outputs are staleness-gated too, so a generated catalogue or a runtime
             manifest can never quietly fall behind.
@@ -540,7 +540,7 @@ the system.</code></pre>
       <span class="eyebrow" style="color:var(--yellow)">A day in the life</span>
       <h2>Life of a pull request.</h2>
       <p class="lede" style="color:#b8b8b8">Someone renames one term. Here is what happens
-        with FastPDLC in the loop — and what would have happened without it.</p>
+        with KeelSpec in the loop — and what would have happened without it.</p>
     </div>
 
     <div class="timeline">
@@ -568,7 +568,7 @@ the system.</code></pre>
         <div class="tl-time">09:22</div>
         <div>
           <h3>The graph gets fixed, not the prose.</h3>
-          <p>Three <code>see_also</code> values updated, <code>fastpdlc build</code> run
+          <p>Three <code>see_also</code> values updated, <code>keelspec build</code> run
             once. The bundle regenerates deterministically — sorted keys, byte-stable
             output, so the diff is exactly the change and nothing else.</p>
         </div>
@@ -615,7 +615,7 @@ the system.</code></pre>
       <h2 style="margin-top:0.9rem">Your checks. Your codes. No fork.</h2>
       <p class="lede" style="margin-top:1.1rem">Real projects need more than schema. A plugin
         registers project-specific validators, enriches the bundle, and emits extra generated
-        outputs — which is how a large codebase migrates onto FastPDLC with no loss of
+        outputs — which is how a large codebase migrates onto KeelSpec with no loss of
         functionality.</p>
 
       <ul class="feature-list">
@@ -644,7 +644,7 @@ the system.</code></pre>
 
     <div class="reveal">
 <pre style="box-shadow:var(--sh-lg);border:var(--bd);border-radius:var(--r);padding:1.3rem 1.4rem;font-size:0.83rem"><code><span class="c"># product_hooks.py</span>
-<span class="o">from</span> fastpdlc <span class="o">import</span> register
+<span class="o">from</span> keelspec <span class="o">import</span> register
 
 <span class="o">def</span> <span class="p">register</span>(reg):
     register(<span class="s">"PAC-900"</span>, <span class="s">"links.code path does not exist"</span>)
@@ -665,7 +665,7 @@ the system.</code></pre>
     reg.extra_output(<span class="s">"build/catalogue.json"</span>, render)</code></pre>
 
       <div class="copy-block" style="margin-top:1.2rem;max-width:none">
-        <code id="cmdPlugin">fastpdlc -p product_hooks.py validate</code>
+        <code id="cmdPlugin">keelspec -p product_hooks.py validate</code>
         <button class="copy-btn" data-copy="#cmdPlugin">Copy</button>
       </div>
     </div>
@@ -680,7 +680,7 @@ the system.</code></pre>
     <div class="section-head reveal">
       <span class="eyebrow">Used in production</span>
       <h2>Extracted from a payments platform, not a demo.</h2>
-      <p class="lede">FastPDLC is the product-as-code engine of the
+      <p class="lede">KeelSpec is the product-as-code engine of the
         <strong>pharthing / KibiPay</strong> payments platform. It was pulled out of a
         working system so any team could use it.</p>
     </div>
@@ -694,7 +694,7 @@ the system.</code></pre>
 
     <div class="proof-note reveal">
       <span class="badge">Parity test</span>
-      <p>pharthing's CI runs <strong>fastpdlc validate</strong> as its sole product gate,
+      <p>pharthing's CI runs <strong>keelspec validate</strong> as its sole product gate,
         via a plugin that adds its domain-specific checks. A
         <strong>byte-identical parity test</strong> proves the extracted engine produces
         exactly the bundle the original in-house one did — nothing was lost on the way out.
@@ -711,17 +711,17 @@ the system.</code></pre>
       <h2 style="margin-top:0.8rem">A valid product-as-code repo on its first commit.</h2>
       <p>The copier template scaffolds the config, example artifacts and the CI gate.
         <code style="font-family:var(--mono);font-weight:600">--trust</code> lets it run
-        <code style="font-family:var(--mono);font-weight:600">fastpdlc build</code> once so
+        <code style="font-family:var(--mono);font-weight:600">keelspec build</code> once so
         the new repo is green before you've written a line.</p>
     </div>
     <div style="min-width:min(100%, 30rem)">
       <div class="copy-block">
-        <code id="cmdCopier">pipx run copier copy --trust gh:tarvitave/fastpdlc my-product-repo</code>
+        <code id="cmdCopier">pipx run copier copy --trust gh:tarvitave/keelspec my-product-repo</code>
         <button class="copy-btn" data-copy="#cmdCopier">Copy</button>
       </div>
       <div style="display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap">
-        <a class="btn" href="https://github.com/tarvitave/fastpdlc#quickstart">Read the quickstart</a>
-        <a class="btn" href="https://pypi.org/project/fastpdlc/">View on PyPI</a>
+        <a class="btn" href="https://github.com/tarvitave/keelspec#quickstart">Read the quickstart</a>
+        <a class="btn" href="https://pypi.org/project/keelspec/">View on PyPI</a>
       </div>
     </div>
   </div>
@@ -738,7 +738,7 @@ the system.</code></pre>
     <div class="faq">
       <details>
         <summary>How is this different from Confluence, Notion, or a docs site?</summary>
-        <div class="answer">Those store prose and trust people to keep it honest. FastPDLC
+        <div class="answer">Those store prose and trust people to keep it honest. KeelSpec
           stores <em>typed artifacts</em> with a declared schema and a reference graph, and it
           runs in CI. Nothing merges while the graph is broken. It's a compiler, not a wiki —
           and you can keep your wiki, rendering it from the bundle.</div>
@@ -771,7 +771,7 @@ the system.</code></pre>
 
       <details>
         <summary>Does this only work in Python repositories?</summary>
-        <div class="answer">The CLI is Python — <code>pip install fastpdlc</code>, or use the
+        <div class="answer">The CLI is Python — <code>pip install keelspec</code>, or use the
           GitHub Action which installs it for you. What it validates is plain markdown with YAML
           frontmatter, so the repository itself can be Go, TypeScript, Rust, Java or anything
           else. Nothing about your build system has to change.</div>
@@ -787,7 +787,7 @@ the system.</code></pre>
 
       <details>
         <summary>Why the LGPL (Lesser General Public License)?</summary>
-        <div class="answer">Copyleft on FastPDLC itself, so improvements to the engine come
+        <div class="answer">Copyleft on KeelSpec itself, so improvements to the engine come
           back. It's the <em>lesser</em> GPL deliberately: importing it as a library, or running
           it in your CI, does not make your project LGPL. Your product artifacts and your
           plugins are yours.</div>
@@ -805,7 +805,7 @@ the system.</code></pre>
       afternoon.</p>
 
     <div class="cta-actions reveal">
-      <a class="btn btn-primary btn-lg" href="https://github.com/tarvitave/fastpdlc">Get started on GitHub</a>
+      <a class="btn btn-primary btn-lg" href="https://github.com/tarvitave/keelspec">Get started on GitHub</a>
       <a class="btn btn-lg" href="#how">See how it works</a>
     </div>
 
@@ -830,7 +830,7 @@ the system.</code></pre>
   <div class="wrap">
     <div class="footer-grid">
       <div>
-        <a class="logo" href="/" aria-label="FastPDLC home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">FastPDLC</span></a>
+        <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
         <p class="footer-blurb">Product-as-code as a validated graph — for any project.
           Typed artifacts in, a compiled bundle out, and a CI gate in between.</p>
       </div>
@@ -853,10 +853,10 @@ the system.</code></pre>
           <li><a href="/who-we-are.html">Who we are</a></li>
           <li><a href="/contact.html">Contact us</a></li>
           <li><a href="/newsletters/">Newsletters</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc">GitHub</a></li>
-          <li><a href="https://pypi.org/project/fastpdlc/">PyPI</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc/issues">Issues</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc/blob/main/RELEASING.md">Releases</a></li>
+          <li><a href="https://github.com/tarvitave/keelspec">GitHub</a></li>
+          <li><a href="https://pypi.org/project/keelspec/">PyPI</a></li>
+          <li><a href="https://github.com/tarvitave/keelspec/issues">Issues</a></li>
+          <li><a href="https://github.com/tarvitave/keelspec/blob/main/RELEASING.md">Releases</a></li>
         </ul>
       </div>
 
@@ -866,18 +866,18 @@ the system.</code></pre>
           <li><a href="/privacy.html">Privacy policy</a></li>
           <li><a href="/terms.html">Terms of use</a></li>
           <li><a href="/sms-opt-in.html">SMS opt-in</a></li>
-          <li><a href="https://github.com/tarvitave/fastpdlc/blob/main/LICENSE">LGPL-3.0-or-later</a></li>
+          <li><a href="https://github.com/tarvitave/keelspec/blob/main/LICENSE">LGPL-3.0-or-later</a></li>
         </ul>
       </div>
     </div>
 
     <div class="footer-base">
-      <span>&copy; <span id="year">2026</span> FastPDLC. Built as a validated graph, naturally.</span>
-      <span><code style="font-family:var(--mono)">pip install fastpdlc</code></span>
+      <span>&copy; <span id="year">2026</span> KeelSpec. Built as a validated graph, naturally.</span>
+      <span><code style="font-family:var(--mono)">pip install keelspec</code></span>
     </div>
   </div>
 </footer>
 
-<script src="/main.js?v=5cff99773b" defer></script>
+<script src="/main.js?v=83d8314a2b" defer></script>
 </body>
 </html>

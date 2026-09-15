@@ -1,7 +1,7 @@
 ---
-title: Rendering docs sites from one bundle — FastPDLC
+title: Rendering docs sites from one bundle — KeelSpec
 description: One compiled artifact, many surfaces. The point is not convenience -- it is that the surfaces cannot disagree.
-url: https://fastpdlc.com/blog/docs-from-bundles.html
+url: https://keelspec.com/blog/docs-from-bundles.html
 ---
 # Rendering docs sites from one bundle
 
@@ -26,7 +26,7 @@ None of these hold their own copy. Change a definition, rebuild, and every surfa
 
 This site does it too. The posts are typed artifacts under `content/posts/`, with a `product.config.yaml` declaring their shape: ids must match filenames, `category` must be in the allowed set, and every `related` link must resolve to a real post.
 
-`fastpdlc build` compiles them to `blog.generated.json`. A short renderer turns that into static HTML. If a post referenced a slug that did not exist, `PAC-020` would fail the build rather than shipping a dead link.
+`keelspec build` compiles them to `blog.generated.json`. A short renderer turns that into static HTML. If a post referenced a slug that did not exist, `PAC-020` would fail the build rather than shipping a dead link.
 
 The blog is a demo of the product it describes, which is the only honest way to sell a tool like this.
 
