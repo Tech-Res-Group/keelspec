@@ -41,7 +41,7 @@ Never renumber a code. Retire it and add a new one.
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: tarvitave/keelspec@v0.2.0
+- uses: Tech-Res-Group/keelspec@v0.2.0
 ```
 
 The gate should be a single step with no bespoke scripting around it. Every line of glue in a workflow file is a line that rots, and a gate that requires maintenance is a gate that gets deleted during the next CI cleanup.

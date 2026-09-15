@@ -491,7 +491,7 @@ pip install keelspec
 Or scaffold a complete repository -- config, example artifacts and the CI gate -- in one command:
 
 ```bash
-pipx run copier copy --trust gh:tarvitave/keelspec my-product-repo
+pipx run copier copy --trust gh:Tech-Res-Group/keelspec my-product-repo
 ```
 
 `--trust` lets the template run `keelspec build` once so the new repository is valid on its first commit.
@@ -554,7 +554,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tarvitave/keelspec@v0.1.0
+      - uses: Tech-Res-Group/keelspec@v0.1.0
 ```
 
 Commit the bundle alongside the artifacts. That is what makes staleness detectable.

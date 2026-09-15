@@ -270,7 +270,7 @@ Scaffold a ready-to-go product-as-code repo (config, example artifacts, and the 
 gate) with the [copier](https://copier.readthedocs.io) template:
 
 ```bash
-pipx run copier copy --trust gh:tarvitave/keelspec my-product-repo
+pipx run copier copy --trust gh:Tech-Res-Group/keelspec my-product-repo
 ```
 
 `--trust` lets the template run `keelspec build` once so the new repo is valid on its
@@ -289,7 +289,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tarvitave/keelspec@v0.7.0
+      - uses: Tech-Res-Group/keelspec@v0.7.0
         with:
           config: product.config.yaml     # optional (default)
           plugin: product_hooks.py         # optional project checks

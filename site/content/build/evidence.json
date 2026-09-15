@@ -14,7 +14,7 @@
       {
         "file": "posts/POST-ci-gate-anatomy.md",
         "id": "POST-ci-gate-anatomy",
-        "sha256": "dc6150925473a947619d85ccae8c158662ff63de62730b14f5b55cb13c529221"
+        "sha256": "9c0a7c610f7202215db145b3325a4bd40efb4fe2bd6b31d0d54f1aecda7bc3e6"
       },
       {
         "file": "posts/POST-committing-generated-bundles.md",
@@ -44,7 +44,7 @@
       {
         "file": "posts/POST-getting-started.md",
         "id": "POST-getting-started",
-        "sha256": "e16069c1d3d5b87cfa8c933ee497ebb38c839edb2f7ca79688b866bfb7d43b47"
+        "sha256": "36d7a48c366b6252c6c71ec9b09ee29999dbd74376ea27e99c54689118c13035"
       },
       {
         "file": "posts/POST-llm-context.md",
@@ -111,7 +111,7 @@
   "bundle": {
     "matches_sources": true,
     "path": "build/blog.generated.json",
-    "sha256": "f80c5c264c8757fb16b56a995173c3dbd4d0eb709fcaffdffc3f2e96edd9bac2"
+    "sha256": "9f50b8490238477f9102b8028b919896d173740147e1fe5fbb1c9c313e432637"
   },
   "checks": {
     "codes_registered": [
@@ -156,13 +156,13 @@
     "posts": 21
   },
   "findings": [],
-  "generated_at": "2026-09-14T13:21:22Z",
+  "generated_at": "2026-09-15T00:31:48Z",
   "repository": {
-    "branch": "integrate/keelspec-0.7",
+    "branch": "main",
     "clean": false,
-    "commit": "c00dfa65694a32639df1dd1840b65d299b1d40ca",
+    "commit": "0a24be3412249516c8f76895331ec677a8f33a1d",
     "tracked": true,
-    "uncommitted_files": 1
+    "uncommitted_files": 19
   },
   "result": "pass",
   "schema": "keelspec-evidence/1",

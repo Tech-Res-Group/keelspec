@@ -482,7 +482,7 @@ def _page(title: str, body: str) -> str:
   <nav class="nav-links">
     <a href="/#how">How it works</a><a href="/blog/">Blog</a>
     <a href="/newsletters/">Newsletters</a>
-    <a href="https://github.com/tarvitave/keelspec">GitHub</a>
+    <a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a>
   </nav>
 </div></header>
 {body}

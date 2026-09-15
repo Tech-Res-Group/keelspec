@@ -1,6 +1,6 @@
 # Copier template: scaffold a product-as-code repo wired to KeelSpec in one command.
 #
-#   pipx run copier copy --trust gh:tarvitave/keelspec my-product-repo
+#   pipx run copier copy --trust gh:Tech-Res-Group/keelspec my-product-repo
 #
 # `--trust` lets the post-scaffold task run `keelspec build`, so the new repo starts
 # with a committed, in-sync bundle that its CI gate accepts on the first push. Without

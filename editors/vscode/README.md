@@ -1,6 +1,6 @@
 # KeelSpec for VS Code
 
-Diagnostics, completion and navigation for a [KeelSpec](https://github.com/tarvitave/keelspec)
+Diagnostics, completion and navigation for a [KeelSpec](https://github.com/Tech-Res-Group/keelspec)
 `product/` tree — the glossary, the constraints, the rules, the features and the
 decisions that CI already gates.
 

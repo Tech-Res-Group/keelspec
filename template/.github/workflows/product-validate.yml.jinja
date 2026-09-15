@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tarvitave/keelspec@v{{ keelspec_version }}
+      - uses: Tech-Res-Group/keelspec@v{{ keelspec_version }}
         with:
           config: product.config.yaml
           plugin: product_hooks.py     # the 9xx traceability checks

@@ -1,6 +1,6 @@
 # Reusable GitHub Action: run the KeelSpec product-as-code gate in any repo.
 #
-#   - uses: tarvitave/keelspec@v0.7.0
+#   - uses: Tech-Res-Group/keelspec@v0.7.0
 #     with:
 #       config: product.config.yaml     # optional (this is the default)
 #       plugin: scripts/product_hooks.py # optional project-specific checks

@@ -54,7 +54,7 @@ service for others. Reasonable crawling that respects
 later</strong>. That licence &mdash; not this page &mdash; governs your rights to use, modify and
 redistribute the software. In particular, importing KeelSpec as a library or running it in your
 CI places no obligation on your own project beyond the notice. The full text ships with the package and is
-available in the <a href="https://github.com/tarvitave/keelspec/blob/main/LICENSE">repository</a>.</p>
+available in the <a href="https://github.com/Tech-Res-Group/keelspec/blob/main/LICENSE">repository</a>.</p>
 <p>The software is provided <strong>as is, without warranty of any kind</strong>, as set out in
 the licence. Nothing on this site modifies or expands that licence.</p>
 
@@ -89,7 +89,7 @@ date above. Continuing to use the site after a change constitutes acceptance.</p
 
 <h2>Contact</h2>
 <p>Questions about these terms: <a href="/contact.html">contact us</a>, or open an issue on
-<a href="https://github.com/tarvitave/keelspec/issues">GitHub</a>.</p>
+<a href="https://github.com/Tech-Res-Group/keelspec/issues">GitHub</a>.</p>
 """))
 
 # ── SMS opt-in ───────────────────────────────────────────────────────────────
@@ -203,7 +203,7 @@ migration cannot afford to lose any of its bespoke checks.</p>
 
 <h2>Get in touch</h2>
 <p>Bugs and feature requests belong on
-<a href="https://github.com/tarvitave/keelspec/issues">GitHub</a>, where they are public and
+<a href="https://github.com/Tech-Res-Group/keelspec/issues">GitHub</a>, where they are public and
 tracked. Anything else, use the <a href="/contact.html">contact page</a>.</p>
 """, updated=False))
 
@@ -272,9 +272,9 @@ PAGES["contact.html"] = (
     <h2>Other ways</h2>
     <ul>
       <li><strong>Bugs and features</strong> &mdash;
-        <a href="https://github.com/tarvitave/keelspec/issues">GitHub issues</a></li>
+        <a href="https://github.com/Tech-Res-Group/keelspec/issues">GitHub issues</a></li>
       <li><strong>Source and releases</strong> &mdash;
-        <a href="https://github.com/tarvitave/keelspec">github.com/tarvitave/keelspec</a></li>
+        <a href="https://github.com/Tech-Res-Group/keelspec">github.com/Tech-Res-Group/keelspec</a></li>
       <li><strong>Packages</strong> &mdash;
         <a href="https://pypi.org/project/keelspec/">PyPI</a></li>
       <li><strong>Email</strong> &mdash; marketing@keelspec.com</li>
