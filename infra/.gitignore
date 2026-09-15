@@ -1,4 +1,12 @@
 # Terraform state contains resource detail and must never be committed.
+#
+# A saved PLAN is worse than state: it embeds the *values* of input variables,
+# so `-out=tfplan` writes the hcloud_token into a zip in plaintext. This file
+# was tracked in a public repo for exactly that reason, which is why it is
+# listed first now.
+tfplan
+*.tfplan
+*.tfplan.*
 *.tfstate
 *.tfstate.*
 .terraform/
