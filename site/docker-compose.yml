@@ -1,3 +1,20 @@
+# keelspec.com — the site API. No Caddy here.
+#
+# :80/:443 belong to the shared edge at /opt/edge, which serves this site from a
+# snippet in its conf.d/ and reads ./public read-only. That split exists because
+# one app's deploy used to be able to take the other's site off the internet by
+# rewriting the file that routed it.
+#
+#   docker compose up -d --build
+#
+# This service publishes no port. It is reachable only from the `edge` network,
+# which is what keeps :8000 off the public internet.
+
+networks:
+  edge:
+    external: true
+    name: edge
+
 # keelspec.com
 #
 #   docker compose up -d      site, lead capture, admin panel  (~250 MB RAM)
@@ -5,31 +22,16 @@
 # Analytics is first-party and lives in the API (see /admin/analytics), so there is
 # no separate analytics service to run.
 #
-# Everything is on one internal network; only Caddy publishes ports.
+# This service publishes no port. The shared edge reaches it over the `edge`
+# network, which is what keeps :8000 off the public internet.
 
 services:
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"        # HTTP/3
-    environment:
-      SITE_DOMAIN: ${SITE_DOMAIN:?set SITE_DOMAIN in .env}
-      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      # ONLY public/ is the webroot. Never mount the compose directory itself —
-      # .env, the Caddyfile and the API source would all become downloadable.
-      - ./public:/srv:ro
-      - caddy_data:/data                 # certificates — losing this re-issues them
-      - caddy_config:/config
-    depends_on:
-      - api
-
   api:
     build: ./api
+    # The edge's conf.d snippet proxies to this name; a compose service name
+    # only resolves inside its own project, and the edge is a different one.
+    container_name: keelspec-api
+    networks: [edge]
     restart: unless-stopped
     # Runs as the host owner of ./public so the SEO job and the newsletter archive
     # can write there. The image's own uid cannot: a bind mount keeps host ownership.
@@ -71,6 +73,4 @@ services:
 
 
 volumes:
-  caddy_data:
-  caddy_config:
   api_data:

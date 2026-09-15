@@ -1,18 +1,21 @@
+# keelspec.com — a snippet for the shared edge, not a standalone Caddyfile.
+#
+# The edge at /opt/edge owns :80/:443 and the ACME account; this file is copied
+# into its conf.d/ by deploy.sh and is the ONLY thing this deploy may write there.
+# No global options block: that belongs to the box, not to this site.
+#
+# `keelspec-api` rather than `api` because the edge runs in a different compose
+# project, where the service name does not resolve.
+
 # keelspec.com — Caddy handles TLS certificates automatically via Let's Encrypt.
 # Point the A/AAAA records at the server first; certificates are issued on boot.
 
-{
-	email {$ACME_EMAIL}
-	# Uncomment while testing so you don't burn Let's Encrypt rate limits:
-	# acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
-}
-
 # www redirects to the apex so there is one canonical origin.
-www.{$SITE_DOMAIN} {
-	redir https://{$SITE_DOMAIN}{uri} permanent
+www.keelspec.com {
+	redir https://keelspec.com{uri} permanent
 }
 
-{$SITE_DOMAIN} {
+keelspec.com {
 	encode zstd gzip
 
 	header {
@@ -27,12 +30,12 @@ www.{$SITE_DOMAIN} {
 
 	# ── lead capture / future CRM endpoints ──────────────────────────────
 	handle /api/* {
-		reverse_proxy api:8000
+		reverse_proxy keelspec-api:8000
 	}
 
 	# The admin panel. Server-rendered by the API; never cached, never indexed.
 	handle /admin* {
-		reverse_proxy api:8000
+		reverse_proxy keelspec-api:8000
 		header {
 			Cache-Control "no-store"
 			X-Robots-Tag  "noindex, nofollow"
