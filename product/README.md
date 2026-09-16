@@ -32,7 +32,7 @@ before letting a validator into their CI.
 - [`KDR-0001`](decisions/KDR-0001-the-engine-is-a-library-not-a-vendored-validator.md)
   — why this is a library and not a script each repository copies.
 - [`CON-codes-are-an-api`](constraints/CON-codes-are-an-api.md) — the stability
-  promise, and an honest note that nothing enforces it yet.
+  promise, gated by asking the last released version whether it agrees.
 - [`CON-core-holds-no-consumer-vocabulary`](constraints/CON-core-holds-no-consumer-vocabulary.md)
   — the line that keeps the extraction meaningful.
 
