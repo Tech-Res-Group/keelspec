@@ -1,0 +1,158 @@
+{
+  "constraints": [
+    {
+      "_file": "product/constraints/CON-codes-are-an-api.md",
+      "body": "Not enforced by a test, and that is worth being explicit about rather than\nleaving as an omission. Nothing in the suite compares today's code table against\na released one, so the only thing standing between this constraint and a\nwell-meant tidy-up is that it is written down.\n\nA test could exist: the released package is on PyPI, so a check could import the\nlast release's code table and assert that every code present in it still means\nwhat it meant. That would turn this from a convention into a gate. Until it does,\ntreat a diff that touches an existing key in `keelspec/diagnostics.py` as a\nrelease-blocking change rather than a refactor.\n\nThe gaps this produces in the numbering are information. A missing number says a\nrule was retired, which is a thing a reader of an old CI log needs to know.",
+      "enforced_by": null,
+      "governed_by": "KDR-0002",
+      "id": "CON-codes-are-an-api",
+      "kind": "compatibility",
+      "rationale": "Codes are the part of this library that consumers build on — CI allowlists, triage rules, dashboards, plugin ranges. Renumbering one breaks every consumer and produces no error anywhere: an allowlist keyed on the old number stops matching in silence, and a suppression that was scoped to one rule quietly moves to another.",
+      "statement": "A diagnostic code that has appeared in a release keeps its meaning for the life of the library. A retired rule burns its number: the code is no longer emitted and is never reassigned, no neighbouring code is renumbered to close the gap, and no existing code changes what it means. PAC-0xx through PAC-06x belong to the engine; consumers register their own rules from PAC-9xx.",
+      "title": "A released diagnostic code keeps its meaning permanently"
+    },
+    {
+      "_file": "product/constraints/CON-core-holds-no-consumer-vocabulary.md",
+      "body": "The test that matters is not in the suite; it is that `examples/quickstart`\nmodels a payments domain with a ledger and a payment term, and nothing about\nthose words exists in `keelspec/`. The quickstart validates in CI, so the engine\nis exercised against a vocabulary it does not contain on every push.\n\nThe pressure on this constraint is always the same and always reasonable-sounding:\na rule that two consumers both want, which would be four lines in the engine and\nforty in each plugin. The answer is that the engine may gain the *mechanism* both\nplugins then use — a way to declare the rule — but not the rule. The test is\nwhether the addition can be described without naming anything the consumer owns.\nIf it cannot, it belongs in a plugin.\n\nThis constraint is the one a grounding primitive has to satisfy. A checker that\nrefuses generated text naming things a graph does not contain is squarely the\nengine's business; a checker that knows what an `x-fife-` header is, is not. The\ncaller supplies the surface, the engine supplies the discipline. See FifeRouter's\n`grounded-generation`, which is the consumer half of that.",
+      "enforced_by": "examples/quickstart",
+      "governed_by": "KDR-0001",
+      "id": "CON-core-holds-no-consumer-vocabulary",
+      "kind": "compatibility",
+      "rationale": "This is the property the extraction bought. A validator that knows what a ledger is has to carry that knowledge for every consumer that does not have ledgers, and the next consumer's needs then have to be added to a file the first one also ships. Without this constraint the library is a shared script with a pip install in front of it, which is the thing it was extracted to stop being.",
+      "statement": "No consumer's domain vocabulary may appear in the engine. Not a type name, not an id prefix, not a status value, not a header, not a product name. A consumer declares its types in product.config.yaml and adds its rules as a plugin; the engine holds only what is true of every graph — loading, schema, ids, cross-references, enums, staleness.",
+      "title": "The engine holds the discipline, never the vocabulary"
+    }
+  ],
+  "decisions": [
+    {
+      "_file": "product/decisions/KDR-0001-the-engine-is-a-library-not-a-vendored-validator.md",
+      "body": "## Context\n\nProduct-as-code started inside a payments platform as a validator script living\nin the repository it validated. That works exactly once. The second repository to\nwant it copied the script, and the two copies immediately began to differ —\nbecause each copy was edited to suit the tree in front of it, and nobody could\ntell which differences were deliberate.\n\nA validator that lives inside one product acquires that product's vocabulary. The\npayments version knew what a ledger was. Anything it learned about ledgers was\nthen in the way of the next consumer, and anything the next consumer needed had\nto be added to a file that the payments repository also had to carry.\n\n## Decision\n\nExtract the engine as an installable library with no knowledge of any consumer's\ndomain. A consumer declares its artifact types in `product.config.yaml` and adds\nits own rules as a plugin. The library does loading, schema, ids,\ncross-references, enums and bundle staleness, and nothing else.\n\nConsumers pin an exact version. The library is not a framework: it does not own\nthe consumer's directory layout, its CI, or its definition of done.\n\n## Consequences\n\nTwo repositories that were forks of one script became two consumers of one\npackage with their own plugins — KibiPay (`../pharthing`, PDR-0005 and PDR-0008\nthere) and FifeRouter (PDR-0003, 2026-08-23, which also records the single\ndiagnostic-code renumbering the move forced).\n\nThe cost is that a rule which genuinely belongs to the engine can no longer be\nwritten where it is enforced without either putting it in every consumer or\nputting it here. For a year it went in the consumers, which is the gap this tree\nexists to close.\n\nThe constraint that keeps the extraction meaningful is\n[`CON-core-holds-no-consumer-vocabulary`](../constraints/CON-core-holds-no-consumer-vocabulary.md).\nWithout it, this decision decays into a shared script with a `pip install` in\nfront of it.",
+      "date": "2026-08-22",
+      "id": "KDR-0001",
+      "status": "accepted",
+      "supersedes": null,
+      "title": "The engine is a library, not a vendored validator"
+    },
+    {
+      "_file": "product/decisions/KDR-0002-diagnostic-codes-are-an-api.md",
+      "body": "## Context\n\nEvery diagnostic this library emits carries a code: `PAC-001` for a missing\nrequired field, `PAC-020` for a reference that does not resolve, `PAC-060` for a\nstale committed bundle. Codes are what consumers actually build on. They appear\nin CI allowlists, in triage rules, in dashboards, in the messages people paste to\neach other, and in the plugin ranges consumers register their own rules into.\n\nA code is therefore not an internal label. Renumbering one is a breaking change\nthat produces no error anywhere: an allowlist keyed on the old number silently\nstops matching, and a gate that was suppressing one class of warning starts\nsuppressing a different one. The failure is invisible at the moment it happens\nand surfaces later as a rule that was supposed to be enforced and was not.\n\nThe library has renumbered exactly once, when consumers moved off their vendored\nvalidators and the two numbering schemes had to be reconciled. FifeRouter's\nPDR-0003 records that from the consumer side, including why it was accepted and\nwhy it must not recur.\n\n## Decision\n\nA code, once released, keeps its meaning permanently. To retire a rule, stop\nemitting the code and leave the number burned. Never reassign it, never\nrenumber a neighbouring code to close a gap, and never change what an existing\ncode means.\n\nThe ranges are fixed: `PAC-0xx` through `PAC-06x` belong to the engine, and\nconsumers register their own rules from `PAC-9xx`. A consumer must be able to add\na rule without asking whether the next engine release will collide with it.\n\n## Consequences\n\nThe numbering will develop gaps, and the gaps are the point — a missing number is\na retired rule, which is information rather than untidiness.\n\nNew engine rules take the next free number in the engine's range. When the engine\nrange fills, the answer is a new range, not a compaction of the old one.\n\nThis is the rule most likely to be broken by a well-intentioned tidy-up, which is\nwhy it is written down here rather than only in the consumer repository that\nhappened to pay for it once. It is stated as\n[`CON-codes-are-an-api`](../constraints/CON-codes-are-an-api.md).",
+      "date": "2026-09-14",
+      "id": "KDR-0002",
+      "status": "accepted",
+      "supersedes": null,
+      "title": "Diagnostic codes are an API"
+    },
+    {
+      "_file": "product/decisions/KDR-0003-one-resolved-index-behind-every-surface.md",
+      "body": "## Context\n\nThe engine grew from one surface to four: the CLI, a language server, an MCP\nserver, and a watch mode. All four answer the same questions — what artifacts\nexist, what does this id refer to, which edges point here, where in the file is\nthat — and each one was in a position to answer them its own way.\n\nThat is the shape that produces a tool people stop trusting. An editor reporting\na dangling reference the CLI accepts is not a cosmetic inconsistency; it makes\nboth answers worthless, because the user has no way to tell which surface is\nwrong.\n\nThe first shared index was keyed by bare artifact id, which looked correct and\nwas not. In a tree where a spec and the feature it details deliberately share an\nid, every such pair collapsed into one entry: 85 artifacts resolved to 62. The\nCLI, which did its own loading, disagreed — correctly — and the disagreement was\nthe only reason it was found.\n\n## Decision\n\nEvery surface resolves through one index, and the index is keyed by\n`(type_name, id)` rather than by id alone. Edges are typed on both ends: an edge\nrecords the source type, source id, field, target type and target id.\n\nA surface may present differently — a diagnostic, a hover, a JSON payload, a\nterminal line — but it may not answer a question about the graph from its own\ntraversal.\n\n## Consequences\n\nLooking an artifact up by bare id becomes an operation that returns a list, not\nan artifact, because the id alone does not identify one. Callers that want a\nsingle artifact must say which type they mean. That is more awkward and it is\ncorrect: the awkwardness is the ambiguity, made visible.\n\nAdding a fifth surface is now mostly presentation, which is the payoff.\n\nThe invariant is stated as\n[`BR-one-index-behind-every-surface`](../rules/BR-one-index-behind-every-surface.md).\nThe failure it prevents is silent, so it is worth restating that nothing about\nthe collapsed index looked broken — the count was simply lower than it should\nhave been, on a number nobody had a reason to check.",
+      "date": "2026-09-14",
+      "id": "KDR-0003",
+      "status": "accepted",
+      "supersedes": null,
+      "title": "One resolved index behind every surface"
+    }
+  ],
+  "note": "AUTO-GENERATED by KeelSpec (keelspec build). Do not edit by hand — edit the product/ source files and rerun.",
+  "rules": [
+    {
+      "_file": "product/rules/BR-one-index-behind-every-surface.md",
+      "body": "The failure this prevents is silent. When the index was keyed by bare id, a tree\nof 85 artifacts resolved to 62 — every spec that shared an id with the feature it\ndetails was overwritten by it. Nothing errored. The count was simply lower than\nit should have been, on a number nobody had a reason to check, and the only\nreason it surfaced was that the CLI still did its own loading and disagreed.\n\nThe last of the four tests is the one that ages worst if it goes. The index\nresolves; it does not judge. A surface that wants a diagnostic asks the\nvalidator. The moment the index starts deciding what is wrong, two answers to\n\"is this tree valid\" exist again, which is the whole thing KDR-0003 was written\nto stop.",
+      "enforced_by": [
+        "tests/test_surfaces.py::test_ids_are_unique_per_type_not_globally",
+        "tests/test_surfaces.py::test_edges_are_typed_at_both_ends",
+        "tests/test_surfaces.py::test_definition_returns_both_artifacts_when_an_id_is_shared",
+        "tests/test_surfaces.py::test_the_index_does_not_validate_anything_itself"
+      ],
+      "governed_by": "KDR-0003",
+      "id": "BR-one-index-behind-every-surface",
+      "invariant": "Artifacts are keyed by (type_name, id), never by id alone, and every edge records the source type, source id, field, target type and target id. A lookup by bare id returns a list, because a bare id does not identify an artifact.",
+      "statement": "The CLI, the language server, the MCP server and watch mode all resolve the graph through keelspec/index.py. No surface traverses the tree itself, and no surface may answer a question about the graph that the index could have answered differently.",
+      "title": "Every surface answers from one resolved index"
+    },
+    {
+      "_file": "product/rules/BR-plugins-extend-never-fork.md",
+      "body": "The pull towards a fork is strongest at exactly the moment a consumer is in a\nhurry: the engine is one line away from doing what this repository needs, the\nplugin API would take an afternoon, and the repository already has a copy of the\nsource in its virtualenv.\n\nWhat makes it a rule rather than advice is that a fork is undetectable from the\nconsumer side. Everything keeps working, the pin still reads `keelspec==0.7.0`,\nand the divergence is only discovered at the next upgrade — which is the point at\nwhich nobody remembers what was changed or why. FifeRouter and KibiPay were both\nvendored copies once, and the reconciliation cost is recorded in KDR-0002: it is\nthe reason the only diagnostic-code renumbering in this library's history\nhappened.\n\nA plugin that finds it cannot express something is a gap in the plugin API and\nshould be reported as one.",
+      "enforced_by": [
+        "tests/test_keelspec.py::test_plugin_validator_and_transformer_and_output",
+        "tests/test_keelspec.py::test_plugin_extra_outputs_are_staleness_gated",
+        "tests/test_keelspec.py::test_a_plugin_without_register_fails_loudly"
+      ],
+      "governed_by": "KDR-0001",
+      "id": "BR-plugins-extend-never-fork",
+      "invariant": "A plugin may register validators, transform the bundle and add outputs. It may not remove or reinterpret an engine rule, and its diagnostic codes live in the consumer range (PAC-9xx).",
+      "statement": "Everything specific to how one repository proves intent against delivery lives in that repository's plugin — its definition of done, its traceability checks, its roadmap model. The engine is installed from PyPI at an exact version and is not edited in place by its consumers.",
+      "title": "A consumer's rules are a plugin, never a fork"
+    },
+    {
+      "_file": "product/rules/BR-the-committed-bundle-is-the-contract.md",
+      "body": "Committing a generated file is a thing most projects are right to avoid, so the\nreason this one is different is worth stating. The bundle is what the consumer's\napp, site or documentation actually renders. If it is generated at deploy time,\na change to intent reaches readers without passing through review, and a broken\ncross-reference is discovered by a reader rather than by CI.\n\nCommitted, the bundle appears in the diff. A reviewer sees that a rule's wording\nchanged and that the rendered surface changed with it, in one place. That only\nworks if the build is deterministic — a bundle that reorders its own keys between\nruns produces a diff on every PR, everyone learns to skim it, and the gate is\nworth nothing by the second week.\n\nThis rule has no governing decision because it predates the extraction; it came\nout of the payments platform with the mechanism and has never been argued about.",
+      "enforced_by": [
+        "tests/test_keelspec.py::test_stale_bundle_pac060",
+        "tests/test_keelspec.py::test_build_is_deterministic",
+        "tests/test_keelspec.py::test_cli_build_is_deterministic_across_runs",
+        "tests/test_keelspec.py::test_staleness_reports_which_artifacts_differ"
+      ],
+      "governed_by": null,
+      "id": "BR-the-committed-bundle-is-the-contract",
+      "invariant": "Two builds of the same tree produce the same bytes, and the committed bundle either matches the tree or the gate fails.",
+      "statement": "The compiled bundle is checked in alongside the artifacts it was generated from, and `validate` fails with PAC-060 when the two disagree. A build is byte-identical across runs given the same inputs, so the diff is a real signal rather than churn.",
+      "title": "The generated bundle is committed, and a stale one fails the build"
+    }
+  ],
+  "terms": [
+    {
+      "_file": "product/terms/TERM-artifact.md",
+      "aka": [
+        "record"
+      ],
+      "body": "An artifact is identified by its type *and* its id, not by its id alone. Two\ntypes may legitimately use the same id — a spec and the feature it details\nusually do — and treating the id as globally unique is the mistake KDR-0003 was\nwritten about.\n\nThe frontmatter is the data; the body is prose for a human. The engine validates\nthe frontmatter and carries the body through to the bundle untouched. Nothing\nenforces that the body says anything, which is deliberate: a rule that is true and\nunexplained is still a rule, and forcing a justification field produces\njustifications rather than reasons.",
+      "definition": "One record in the graph: a markdown file with YAML frontmatter, belonging to a type declared in product.config.yaml, identified by an id that is unique within that type.",
+      "id": "TERM-artifact",
+      "see_also": [
+        "TERM-bundle",
+        "TERM-diagnostic-code"
+      ],
+      "term": "Artifact"
+    },
+    {
+      "_file": "product/terms/TERM-bundle.md",
+      "aka": [
+        "generated bundle",
+        "product.generated.json"
+      ],
+      "body": "The bundle is what applications read. A consumer's site, docs page or console\nrenders the bundle rather than parsing markdown, which is what makes product\nintent something a product can display without knowing how it is stored.\n\nIt is committed on purpose and gated on staleness — see\n[`BR-the-committed-bundle-is-the-contract`](../rules/BR-the-committed-bundle-is-the-contract.md).",
+      "definition": "The compiled JSON output of a tree: every artifact, its fields, its body and its resolved edges, written to the path named by `output` and committed alongside the artifacts it came from.",
+      "id": "TERM-bundle",
+      "see_also": [
+        "TERM-artifact"
+      ],
+      "term": "Bundle"
+    },
+    {
+      "_file": "product/terms/TERM-diagnostic-code.md",
+      "aka": [
+        "PAC code"
+      ],
+      "body": "The code is the part consumers depend on, which is why a released one never\nchanges meaning — [`CON-codes-are-an-api`](../constraints/CON-codes-are-an-api.md).\nA finding also carries a severity, a message, a file and, where the engine can\nlocate it, the field and value it is about; only the code is a promise.",
+      "definition": "The stable identifier on every finding the validator reports — `PAC-020` for an unresolved reference, `PAC-060` for a stale bundle. Engine codes occupy PAC-0xx through PAC-06x; consumer plugins register theirs from PAC-9xx.",
+      "id": "TERM-diagnostic-code",
+      "see_also": [
+        "TERM-artifact"
+      ],
+      "term": "Diagnostic code"
+    },
+    {
+      "_file": "product/terms/TERM-plugin.md",
+      "aka": [
+        "product_hooks.py"
+      ],
+      "body": "FifeRouter's plugin holds its definition of done — a shipped feature needs a PR\nlink, a code link, a resolving test per acceptance criterion, a deployment and a\nmonitor. None of that is in the engine, because none of it is true of every\ngraph: a library has no deployment manifest and nothing to probe.\n\nThe boundary is [`BR-plugins-extend-never-fork`](../rules/BR-plugins-extend-never-fork.md),\nand the reason it exists is [`CON-core-holds-no-consumer-vocabulary`](../constraints/CON-core-holds-no-consumer-vocabulary.md).",
+      "definition": "A Python module a consumer passes with `-p`, registering that repository's own validators, bundle transformers and extra outputs. It is how a consumer adds rules the engine has no business knowing.",
+      "id": "TERM-plugin",
+      "see_also": [
+        "TERM-diagnostic-code"
+      ],
+      "term": "Plugin"
+    }
+  ]
+}

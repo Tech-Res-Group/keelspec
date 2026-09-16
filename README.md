@@ -305,6 +305,14 @@ jobs:
 ```
 </details>
 
+## The rules this library holds itself to
+
+KeelSpec's own decisions, constraints and rules live in [`product/`](product/)
+as a KeelSpec graph, validated in CI alongside everything else. If you want to
+know what the stability promise on diagnostic codes actually is before letting a
+validator into your build, that is where it is written:
+[`CON-codes-are-an-api`](product/constraints/CON-codes-are-an-api.md).
+
 ## Used in production
 
 KeelSpec is the product-as-code engine of the **pharthing / KibiPay** payments

@@ -45,3 +45,14 @@ jobs:
           git diff --exit-code examples/quickstart/build/ \
             || { echo "::error::quickstart bundle is stale — run keelspec build"; exit 1; }
           keelspec -C examples/quickstart validate
+
+      # Not a demonstration like the two above. This is where the engine's own
+      # decisions, constraints and rules are written down, and it is gated for
+      # the same reason a consumer's tree is: a rule nothing checks is a rule
+      # that has already drifted.
+      - name: The engine's own intent must validate
+        run: |
+          keelspec build
+          git diff --exit-code build/ \
+            || { echo "::error::product bundle is stale — run keelspec build"; exit 1; }
+          keelspec validate
