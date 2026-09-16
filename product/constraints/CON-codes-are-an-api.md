@@ -15,17 +15,27 @@ rationale: >-
   and produces no error anywhere: an allowlist keyed on the old number stops
   matching in silence, and a suppression that was scoped to one rule quietly
   moves to another.
+enforced_by:
+  - scripts/check_code_stability.py
+  - tests/test_code_stability.py
 ---
-Not enforced by a test, and that is worth being explicit about rather than
-leaving as an omission. Nothing in the suite compares today's code table against
-a released one, so the only thing standing between this constraint and a
-well-meant tidy-up is that it is written down.
+The check installs the newest released keelspec from PyPI and compares its code
+table against the working copy's. A code that was released and is now absent
+fails the build unless it appears in `RETIRED` in `keelspec/diagnostics.py`, and
+a number in `RETIRED` that is registered again fails too. Retiring a code is
+allowed; forgetting that you did is not.
 
-A test could exist: the released package is on PyPI, so a check could import the
-last release's code table and assert that every code present in it still means
-what it meant. That would turn this from a convention into a gate. Until it does,
-treat a diff that touches an existing key in `keelspec/diagnostics.py` as a
-release-blocking change rather than a refactor.
+What it deliberately does not fail on is a reworded message. Whether new wording
+still means the same thing is a judgement, and requiring byte equality would fail
+on a typo fix and teach everyone to bypass the gate — which would cost more than
+the wording drift it caught. Rewordings and new codes are printed so a reviewer
+sees them.
+
+The reason this needs a *different* version of the library rather than a test is
+that this repository validates itself. A schema change and the tree that
+satisfies it arrive in the same commit, so the local gate always agrees with the
+local engine. The only version that can disagree is one already in a consumer's
+lockfile.
 
 The gaps this produces in the numbering are information. A missing number says a
 rule was retired, which is a thing a reader of an old CI log needs to know.

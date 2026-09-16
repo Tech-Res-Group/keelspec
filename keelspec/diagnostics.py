@@ -32,6 +32,16 @@ CODES: dict[str, str] = {
 }
 
 
+# ── burned numbers ───────────────────────────────────────────────────────────
+# A rule that is withdrawn leaves its number here, permanently, with what it used
+# to mean. This is not bookkeeping: `scripts/check_code_stability.py` compares the
+# table above against the last release, and a code that disappears without
+# appearing here fails the build. Reassigning one fails too.
+#
+# Empty is the correct state. Nothing has been retired yet.
+RETIRED: dict[str, str] = {}
+
+
 def register(code: str, message: str) -> None:
     """Register (or re-document) a diagnostic code. A project owns its own code
     numbers — re-registering an existing code overrides its documentation, so a
