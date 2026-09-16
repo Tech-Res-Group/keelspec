@@ -1,0 +1,81 @@
+# KeelSpec's own intent, as a KeelSpec graph.
+#
+# The third tree this repository validates in CI. The other two demonstrate the
+# mechanism — the keelspec.com blog (site/content) and examples/quickstart. This
+# one is different in kind: it is not a demonstration, it is where the engine's
+# own rules are written down, and it exists because they were previously written
+# down only in consumer repositories. A policy that binds every user of this
+# library should not be readable only by opening FifeRouter's product tree.
+#
+#   keelspec build       # regenerate build/product.generated.json
+#   keelspec validate    # the CI gate
+#
+# ── what is deliberately absent ─────────────────────────────────────────────
+#
+# There is no `features` type and no roadmap. A library's capabilities are all
+# enablers with no metric, no deployment and no synthetic probe, so a features
+# tree here would restate CHANGELOG.md in frontmatter and never reach a
+# meaningful `shipped`. Decisions, constraints, rules and terms are the four
+# types that carry something the changelog cannot: why, and what must stay true.
+#
+# There is also no plugin. Core alone validates this tree — schema, ids,
+# cross-references, enums, bundle staleness — which is the honest demonstration
+# of how far core gets you before you need one.
+product_dir: product
+output: build/product.generated.json
+
+types:
+  # ── decisions: KDRs, immutable once accepted ─────────────────────────────
+  # Ids are `KDR-NNNN` and filenames carry the slug, so id_matches_filename is
+  # off. Consumer repos number decisions with bare ordinals and resolve the edge
+  # in plugin code, because an ordinal id in a `NNNN-slug.md` file cannot be
+  # matched by the engine's exact-match reference check. A prefixed id can, so
+  # `supersedes` below is a real declared edge rather than something this repo
+  # would have to hand-write a rule for. Both shapes work; this is the one that
+  # needs less.
+  - name: decisions
+    dir: decisions
+    id_prefix: "KDR-"
+    id_matches_filename: false
+    required: [id, title, status, date]
+    fields: [title, status, date, supersedes]
+    enums:
+      status: [proposed, accepted, superseded]
+    references:
+      - field: supersedes
+        to: decisions
+
+  # ── constraints: boundaries this library does not get to move ────────────
+  # `kind` is not the consumer set (regulatory/security/performance/operational).
+  # A validator has no regulator; what it has is compatibility, which is the
+  # category almost every hard boundary here falls into.
+  - name: constraints
+    dir: constraints
+    id_prefix: "CON-"
+    required: [id, title, kind, statement, rationale]
+    fields: [title, kind, statement, rationale, governed_by, enforced_by]
+    enums:
+      kind: [compatibility, security, performance, operational]
+    references:
+      - field: governed_by
+        to: decisions
+
+  # ── rules: durable invariants that must always hold ──────────────────────
+  - name: rules
+    dir: rules
+    id_prefix: "BR-"
+    required: [id, title, statement]
+    fields: [title, statement, invariant, governed_by, enforced_by]
+    references:
+      - field: governed_by
+        to: decisions
+
+  # ── terms: the glossary the documentation and the diagnostics share ──────
+  - name: terms
+    dir: terms
+    id_prefix: "TERM-"
+    required: [id, term, definition]
+    fields: [term, definition, aka, see_also]
+    references:
+      - field: see_also
+        to: terms
