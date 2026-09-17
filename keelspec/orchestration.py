@@ -54,7 +54,12 @@ ROSTER: tuple[Station, ...] = (
     # room is the same mistake as renumbering a diagnostic code.
     Station("ST-04b", "Clean", "simplify, without changing behaviour", AGENT,
             "claude-opus-5", "high"),
-    Station("ST-05", "Test", "adversarial coverage", AGENT, "claude-opus-5", "high"),
+    # Not "adversarial coverage", which it was: ST-06 immediately below is the
+    # adversarial station, and having the word on both made readers ask which
+    # one fans out. ST-05 is one agent whose separateness is the point; ST-06
+    # is many agents whose disagreement is the point.
+    Station("ST-05", "Test", "coverage, by a separate author", AGENT,
+            "claude-opus-5", "high"),
     Station("ST-06", "Verify", "4 refuting lenses", AGENT, "claude-opus-5", "high"),
     Station("ST-07", "Assemble", "one gated PR", MACHINE),
     Station("ST-08", "CI gates", "the judge", MACHINE),
