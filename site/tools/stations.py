@@ -35,12 +35,15 @@ STATIONS = [
     {"id": "ST-04b", "name": "Clean", "role": "simplify, not change",
      "kind": "agent", "model": "opus / high", "colour": "#ff8fd0",
      "blurb": "Goes back over the change and simplifies it. Behaviour must not move."},
-    {"id": "ST-05", "name": "Test", "role": "adversarial coverage",
+    {"id": "ST-05", "name": "Test", "role": "coverage, by a separate author",
      "kind": "agent", "model": "opus / high", "colour": "#00b67a",
      "blurb": "A separate agent, so the author is never grading its own coverage."},
-    {"id": "ST-06", "name": "Verify", "role": "4 refuting lenses",
+    {"id": "ST-06", "name": "Verify", "role": "5 refuting lenses",
      "kind": "agent", "model": "opus / high", "colour": "#8b1538",
-     "blurb": "Four critics try to refute the work — correctness, coverage, security, reproduce."},
+     "blurb": "Five critics try to refute the work — correctness, coverage, security, reproduce, integrity."},
+    {"id": "ST-06b", "name": "Triage", "role": "why it failed",
+     "kind": "agent", "model": "opus / high", "colour": "#ffd36e",
+     "blurb": "Before anyone retries: was it the code, or the requirement? Only code goes back to Develop."},
     {"id": "ST-07", "name": "Assemble", "role": "one gated PR",
      "kind": "machine", "model": "script", "colour": "#fff",
      "blurb": "Collects the team's output into a single pull request. No judgement, no model."},
@@ -55,7 +58,7 @@ STATIONS = [
      "blurb": "The only judge that cannot be argued with. Findings feed back into intent."},
 ]
 
-# ST-06's four refuting lenses, wording from the deck.
+# ST-06's refuting lenses. The first four are the deck's wording.
 LENSES = [
     ("correctness", "#ff6b4a",
      "Find an input where it does the WRONG thing — and do the tests pass vacuously?"),
@@ -65,6 +68,9 @@ LENSES = [
      "Payments lens: authz, trust boundaries, injection, PII, secrets, spend / consent."),
     ("reproduce", "#b47cff",
      "Ignore the happy path: concurrency, partial failure, retries / idempotency, rollback."),
+    ("integrity", "#fbcc00",
+     "Every criterion passes — so which business scenario, exception path or downstream "
+     "consumer does it still break?"),
 ]
 
 FANOUT = [
@@ -128,6 +134,91 @@ def avatar(station: dict, index: int) -> str:
 
 
 KIND_LABEL = {"agent": "agent", "human": "human", "machine": "deterministic"}
+
+
+# ── FastPDLC: the method KeelSpec runs ───────────────────────────────────────
+# The ten numbered stations, with the two lettered sub-stations (ST-04b Clean,
+# ST-06b Triage) drawn inside their parent. ST-01..ST-06 are what
+# `keelspec orchestrate` runs. ST-07..ST-10 are hand-off points to the team's own
+# process -- the README's honest scope, drawn as a dashed line rather than a claim.
+LAST_AUTOMATED = 6
+
+# What actually happens at each hand-off, so the diagram never implies automation
+# that does not exist.
+HANDOFF = {
+    "ST-07": "Your branch and PR tooling collects the change. The line hands over a report.",
+    "ST-08": "Your CI runs <code>keelspec validate</code> next to your own tests.",
+    "ST-09": "A person merges. KeelSpec never does.",
+    "ST-10": "Your CD and operations. Measured against the outcome the feature traces to.",
+}
+
+
+def _number(station_id: str) -> int:
+    return int("".join(ch for ch in station_id.split("-")[1] if ch.isdigit()))
+
+
+def roster_counts() -> dict[str, int]:
+    """How many stations of each kind, for the rail label."""
+    counts = {"agent": 0, "human": 0, "machine": 0}
+    for s in STATIONS:
+        counts[s["kind"]] += 1
+    return counts
+
+
+def _pdlc_station(s: dict, index: int, subs: list[tuple[dict, int]], handoff: bool) -> str:
+    sub_html = "".join(
+        f'<span class="pdlc-sub">{avatar(sub, i)}<span><b>{sub["id"]}</b> {sub["name"]}'
+        f' &middot; {sub["role"]}</span></span>'
+        for sub, i in subs)
+    note = (f'<p class="pdlc-note">{HANDOFF[s["id"]]}</p>' if handoff
+            else f'<p class="pdlc-note">{s["role"]}</p>')
+    return f"""<li class="pdlc-st" data-kind="{s['kind']}">
+          <div class="pdlc-top">{avatar(s, index)}<span class="st-id">{s['id']}</span></div>
+          <h3>{s['name']}</h3>
+          {note}
+          <span class="badge pdlc-kind">{KIND_LABEL[s['kind']]}</span>{sub_html}
+        </li>"""
+
+
+def fastpdlc_diagram() -> str:
+    """The ten stations as two ordered lists: the automated line and the hand-offs."""
+    main: list[tuple[dict, int]] = []
+    subs: dict[str, list[tuple[dict, int]]] = {}
+    for i, s in enumerate(STATIONS):
+        if s["id"][-1].isalpha():
+            parent = s["id"][:-1]
+            subs.setdefault(parent, []).append((s, i))
+        else:
+            main.append((s, i))
+
+    auto = [_pdlc_station(s, i, subs.get(s["id"], []), False)
+            for s, i in main if _number(s["id"]) <= LAST_AUTOMATED]
+    hand = [_pdlc_station(s, i, subs.get(s["id"], []), True)
+            for s, i in main if _number(s["id"]) > LAST_AUTOMATED]
+    return f"""<div class="pdlc">
+      <div class="pdlc-group pdlc-auto reveal">
+        <div class="pdlc-label"><span class="badge badge-ink">Automated</span>
+          <span>ST-01 to ST-0{LAST_AUTOMATED}, run by <code>keelspec orchestrate</code>,
+          with a human gate at ST-02</span></div>
+        <ol class="pdlc-row pdlc-row-auto">
+        {"".join(auto)}
+        </ol>
+        <p class="pdlc-loop"><span aria-hidden="true">&#8634;</span> Triage sends only an
+          <b>implementation</b> fault back to Develop, within a repair limit. A requirement,
+          design, dependency, environment, model or business-decision fault stops the line
+          for a person.</p>
+      </div>
+
+      <div class="pdlc-break reveal"><span>The line ends with a report. Nothing merges on its own.</span></div>
+
+      <div class="pdlc-group pdlc-hand reveal">
+        <div class="pdlc-label"><span class="badge">Hand-off points</span>
+          <span>ST-0{LAST_AUTOMATED + 1} to ST-10, owned by your process, not automated by KeelSpec</span></div>
+        <ol class="pdlc-row pdlc-row-hand" start="{LAST_AUTOMATED + 1}">
+        {"".join(hand)}
+        </ol>
+      </div>
+    </div>"""
 
 
 def rail_cards() -> str:
