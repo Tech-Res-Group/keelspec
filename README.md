@@ -11,6 +11,25 @@ app or docs can render, and **fails CI when the committed bundle drifts**.
 It started as the product-as-code engine inside a payments platform and was extracted
 so any team can use it.
 
+### What it covers, and what it does not
+
+KeelSpec governs the **engineering segment** of delivery: from a story whose intent is
+written down to a proposed change that has been built, tested and attacked. It is not
+an end-to-end product delivery model, and it does not claim to be one.
+
+| | covered here | where it is covered instead |
+|---|---|---|
+| **Before the story** — problem selection, value, funding, prioritisation | The story must trace to an `outcome` with a metric and an owner; it cannot pretend to have none (`PAC-002`, `PAC-903`). | Portfolio and product management |
+| **The spec** | Typed, validated, cross-referenced; open questions stop the line; named roles accept it before design. | — |
+| **Story → PR** | The agent-built line, with adversarial verification and triage. | — |
+| **After the PR** — integration, UAT, release, operations, adoption | A `shipped` feature must carry an owner, rollback and runbook, and NFR evidence (`PAC-904`, `PAC-905`). | CD pipeline, change management, operations |
+| **Business outcome** | The link from feature to outcome, so it can be measured. | Production analytics |
+
+The stations after the PR (ST-07 to ST-10) are hand-off points, not automation. What
+the line *does* own, it proves: every claim above is a diagnostic code or a test. See
+[AI-GOVERNANCE.md](AI-GOVERNANCE.md) for what the agent-built line does with models
+and data, and what is left to your organisation's policy.
+
 ```bash
 pip install keelspec
 ```
@@ -114,8 +133,8 @@ would let the thing being judged edit the evidence.
 ## The agent-built lifecycle
 
 `keelspec orchestrate` runs a station line over one artifact: **Understand →
-Disambiguate (human gate) → Design → Develop → Test → adversarial Verify**, with a
-bounded repair loop.
+Disambiguate (human gate) → Design → Develop → Clean → Test → adversarial Verify →
+Triage**, with a bounded repair loop.
 
 ```bash
 keelspec orchestrate FEAT-refunds                  # needs ANTHROPIC_API_KEY
@@ -124,10 +143,53 @@ keelspec orchestrate FEAT-refunds --dry-run        # offline; exercises the pipe
 pip install 'keelspec[agents]'                     # the reasoning stations
 ```
 
-Four critics attack the result through independent lenses — **correctness,
-coverage, security, reproduce** — each defaulting to *refuted* unless convinced. A
-blocking verdict feeds back to a repair round; after `--max-repair` rounds the run
-reports honestly rather than proposing.
+Five critics attack the result through independent lenses — **correctness,
+coverage, security, reproduce, integrity** — each defaulting to *refuted* unless
+convinced. The first four ask whether the change meets its specification.
+**Integrity** asks whether the business process around it survives: upstream and
+downstream flows, exception and recovery paths, reconciliation, reporting, and the
+rules and NFRs in the product context. Every critic sees the feature's linked
+artifacts, not just its id.
+
+### When it is refuted: triage before repair
+
+A refuted change is not automatically sent back to the developer. **ST-06b Triage**
+first decides *why* it failed: `requirement`, `design`, `dependency`, `environment`,
+`implementation`, `model` or `business_decision`. Only an implementation fault is
+repaired automatically. Every other cause ends the run as **`needs-human`**, with the
+question a person has to answer, because a defective requirement repaired twice is
+still a defective requirement. After `--max-repair` rounds the run reports honestly
+rather than proposing, and says what kind of failure it was.
+
+### Risk tiers, not "is it critical?"
+
+How much of the line a feature gets is scored from the feature itself.
+`product.config.yaml` declares which fields count and by how much, and what each tier
+requires:
+
+```yaml
+delivery:
+  risk_factors:
+    customer_impact: {high: 3, medium: 1}
+    data: {pii: 3, financial: 3, internal: 1}
+    reversible: {false: 3}
+  tiers:
+    - name: high
+      min_score: 5
+      approvers: [product-owner, engineering-owner, security]
+    - name: standard
+      min_score: 2
+      approvers: [product-owner]
+    - name: light            # the old "spike": fewer lenses, no Clean, one repair
+      min_score: 0
+      lenses: [correctness, coverage, security]
+      clean: false
+      max_repair: 1
+```
+
+The score, the tier and every contribution to it are recorded on the run. A feature
+that cannot be found is assessed at the highest tier, because unknown risk is not low
+risk.
 
 ### The human gate
 
@@ -149,6 +211,22 @@ run 2 reads them and proceeds.
 
 `--resolve q1="from settlement"` does the same thing inline for one-offs.
 
+**"A human was in the loop" is not accountability.** When the feature's risk tier
+names `approvers`, the gate file gets one slot per role, and Design does not start
+until each role has a name against it:
+
+```json
+"approvals": [
+  { "role": "product-owner", "by": "Avery Chen", "at": "2026-10-04T09:00:00Z" },
+  { "role": "security", "by": "", "at": "" }
+]
+```
+
+`--approve security="Sam Lee"` signs inline. Unlike open questions, a required
+approval cannot be made advisory: an autonomous run does not get to decide that
+nobody needs to accept the spec. The name is self-asserted, so commit the gate file:
+the commit that fills in `by` is the signature.
+
 ### Writing code
 
 `Develop` is the only station that needs tools, so it runs a bounded loop with three
@@ -163,13 +241,45 @@ keelspec orchestrate FEAT-refunds --write    # lets it edit your working tree
 
 `--write` is opt-in on purpose. Run it on a clean branch.
 
+### Bring your own builder
+
+```bash
+keelspec orchestrate FEAT-refunds --builder claude-code   # or: --builder codex
+keelspec orchestrate FEAT-refunds --builder codex --write # apply it if proposed
+```
+
+Develop, its repairs and Clean run through that agent's own CLI (`claude -p` or
+`codex exec`); every other station is unchanged, so the same Test station, critics and
+Triage judge it. An external agent brings its own shell, so the built-in sandbox
+cannot vouch for it. The guarantee moves to the diff instead:
+
+- The agent works in a **throwaway git worktree** at `HEAD`, never in your tree.
+  Uncommitted changes are not visible to it.
+- **What changed is read from git**, not from the agent's account of it, and the
+  reviewers get the real diff.
+- A step that touches a **protected path** (the product directory, the committed
+  bundle, the config, the plugin, `.keelspec/`, or CI configuration) is rolled back
+  and fails the run. The thing being judged does not edit what it is judged against.
+- The change is saved as `.keelspec/runs/<feature>-<stamp>.patch`. `--write` applies
+  it to your working tree, and only when the line proposes it.
+
+**Credentials are the agent's, not KeelSpec's.** The CLI authenticates however it is
+already set up: a personal login on a laptop, or an API key or service account in CI.
+The run record names the builder, its version and the base commit. Claude Code runs
+with its shell and web tools disabled; Codex runs in its own `workspace-write`
+sandbox. When the builder and the critics share a vendor, the run says so; add
+`--cross-provider` for a critic outside the builder's family.
+
+Devin and Copilot's coding agent work asynchronously, through a pull request, and
+are not supported yet.
+
 ### A critic that does not share the builder's blind spots
 
 ```bash
 OPENROUTER_API_KEY=... keelspec orchestrate FEAT-refunds --cross-provider
 ```
 
-Adds a fifth verdict from a non-Claude model, joining the same refute/repair logic.
+Adds a sixth verdict from a non-Claude model, joining the same refute/repair logic.
 Diversity is a correctness lever: a critic from the same family can share the
 builder's failure modes. Without the key the lens is skipped and the run is
 identical to native-only; if the call fails it abstains rather than blocking.
@@ -182,9 +292,21 @@ identical to native-only; if the call fails it abstains rather than blocking.
 - **Minor findings do not block.** A gate that fires on nitpicks trains people to
   bypass it, and a bypassed gate is worse than none.
 - **An unreachable critic abstains.** One flaky provider must not become an outage.
+  The same goes for triage: if it cannot answer, the line repairs as it did before.
 
 Control flow is ordinary code; reasoning lives inside a station. Supply your own
 `Runner` to change what any station does.
+
+### What the line has been doing
+
+```bash
+keelspec runs          # status mix, first-pass rate, refutations by lens,
+keelspec runs --json   # triage causes, risk tiers, median run time
+```
+
+Every run is kept under `.keelspec/runs/`. These numbers measure the line, not the
+business. Whether what it shipped mattered is measured in production, against the
+`outcome` each feature traces to.
 
 ## Evidence
 
@@ -211,6 +333,7 @@ code, never the prose):
 | code | meaning |
 |---|---|
 | `PAC-001` | an artifact is missing a required field |
+| `PAC-002` | a recommended field is empty (a warning; never gates) |
 | `PAC-010` | an id doesn't start with its type's `id_prefix` |
 | `PAC-011` | an id doesn't match its filename |
 | `PAC-012` | a duplicate id within a type |
@@ -227,9 +350,17 @@ Each entry under `types`:
 - **`id_prefix`** *(optional)* — required id prefix; with **`id_matches_filename`**
   (default `true`), the id must equal the filename stem.
 - **`required`** — frontmatter fields that must be present and non-empty (`id` always is).
+- **`recommended`** — fields that should be present; an empty one is a `PAC-002` warning.
 - **`fields`** — the fields captured into the bundle.
 - **`enums`** — `field -> [allowed values]`.
 - **`references`** — `[{ field, to }]`: values of `field` must be the id of a `to` artifact.
+
+Optional, at the top level:
+
+- **`delivery`** — the risk model `keelspec orchestrate` applies.
+  **`risk_factors`** maps a field to the score each of its values adds; **`tiers`**
+  lists `{name, min_score, approvers, lenses, clean, max_repair}`, and the highest
+  tier the score reaches applies. Unset tier fields keep the line's default.
 
 ## Extending it — plugins
 

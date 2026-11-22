@@ -23,6 +23,7 @@ from dataclasses import dataclass
 # ── core code registry ───────────────────────────────────────────────────────
 CODES: dict[str, str] = {
     "PAC-001": "artifact is missing a required field",
+    "PAC-002": "artifact leaves a recommended field empty (warning)",
     "PAC-010": "artifact id does not start with its type's id_prefix",
     "PAC-011": "artifact id does not match its filename",
     "PAC-012": "duplicate artifact id within a type",

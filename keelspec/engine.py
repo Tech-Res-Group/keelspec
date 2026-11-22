@@ -168,6 +168,11 @@ def validate(config: Config, root: str | pathlib.Path = ".", registry=None) -> R
                 if _is_empty(val):
                     report.add("PAC-001", f"missing required field '{req}'", where,
                                field=req)
+            # recommended fields (PAC-002) -- advisory, never gating
+            for rec_field in t.recommended:
+                if rec_field not in t.required and _is_empty(rec.get(rec_field)):
+                    report.add("PAC-002", f"recommended field '{rec_field}' is empty",
+                               where, "warning", field=rec_field)
 
             # id prefix + filename (PAC-010 / PAC-011)
             if rid:

@@ -10,6 +10,10 @@ That is the claim worth having. A spec that says what should be true, next to a 
 that proves it, with a gate that fails when they drift apart. Delete this file and
 you have a linter for markdown; keep it and you have traceability.
 
+Shipping is where the rest of the chain is enforced. A `shipped` feature must trace
+up to an outcome, every NFR it names must have evidence, and someone must own it
+with a rollback and a runbook. Drafting is free; releasing is accountable.
+
 Codes in the 9xx range are yours. The core owns 0xx-06x. Never reuse a core number,
 and never renumber one of your own once it has shipped — a diagnostic code is an API
 that CI, dashboards and humans refer to.
@@ -25,9 +29,13 @@ def register(reg):
     register_code("PAC-900", "a shipped feature has an acceptance criterion that names no test")
     register_code("PAC-901", "an acceptance criterion names a test file that does not exist")
     register_code("PAC-902", "an acceptance criterion names a test not declared in that file")
+    register_code("PAC-903", "a shipped feature traces to no outcome")
+    register_code("PAC-904", "a shipped feature names an NFR that has no evidence")
+    register_code("PAC-905", "a shipped feature has no owner, rollback or runbook")
 
     @reg.validator
     def acceptance_criteria_are_proven(bundle, config, root, report):
+        nfrs_by_id = {n.get("id"): n for n in bundle.get("nfrs", [])}
         for feature in bundle.get("features", []):
             where = feature.get("_file", "")
             for criterion in feature.get("acceptance") or []:
@@ -43,6 +51,29 @@ def register(reg):
                     continue
                 for ref in refs:
                     _check(ref, root, where, report)
+            if feature.get("status") == "shipped":
+                _release_ready(feature, nfrs_by_id, where, report)
+
+    @reg.validator
+    def nfr_evidence_resolves(bundle, config, root, report):
+        for nfr in bundle.get("nfrs", []):
+            for ref in nfr.get("evidence") or []:
+                _check(ref, root, nfr.get("_file", ""), report)
+
+
+def _release_ready(feature, nfrs_by_id, where, report):
+    """What a feature must carry to ship, beyond passing tests."""
+    if not feature.get("outcome"):
+        report.add("PAC-903", "shipped, but traces to no outcome", where, field="outcome")
+    for nfr_id in feature.get("nfrs") or []:
+        nfr = nfrs_by_id.get(nfr_id)
+        if nfr is not None and not nfr.get("evidence"):
+            report.add("PAC-904", f"shipped, but {nfr_id} has no evidence", where,
+                       field="nfrs", value=nfr_id)
+    missing = [f for f in ("owner", "rollback", "runbook") if not feature.get(f)]
+    if missing:
+        report.add("PAC-905", f"shipped without {', '.join(missing)}", where,
+                   field=missing[0])
 
 
 def _split(criterion):

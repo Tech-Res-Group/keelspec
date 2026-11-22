@@ -292,9 +292,9 @@ def test_pipeline_runs_the_stations_in_order():
     assert report.status == "proposed"
     assert [s.station for s in report.steps] == [
         "ST-01", "ST-02", "ST-03", "ST-04", "ST-04b", "ST-05"]
-    # all four lenses ran, and none of them shipped an opinion it did not have
+    # every lens ran, and none of them shipped an opinion it did not have
     assert [v.lens for v in report.verdicts] == [
-        "correctness", "coverage", "security", "reproduce"]
+        "correctness", "coverage", "security", "reproduce", "integrity"]
     assert report.repair_rounds == 0
 
 
@@ -503,7 +503,7 @@ def test_cross_provider_verdict_joins_the_refute_logic():
     report = Orchestrator(StubRunner(), extra_lens=refusing_lens,
                           max_repair=1).run("FEAT-refunds")
 
-    assert len(report.verdicts) == 5                      # four native + one diverse
+    assert len(report.verdicts) == 6                      # five native + one diverse
     assert report.status == "refuted"
     assert report.repair_rounds == 1
     assert [v.lens for v in report.blocking] == ["cross-provider(openrouter)"]
@@ -758,7 +758,7 @@ def test_cli_orchestrate_dry_run_needs_no_network(tmp_path, capsys):
     report = json.loads(capsys.readouterr().out)
     assert report["status"] == "proposed"
     assert [v["lens"] for v in report["verdicts"]] == [
-        "correctness", "coverage", "security", "reproduce"]
+        "correctness", "coverage", "security", "reproduce", "integrity"]
 
 
 def test_cli_rejects_a_malformed_resolve_flag(tmp_path, capsys):
@@ -1205,7 +1205,7 @@ def test_inserting_the_cleaner_did_not_renumber_the_roster():
 
     ids = [s.id for s in ROSTER]
     assert ids == ["ST-01", "ST-02", "ST-03", "ST-04", "ST-04b",
-                   "ST-05", "ST-06", "ST-07", "ST-08", "ST-09", "ST-10"]
+                   "ST-05", "ST-06", "ST-06b", "ST-07", "ST-08", "ST-09", "ST-10"]
     assert BY_ID["ST-05"].name == "Test"          # unchanged by the insertion
     assert BY_ID["ST-06"].name == "Verify"
     assert BY_ID["ST-08"].name == "CI gates"

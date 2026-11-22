@@ -4,6 +4,7 @@
     keelspec validate                    # schema + graph + staleness (CI gate)
     keelspec validate --watch            # the same gate, on every save
     keelspec evidence -o build/ev.json   # content-addressed audit record
+    keelspec runs                        # what the agent-built line has been doing
     keelspec lsp                         # language server, on stdio
     keelspec mcp                         # the graph as tools, for an agent
     keelspec -c product.config.yaml -p product_hooks.py validate
@@ -17,7 +18,7 @@ import json
 import pathlib
 import sys
 
-from . import engine, evidence, orchestration
+from . import engine, evidence, metrics, orchestration, risk
 from .config import load_config
 from .plugin import load_plugin
 
@@ -55,17 +56,72 @@ def _build_parser() -> argparse.ArgumentParser:
                      help="use the offline stub runner: exercises the pipeline, calls no model")
     orc.add_argument("--resolve", action="append", default=[], metavar="ID=ANSWER",
                      help="answer a Disambiguate question (repeatable)")
+    orc.add_argument("--approve", action="append", default=[], metavar="ROLE=NAME",
+                     help="accept the spec at the human gate in a role (repeatable)")
     orc.add_argument("--max-repair", type=int, default=None,
                      help=f"bounded repair rounds (default {orchestration.Orchestrator.MAX_REPAIR})")
     orc.add_argument("--write", action="store_true",
                      help="let the Develop station actually edit files (default: propose only)")
+    orc.add_argument("--builder", choices=["keelspec", "claude-code", "codex"],
+                     default="keelspec",
+                     help="who runs ST-04 Develop: the built-in station (default), or an "
+                          "external agent's CLI in an isolated git worktree")
     orc.add_argument("--no-clean", action="store_true",
                      help="skip ST-04b Clean (one fewer model call per run)")
     orc.add_argument("--cross-provider", action="store_true",
                      help="add a non-Claude critic via OpenRouter (needs OPENROUTER_API_KEY)")
     orc.add_argument("-o", "--output", default=None,
                      help="write the run report here instead of stdout")
+
+    runs = sub.add_parser("runs", help="add up the orchestrator runs kept in .keelspec/runs")
+    runs.add_argument("--json", action="store_true", dest="as_json",
+                      help="emit the summary as JSON")
     return p
+
+
+def _pairs(values: list[str], flag: str, shape: str) -> dict[str, str] | None:
+    out = {}
+    for pair in values:
+        key, _, value = pair.partition("=")
+        if not key.strip() or not value.strip():
+            print(f"{flag} expects {shape}, got: {pair}", file=sys.stderr)
+            return None
+        out[key.strip()] = value.strip()
+    return out
+
+
+def _brief(config, bundle: dict, feature: str) -> str:
+    """The feature, what it points at, and what points at it -- then the rest by id.
+
+    A brief of ids alone gives every station the names of the rules without their
+    text, which is how a change ends up satisfying its criteria and breaking the
+    rule next door.
+    """
+    def clean(rec: dict) -> dict:
+        return {k: v for k, v in rec.items() if k != "_file" and v not in (None, "", [])}
+
+    record = risk.find(bundle, feature)
+    linked: list[dict] = []
+    if record is not None:
+        wanted: set[str] = set()
+        for t in config.types:
+            for ref in t.references:
+                for rec in bundle.get(t.name, []):
+                    raw = rec.get(ref.field)
+                    vals = raw if isinstance(raw, list) else [raw] if raw else []
+                    if rec.get("id") == feature:
+                        wanted.update(str(v) for v in vals)
+                    elif feature in vals:
+                        wanted.add(rec.get("id"))
+        linked = [clean(r) for recs in bundle.values() if isinstance(recs, list)
+                  for r in recs if isinstance(r, dict) and r.get("id") in wanted]
+    payload = {
+        "artifact": clean(record) if record else None,
+        "linked": linked,
+        "graph": {name: [r.get("id") for r in recs]
+                  for name, recs in bundle.items() if isinstance(recs, list)},
+    }
+    return json.dumps(payload, default=str)[:6000]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -97,16 +153,27 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "orchestrate":
-        resolutions = {}
-        for pair in args.resolve:
-            key, _, value = pair.partition("=")
-            if not value:
-                print(f"--resolve expects ID=ANSWER, got: {pair}", file=sys.stderr)
-                return 2
-            resolutions[key.strip()] = value.strip()
+        resolutions = _pairs(args.resolve, "--resolve", "ID=ANSWER")
+        approved = _pairs(args.approve, "--approve", "ROLE=NAME")
+        if resolutions is None or approved is None:
+            return 2
 
+        builder = None
         if args.dry_run:
             runner = orchestration.StubRunner()
+            if args.builder != "keelspec":
+                print(f"--dry-run: the {args.builder} builder is not invoked",
+                      file=sys.stderr)
+        elif args.builder != "keelspec":
+            # An external agent builds; every other station is unchanged, so Test,
+            # the critics and Triage judge it exactly as they judge the built-in one.
+            from .builders import BUILDERS, protected_paths
+            from .runners import ClaudeRunner
+            builder = BUILDERS[args.builder](
+                args.root, fallback=ClaudeRunner(),
+                protected=protected_paths(config, config_path=args.config,
+                                          plugin=args.plugin))
+            runner = builder
         else:
             # Develop needs tools; every other station is one structured call.
             from .coding import CodingRunner
@@ -128,26 +195,78 @@ def main(argv: list[str] | None = None) -> int:
         stored.update(resolutions)
         resolutions = stored
 
+        approvals = {a["role"]: a for a in
+                     orchestration.read_approvals(args.root, args.feature)}
+        stamp = orchestration._now()
+        approvals.update({role: {"role": role, "by": name, "at": stamp}
+                          for role, name in approved.items()})
+
         try:
             bundle = engine.load(config, args.root)
-            brief = json.dumps({name: [r.get("id") for r in recs]
-                                for name, recs in bundle.items()})[:4000]
         except Exception:
-            brief = ""
+            bundle = {}
+        brief = _brief(config, bundle, args.feature) if bundle else ""
 
-        report = orchestration.Orchestrator(
-            runner, brief=brief, resolutions=resolutions,
-            max_repair=args.max_repair, extra_lens=extra_lens,
-            clean=not args.no_clean,
-            on_phase=lambda phase: print(f"── {phase}", file=sys.stderr),
-        ).run(args.feature)
+        # The tier decides lenses, approvers and repair bounds; a flag given on this
+        # command line still wins, and the report records the tier either way.
+        options = risk.assess_artifact(config, bundle, args.feature).orchestrator_options()
+        if args.no_clean:
+            options["clean"] = False
+        if args.max_repair is not None:
+            options["max_repair"] = args.max_repair
+        if options["risk"].get("tier"):
+            print(f"── risk tier: {options['risk']['tier']} "
+                  f"(score {options['risk']['score']})", file=sys.stderr)
+
+        try:
+            orchestrator = orchestration.Orchestrator(
+                runner, brief=brief, resolutions=resolutions,
+                extra_lens=extra_lens, approvals=list(approvals.values()),
+                on_phase=lambda phase: print(f"── {phase}", file=sys.stderr),
+                **options,
+            )
+        except ValueError as exc:
+            print(f"product.config.yaml delivery policy: {exc}", file=sys.stderr)
+            return 2
+        try:
+            report = orchestrator.run(args.feature)
+        except BaseException:
+            if builder is not None:
+                builder.finish(None)          # never leave a stray worktree behind
+            raise
+
+        if builder is not None:
+            stamp = orchestration._now().replace("-", "").replace(":", "")
+            patch = orchestration.run_path(args.root, args.feature, stamp).with_suffix(".patch")
+            try:
+                for note in builder.finish(report, write=args.write and
+                                           report.status == "proposed", patch_path=patch):
+                    report.notes.append(note)
+                    print(f"── {note}", file=sys.stderr)
+                if args.write and report.status != "proposed" and report.builder.get("patch"):
+                    report.notes.append("--write was given, but the line did not propose "
+                                        "this change, so it was not applied")
+            except Exception as exc:          # applying can fail on a dirty tree
+                report.notes.append(f"the {args.builder} change could not be applied: {exc}")
+                print(f"── could not apply the change: {exc}", file=sys.stderr)
+            if builder.vendor == "anthropic" and extra_lens is None:
+                # The native critics run on Claude too. Say so on the record; a
+                # tier that needs independence should add --cross-provider.
+                report.notes.append(
+                    "the builder and every critic share a model vendor (anthropic); "
+                    "add --cross-provider for a critic outside the builder's family")
 
         if report.status == "blocked":
             path = orchestration.write_questions(
-                args.root, args.feature, report.disambiguation)
-            print(f"\nHuman gate: {len(report.disambiguation)} open question(s).",
-                  file=sys.stderr)
-            print(f"Answer them in {path}, then run this again.", file=sys.stderr)
+                args.root, args.feature, report.questions,
+                required_roles=orchestrator.required_approvers)
+            if report.disambiguation:
+                print(f"\nHuman gate: {len(report.disambiguation)} open question(s).",
+                      file=sys.stderr)
+            if report.approvals_missing:
+                print("Human gate: the spec needs accepting by "
+                      + ", ".join(report.approvals_missing) + ".", file=sys.stderr)
+            print(f"Complete {path}, then run this again.", file=sys.stderr)
 
         saved = orchestration.save_report(args.root, report)
         print(f"── run saved to {saved}", file=sys.stderr)
@@ -161,8 +280,16 @@ def main(argv: list[str] | None = None) -> int:
         else:
             sys.stdout.write(text)
 
-        # blocked and refuted are both non-zero: the line did not propose a change.
+        # blocked, refuted and needs-human are all non-zero: nothing was proposed.
         return 0 if report.status == "proposed" else 1
+
+    if args.cmd == "runs":
+        summary = metrics.summarise(metrics.load_runs(args.root))
+        if args.as_json:
+            sys.stdout.write(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+        else:
+            sys.stdout.write(metrics.render_text(summary))
+        return 0
 
     if args.cmd == "evidence":
         if args.verify:

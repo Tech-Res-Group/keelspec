@@ -2,9 +2,10 @@
 # is a typed, id'd, cross-referenced record — KeelSpec validates the whole graph and
 # regenerates {{ output_bundle }} from it. Edit the types below to model your domain.
 #
-# Two types to start with, because the point lands faster with two than with eight:
-# a glossary to point *at*, and a feature that has to prove itself. Add decisions,
-# constraints, rules and metrics when you have a reason to — each is ~8 lines here.
+# Four types to start with: a glossary to point *at*, the business outcome a feature
+# exists to move, the measurable nonfunctional requirements it must meet, and the
+# feature itself, which has to prove all of it. Add decisions, constraints, rules,
+# systems and interfaces when you have a reason to — each is ~8 lines here.
 product_dir: {{ product_dir }}
 output: {{ output_bundle }}
 types:
@@ -17,16 +18,68 @@ types:
       - field: see_also         # every see_also must resolve to another term
         to: terms
 
+  # Why the work exists, in a form someone can check after release. A story that
+  # traces to no outcome can be built perfectly and still be the wrong story.
+  - name: outcomes
+    dir: outcomes
+    id_prefix: "OUT-"
+    required: [id, title, metric, target, owner]
+    fields: [title, metric, baseline, target, owner]
+
+  # Nonfunctional requirements with a number in them. "Resilient" is a standard;
+  # "recovers within 60s, losing nothing" is a requirement. `evidence` names the
+  # tests that prove it, resolved exactly like acceptance criteria.
+  - name: nfrs
+    dir: nfrs
+    id_prefix: "NFR-"
+    required: [id, title, category, threshold]
+    fields: [title, category, threshold, evidence]
+    enums:
+      category: [availability, performance, scalability, retention, auditability,
+                 observability, accessibility, recovery, idempotency, reconciliation,
+                 residency, security]
+
   # The interesting one. `acceptance` is required and load-bearing: product_hooks.py
   # resolves each criterion's test refs, so a criterion cannot quietly stop being
-  # proven. Renaming a test breaks the build — see the README.
+  # proven. Renaming a test breaks the build — see the README. Moving to `shipped`
+  # also demands an outcome, proven NFRs, and an owner, rollback and runbook.
   - name: features
     dir: features
     id_prefix: "FEAT-"
     required: [id, title, status, acceptance]
-    fields: [title, status, about, acceptance]
+    recommended: [outcome]      # PAC-002 while drafting, PAC-903 once shipped
+    fields: [title, status, about, outcome, nfrs, customer_impact, data, reversible,
+             owner, rollback, runbook, acceptance]
     enums:
       status: [idea, building, shipped]
+      customer_impact: [low, medium, high]
+      data: [public, internal, financial, pii]
     references:
       - field: about            # the terms this feature is about
         to: terms
+      - field: outcome          # the outcome it exists to move
+        to: outcomes
+      - field: nfrs             # the requirements it must meet
+        to: nfrs
+
+# How much of the agent-built line a feature goes through, decided by what it is
+# rather than by asking whether it is "critical". `keelspec orchestrate` scores the
+# feature's fields below, picks the highest tier the score reaches, and records both
+# on the run. Approvers are roles that must each accept the spec before Design.
+delivery:
+  risk_factors:
+    customer_impact: {high: 3, medium: 1}
+    data: {pii: 3, financial: 3, internal: 1}
+    reversible: {"false": 3}
+  tiers:
+    - name: high
+      min_score: 5
+      approvers: [product-owner, engineering-owner, security]
+    - name: standard
+      min_score: 2
+      approvers: [product-owner]
+    - name: light
+      min_score: 0
+      lenses: [correctness, coverage, security]
+      clean: false
+      max_repair: 1

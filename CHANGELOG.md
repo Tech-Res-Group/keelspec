@@ -10,6 +10,56 @@ description of the present. The format follows
 meaning gets a new code and the old one is retired. Changing the JSON bundle shape, a
 config key, or the plugin `Registry` surface is a breaking change and bumps the major.
 
+## [Unreleased]
+
+Accountability on the agent-built line, prompted by a business-stakeholder review
+that asked who approves, why a change got the light path, and what a repeated failure
+actually means.
+
+### Added
+
+- **Risk tiers.** `delivery` in `product.config.yaml` scores a feature's own fields
+  (`risk_factors`) and picks a tier that sets its Verify lenses, required approvers,
+  Clean and repair bound. The score and its reasons are recorded on the run. An
+  artifact that cannot be found is assessed at the highest tier.
+- **Named approvers at the human gate.** A tier's `approvers` are roles that must each
+  put a name in the gate file (or `--approve ROLE=NAME`) before Design. Unlike open
+  questions, a required approval cannot be made advisory.
+- **ST-06b Triage**, inserted rather than renumbered. A refuted change is classified
+  as requirement, design, dependency, environment, implementation, model or
+  business-decision. Only implementation is repaired automatically; everything else
+  ends as the new `needs-human` status with the question a person must answer.
+- **A fifth Verify lens, `integrity`**: does the business process around the change
+  survive it, and not just its own criteria? Every native lens now sees the
+  feature's linked artifacts. The cross-provider critic deliberately does not.
+- **`keelspec runs`**: status mix, first-pass and repair rates, refutations by lens,
+  triage causes and risk tiers, added up from `.keelspec/runs/`. Runs are now
+  timestamped.
+- **`PAC-002`** (warning): a type's `recommended` field is empty.
+- **Scaffold:** `outcomes` and `nfrs` types, with features linking to both, and a
+  release-readiness gate in `product_hooks.py`: `PAC-903` (no outcome), `PAC-904`
+  (an NFR without evidence) and `PAC-905` (no owner, rollback or runbook), all on
+  `shipped`. NFR `evidence` resolves like acceptance tests.
+- **[AI-GOVERNANCE.md](AI-GOVERNANCE.md)** and a scope table in the README saying what
+  the line covers, and what it hands to the rest of delivery.
+- **Bring your own builder.** `keelspec orchestrate --builder claude-code` (or `codex`)
+  runs ST-04 Develop, its repairs and ST-04b Clean through that agent's own CLI, in a
+  throwaway git worktree at `HEAD`. What changed is read from git, not from the
+  agent; the reviewers get the real diff. A step that touches the product directory,
+  the bundle, the config, the plugin, `.keelspec/` or CI configuration is rolled back
+  and fails the run. The change is saved as a patch beside the run record, and applied
+  to the working tree only with `--write` and only when the line proposes it. The run
+  record names the builder, its version and its base commit. KeelSpec never handles
+  the agent's credentials.
+
+### Changed
+
+- A Develop step that fails now ends the run as `error`. It used to carry on, and
+  Test and the critics would review a change that was never made.
+
+- The Disambiguate gate file keeps every question when it is rewritten, not just
+  the unresolved ones, so answers already given are no longer dropped.
+
 ## [0.7.0] — 2026-09-14
 
 ### Changed

@@ -1,0 +1,12 @@
+---
+id: NFR-example
+title: The example stays correct under repeated input
+category: idempotency
+threshold: Processing the same input twice yields the same result as once.
+evidence:
+  - tests/test_example.py::test_the_example_is_idempotent
+---
+A nonfunctional requirement belongs to the feature that needs it, with a threshold
+someone could fail. `evidence` resolves like an acceptance criterion's `tests`: rename
+the test and the build fails with PAC-902. A shipped feature whose requirement has no
+evidence fails with PAC-904.

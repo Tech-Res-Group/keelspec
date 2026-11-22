@@ -316,7 +316,8 @@ STATION_CONCEPTS = {
     "ST-04": "code.repair",         # write the change
     "ST-04b": "code.repair",        # simplify it without changing behaviour
     "ST-05": "code.repair",         # adversarial coverage
-    "ST-06": "code.repair",         # four refuting lenses
+    "ST-06": "code.repair",         # five refuting lenses
+    "ST-06b": "spec.disambiguate",  # was it the code, or the requirement?
 }
 DEFAULT_CONCEPT = "general.assist"
 

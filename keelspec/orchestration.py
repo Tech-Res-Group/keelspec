@@ -60,7 +60,12 @@ ROSTER: tuple[Station, ...] = (
     # is many agents whose disagreement is the point.
     Station("ST-05", "Test", "coverage, by a separate author", AGENT,
             "claude-opus-5", "high"),
-    Station("ST-06", "Verify", "4 refuting lenses", AGENT, "claude-opus-5", "high"),
+    Station("ST-06", "Verify", "5 refuting lenses", AGENT, "claude-opus-5", "high"),
+    # Inserted for the same reason as ST-04b. Runs only when Verify refutes, and
+    # decides whether a retry is even the right response: a defective requirement
+    # repaired twice is still a defective requirement.
+    Station("ST-06b", "Triage", "why it failed, before anyone retries", AGENT,
+            "claude-opus-5", "high"),
     Station("ST-07", "Assemble", "one gated PR", MACHINE),
     Station("ST-08", "CI gates", "the judge", MACHINE),
     Station("ST-09", "Human merge", "a person decides", HUMAN),
@@ -70,7 +75,10 @@ ROSTER: tuple[Station, ...] = (
 BY_ID = {s.id: s for s in ROSTER}
 
 
-# ── the four refuting lenses (wording from the spec) ─────────────────────────
+# ── the refuting lenses ──────────────────────────────────────────────────────
+# The first four are the spec's wording. They ask whether the change matches its
+# locked specification; `integrity` asks whether the specification's world survives
+# the change -- the business flow around it, not just the criteria inside it.
 LENSES: tuple[tuple[str, str], ...] = (
     ("correctness",
      "Does the work actually satisfy every acceptance criterion? Find an input or "
@@ -86,10 +94,26 @@ LENSES: tuple[tuple[str, str], ...] = (
     ("reproduce",
      "Ignore the happy path: concurrency, partial failure, retries and idempotency, "
      "rollback, and the declared failure semantics. Where does it break for real?"),
+    ("integrity",
+     "Set the acceptance criteria aside and look at the business process this sits "
+     "in: upstream inputs and downstream consumers, exception and recovery paths a "
+     "person would have to work, reconciliation and reporting, operational usability, "
+     "and every rule, constraint and nonfunctional requirement in the product "
+     "context. Name a real business scenario that the change breaks or leaves "
+     "unhandled, even though every criterion passes."),
 )
+LENS_NAMES = tuple(name for name, _ in LENSES)
 
 BLOCKING = {"blocker", "major"}          # minor and none do not stop a run
 SEVERITIES = ("blocker", "major", "minor", "none")
+
+# Why a refuted change failed. Only an implementation fault is worth handing back
+# to the developer automatically; every other cause is one a retry cannot fix and a
+# person has to decide -- and a model escalated past it would only fail more
+# expensively.
+CAUSES = ("requirement", "design", "dependency", "environment", "implementation",
+          "model", "business_decision")
+AUTO_REPAIR = {"implementation"}
 
 
 # ── typed artifacts ──────────────────────────────────────────────────────────
@@ -178,6 +202,18 @@ VERDICT_SCHEMA = {
     "additionalProperties": False,
 }
 
+TRIAGE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "cause": {"type": "string", "enum": list(CAUSES)},
+        "reasoning": {"type": "string"},
+        # What a person has to answer or do, when the cause is not implementation.
+        "ask": {"type": "string"},
+    },
+    "required": ["cause", "reasoning"],
+    "additionalProperties": False,
+}
+
 
 @dataclasses.dataclass
 class Verdict:
@@ -228,15 +264,33 @@ class RunReport:
     repair_rounds: int = 0
     disambiguation: list[dict] = dataclasses.field(default_factory=list)
     simplifications: list[str] = dataclasses.field(default_factory=list)
-    status: str = "unknown"      # blocked | refuted | proposed | error
+    status: str = "unknown"      # blocked | refuted | needs-human | proposed | error
     notes: list[str] = dataclasses.field(default_factory=list)
+    # The risk assessment that chose this run's lenses and approvers, if any.
+    risk: dict[str, Any] = dataclasses.field(default_factory=dict)
+    # Who accepted the spec at the human gate, in which role, and when.
+    approvals: list[dict] = dataclasses.field(default_factory=list)
+    approvals_missing: list[str] = dataclasses.field(default_factory=list)
+    # One entry per refuted round: the blocking lenses and the diagnosed cause.
+    triage: list[dict] = dataclasses.field(default_factory=list)
+    started_at: str = ""
+    finished_at: str = ""
+    # Which agent built the change, when it was not the built-in Develop station:
+    # name, vendor, version, the base commit, and the files each step touched.
+    builder: dict[str, Any] = dataclasses.field(default_factory=dict)
 
     @property
     def blocking(self) -> list[Verdict]:
         return [v for v in self.verdicts if v.blocking]
 
+    @property
+    def questions(self) -> list[dict]:
+        """Every question Disambiguate asked, answered or not."""
+        gate = next((s for s in self.steps if s.station == "ST-02"), None)
+        return list(gate.data.get("questions") or []) if gate else []
+
     def to_dict(self) -> dict:
-        return {
+        out = {
             "feature": self.feature,
             "status": self.status,
             "repair_rounds": self.repair_rounds,
@@ -245,7 +299,16 @@ class RunReport:
             "steps": [dataclasses.asdict(s) for s in self.steps],
             "verdicts": [dataclasses.asdict(v) for v in self.verdicts],
             "notes": self.notes,
+            "risk": self.risk,
+            "approvals": self.approvals,
+            "approvals_missing": self.approvals_missing,
+            "triage": self.triage,
+            "started_at": self.started_at,
+            "finished_at": self.finished_at,
         }
+        if self.builder:
+            out["builder"] = self.builder
+        return out
 
     def render(self) -> str:
         return json.dumps(self.to_dict(), indent=2, ensure_ascii=False, sort_keys=True) + "\n"
@@ -262,14 +325,29 @@ def disambiguation_path(root: str | pathlib.Path, feature: str) -> pathlib.Path:
     return pathlib.Path(root) / ".keelspec" / "disambiguations" / f"{feature}.json"
 
 
-def write_questions(root: str | pathlib.Path, feature: str, questions: list[dict]) -> pathlib.Path:
+def write_questions(root: str | pathlib.Path, feature: str, questions: list[dict],
+                    *, required_roles: list[str] | tuple[str, ...] = ()) -> pathlib.Path:
+    """Write (or rewrite) the gate file. Answers and approvals already in it survive.
+
+    ``required_roles`` adds one approval slot per role. "A human was in the loop" is
+    not accountability; a named person in a named role accepting the spec is.
+    """
     path = disambiguation_path(root, feature)
     path.parent.mkdir(parents=True, exist_ok=True)
     existing = read_resolutions(root, feature)
+    signed = {a["role"]: a for a in read_approvals(root, feature)}
+    instructions = "Fill in every \"answer\"."
+    if required_roles:
+        instructions += (" Each listed role must then put a name in \"by\" to accept "
+                         "the spec.")
     payload = {
         "feature": feature,
         "status": "pending",
-        "instructions": "Fill in every \"answer\". Re-run orchestrate when done.",
+        "instructions": instructions + " Re-run orchestrate when done.",
+        "approvals": [
+            signed.get(role) or {"role": role, "by": "", "at": ""}
+            for role in required_roles
+        ],
         "questions": [
             {
                 "id": q.get("id") or f"q{i + 1}",
@@ -299,6 +377,27 @@ def read_resolutions(root: str | pathlib.Path, feature: str) -> dict[str, str]:
             out[q.get("id", "")] = answer
             if q.get("dimension"):
                 out[q["dimension"]] = answer
+    return out
+
+
+def read_approvals(root: str | pathlib.Path, feature: str) -> list[dict]:
+    """Approvals a person has signed in the gate file: entries with a role and a name.
+
+    The name is self-asserted -- the file is plain JSON. What makes it evidence is
+    that it is committed: the commit that fills in "by" carries its author.
+    """
+    path = disambiguation_path(root, feature)
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    out = []
+    for entry in payload.get("approvals") or []:
+        if not isinstance(entry, dict):
+            continue
+        role, by = (entry.get("role") or "").strip(), (entry.get("by") or "").strip()
+        if role and by:
+            out.append({"role": role, "by": by, "at": (entry.get("at") or "").strip()})
     return out
 
 
@@ -341,9 +440,12 @@ class StubRunner:
     """
 
     def __init__(self, verdicts: dict[str, dict] | None = None,
-                 questions: list[dict] | None = None):
+                 questions: list[dict] | None = None,
+                 triage: dict | None = None):
         self._verdicts = verdicts or {}
         self._questions = questions or []
+        self._triage = triage or {"cause": "implementation",
+                                  "reasoning": "stub runner does not diagnose"}
         self.calls: list[tuple[str, str]] = []
 
     def run(self, station: Station, prompt: str, schema: dict | None = None) -> dict:
@@ -368,6 +470,8 @@ class StubRunner:
                 "lens": lens, "refuted": False, "severity": "none",
                 "reason": "stub runner does not reason", "failing_case": "",
             })
+        if schema is TRIAGE_SCHEMA:
+            return dict(self._triage)
         return {"text": "(stub)"}
 
 
@@ -399,6 +503,10 @@ class Orchestrator:
                  max_repair: int | None = None,
                  extra_lens: Callable[[str], dict] | None = None,
                  clean: bool = True,
+                 lenses: list[str] | tuple[str, ...] | None = None,
+                 required_approvers: list[str] | tuple[str, ...] = (),
+                 approvals: list[dict] | None = None,
+                 risk: dict | None = None,
                  on_phase: Callable[[str], None] | None = None):
         self.runner = runner
         self.brief = brief
@@ -408,6 +516,14 @@ class Orchestrator:
         # spots. Joins the SAME refute/repair logic as the native lenses.
         self.extra_lens = extra_lens
         self.clean_enabled = clean
+        # A typo in a risk tier must not quietly run fewer critics than intended.
+        unknown = sorted(set(lenses or ()) - set(LENS_NAMES))
+        if unknown:
+            raise ValueError(f"unknown lens(es) {unknown}; known: {list(LENS_NAMES)}")
+        self.lenses = [(n, a) for n, a in LENSES if lenses is None or n in lenses]
+        self.required_approvers = list(required_approvers)
+        self.approvals = list(approvals or [])
+        self.risk = dict(risk or {})
         self.on_phase = on_phase or (lambda _phase: None)
 
     # ── individual stations ──────────────────────────────────────────────
@@ -517,12 +633,16 @@ class Orchestrator:
         )
 
     def verify(self, feature: str, dev: dict, test: dict) -> list[Verdict]:
-        """The four lenses, in parallel, each trying to refute."""
+        """The configured lenses, in parallel, each trying to refute."""
         self.on_phase("Verify")
         context = (f"Feature: {feature}\n"
                    f"Diff summary: {dev.get('diff_summary', '(none)')}\n"
                    f"Tests added: {', '.join(test.get('tests_added') or []) or '(none)'}\n"
                    f"Coverage notes: {test.get('coverage_notes', '(none)')}")
+        # Without the rules and constraints around the feature, a critic can only
+        # judge the change against itself. The cross-provider critic does not get
+        # them: it is a third party, and what leaves for one should be the minimum.
+        native = context + (f"\nProduct context: {self.brief[:3000]}" if self.brief else "")
 
         def make(lens: str, ask: str) -> Callable[[], Verdict]:
             def task() -> Verdict:
@@ -530,7 +650,7 @@ class Orchestrator:
                     "ST-06", "Verify",
                     f'You are an ADVERSARIAL reviewer using the "{lens}" lens. Try to '
                     f"REFUTE this change -- default to refuted=true if you are not "
-                    f"convinced it is correct and safe. {ask}\n\n{context}",
+                    f"convinced it is correct and safe. {ask}\n\n{native}",
                     VERDICT_SCHEMA,
                 )
                 if not step.ok:
@@ -538,8 +658,8 @@ class Orchestrator:
                 return Verdict.from_dict(step.data, lens)
             return task
 
-        tasks: list[Callable[[], Verdict]] = [make(lens, ask) for lens, ask in LENSES]
-        names = [lens for lens, _ in LENSES]
+        tasks: list[Callable[[], Verdict]] = [make(lens, ask) for lens, ask in self.lenses]
+        names = [lens for lens, _ in self.lenses]
 
         if self.extra_lens is not None:
             def cross() -> Verdict:
@@ -557,6 +677,47 @@ class Orchestrator:
                 out.append(Verdict.benign(lens, "no verdict returned"))
         return out
 
+    def triage(self, feature: str, blocking: list[Verdict], design: dict) -> dict:
+        """Decide what kind of failure this is before anyone retries it.
+
+        Repeated refutation is evidence, and the cheapest reading of it -- "the code
+        is wrong, try again" -- is often not the true one. Returns a dict with
+        ``cause``, ``reasoning`` and ``ask``. A triage station that cannot answer
+        falls back to implementation, which is what the line did before triage
+        existed: an unreachable station must not become an outage.
+        """
+        self.on_phase("Triage")
+        findings = "\n".join(
+            f"- [{v.lens}/{v.severity}] {v.reason}"
+            + (f" (failing case: {v.failing_case})" if v.failing_case else "")
+            for v in blocking)
+        step = self._step(
+            "ST-06b", "Triage",
+            f"Adversarial review refuted the change for '{feature}'. Before anyone "
+            f"retries, decide WHY. Choose exactly one cause:\n"
+            f"- requirement: the acceptance criteria are defective, contradictory or "
+            f"missing something upstream\n"
+            f"- design: the architecture or approach cannot satisfy them\n"
+            f"- dependency: something outside this change is missing or unavailable\n"
+            f"- environment: test data, environment or tooling is inadequate\n"
+            f"- implementation: the code is wrong and a developer could fix it as "
+            f"specified\n"
+            f"- model: the task is beyond what the building model can do reliably\n"
+            f"- business_decision: a person has to decide something the spec does "
+            f"not\n\n"
+            f"If it is not implementation, say in `ask` exactly what a person must "
+            f"answer or do.\n\nFindings:\n{findings}\n\n"
+            f"Design: {json.dumps(design)[:2500]}\n\n{self.brief[:2000]}",
+            TRIAGE_SCHEMA,
+        )
+        cause = step.data.get("cause") if step.ok else None
+        if cause not in CAUSES:
+            return {"cause": "implementation", "ask": "",
+                    "reasoning": f"triage inconclusive ({step.error or 'no cause'}); "
+                                 "repairing as implementation."}
+        return {"cause": cause, "reasoning": step.data.get("reasoning") or "",
+                "ask": step.data.get("ask") or ""}
+
     def repair(self, feature: str, blocking: list[Verdict]) -> StepResult:
         self.on_phase("Repair")
         findings = "\n".join(
@@ -572,7 +733,17 @@ class Orchestrator:
 
     # ── the line ─────────────────────────────────────────────────────────
     def run(self, feature: str, *, block_on_unresolved: bool = True) -> RunReport:
-        """Run the line for one feature.
+        """Run the line for one feature, and stamp when it started and stopped."""
+        report = RunReport(feature=feature, risk=dict(self.risk),
+                           started_at=_now())
+        try:
+            self._run(report, feature, block_on_unresolved)
+        finally:
+            report.finished_at = _now()
+        return report
+
+    def _run(self, report: RunReport, feature: str, block_on_unresolved: bool) -> None:
+        """The line itself.
 
         ``block_on_unresolved`` (default True) is the human gate: any question the
         Disambiguate station cannot answer from the brief stops the run before Design,
@@ -582,14 +753,16 @@ class Orchestrator:
         human judgement to the concrete PR (its gates and the merge) rather than a set
         of abstract pre-build questions. The open questions ride along on the report
         so the caller can surface them for the record.
-        """
-        report = RunReport(feature=feature)
 
+        Required approvals are NOT advisory. A risk tier that names accountable roles
+        has said who must accept the spec; an autonomous run does not get to decide
+        that nobody needs to.
+        """
         brief = self.understand(feature)
         report.steps.append(brief)
         if not brief.ok:
             report.status = "error"
-            return report
+            return
 
         gate, unresolved = self.disambiguate(feature, brief.data)
         report.steps.append(gate)
@@ -601,20 +774,36 @@ class Orchestrator:
                 report.notes.append(
                     f"{len(unresolved)} question(s) need a human answer before design; "
                     "re-run with resolutions to continue.")
-                return report
+                return
             report.notes.append(
                 f"{len(unresolved)} open question(s) recorded but NOT blocking "
                 "(advisory gate): proceeding to build on the versioned intent — the "
                 "PR's gates and the human merge are the judge.")
 
+        signed = {a.get("role") for a in self.approvals if a.get("by")}
+        report.approvals = [a for a in self.approvals
+                            if a.get("by") and a.get("role") in self.required_approvers]
+        report.approvals_missing = [r for r in self.required_approvers if r not in signed]
+        if report.approvals_missing:
+            report.status = "blocked"
+            report.notes.append(
+                "the spec needs accepting before design by: "
+                + ", ".join(report.approvals_missing) + ".")
+            return
+
         design = self.design(feature, brief.data)
         report.steps.append(design)
         if not design.ok:
             report.status = "error"
-            return report
+            return
 
         dev = self.develop(feature, design.data)
         report.steps.append(dev)
+        if not dev.ok:
+            # Testing and attacking a change that was never made proves nothing.
+            report.status = "error"
+            report.notes.append(f"Develop failed: {dev.error}")
+            return
 
         if self.clean_enabled:
             cleaned = self.clean(feature, dev.data)
@@ -633,14 +822,33 @@ class Orchestrator:
         report.steps.append(test)
 
         report.verdicts = self.verify(feature, dev.data, test.data)
-        while report.blocking and report.repair_rounds < self.max_repair:
+        # Triage every refutation, including the last one: when the rounds run out,
+        # the most useful thing the report can say is what kind of failure it was.
+        while report.blocking:
+            diagnosis = self.triage(feature, report.blocking, design.data)
+            report.triage.append({"round": report.repair_rounds,
+                                  "lenses": [v.lens for v in report.blocking],
+                                  **diagnosis})
+            if diagnosis["cause"] not in AUTO_REPAIR:
+                report.status = "needs-human"
+                break
+            if report.repair_rounds >= self.max_repair:
+                break
             report.repair_rounds += 1
             fix = self.repair(feature, report.blocking)
             report.steps.append(fix)
+            if not fix.ok:
+                report.notes.append(f"repair round {report.repair_rounds} failed: {fix.error}")
             report.verdicts = self.verify(feature, fix.data or dev.data, test.data)
 
         self.on_phase("Report")
-        if report.blocking:
+        if report.status == "needs-human":
+            last = report.triage[-1]
+            report.notes.append(
+                f"refuted, and triage puts the cause at '{last['cause']}' -- not "
+                "something another repair round would fix. Routed to a person"
+                + (f": {last['ask']}" if last.get("ask") else "."))
+        elif report.blocking:
             report.status = "refuted"
             report.notes.append(
                 f"still refuted after {report.repair_rounds} repair round(s); "
@@ -650,4 +858,7 @@ class Orchestrator:
             report.notes.append(
                 "the line proposes this change. It is not merged: the gate judges "
                 "and a human decides.")
-        return report
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")

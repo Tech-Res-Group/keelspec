@@ -28,6 +28,8 @@
     },
     "orchestrate": {
       "flags": [
+        "--approve",
+        "--builder",
         "--cross-provider",
         "--dry-run",
         "--max-repair",
@@ -37,6 +39,12 @@
         "--write"
       ],
       "help": "run the agent-built lifecycle over one artifact (ST-01..ST-06)"
+    },
+    "runs": {
+      "flags": [
+        "--json"
+      ],
+      "help": "add up the orchestrator runs kept in .keelspec/runs"
     },
     "validate": {
       "flags": [

@@ -11,3 +11,9 @@ entry is any `path::name` that exists in your repo.
 
 def test_the_example_holds_for_empty_input():
     assert list(filter(None, [])) == []
+
+
+def test_the_example_is_idempotent():
+    """The evidence behind NFR-example."""
+    once = sorted(set([3, 1, 2]))
+    assert sorted(set(once)) == once
