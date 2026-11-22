@@ -1329,6 +1329,8 @@ def test_claude_runner_survives_a_haiku_station_end_to_end():
     runner = ClaudeRunner(api_key="test")
     runner._client = _PickyClient(_PickyMessages(_Resp([_Block("hi")]), reject=("thinking", "effort")))
     out = runner.run(BY_ID["ST-01"], "understand")   # haiku station
+    # Usage rides along under a reserved key that Orchestrator._step lifts out.
+    assert out.pop("_usage")["model"] == BY_ID["ST-01"].model
     assert out == {"text": "hi"}
     calls = runner._client.messages.calls
     assert "thinking" not in calls[-1]                # last (successful) call sent neither
@@ -1392,7 +1394,9 @@ def test_openai_runner_text_when_no_schema(monkeypatch):
     from keelspec.orchestration import BY_ID
     monkeypatch.setattr(runners, "openai_chat", lambda *a, **k: _oai_msg("hello"))
     r = runners.OpenAIRunner("https://gw/v1", api_key="k")
-    assert r.run(BY_ID["ST-01"], "understand") == {"text": "hello"}
+    out = r.run(BY_ID["ST-01"], "understand")
+    assert out.pop("_usage") == {"model": "auto"}          # no usage block in the reply
+    assert out == {"text": "hello"}
 
 
 def test_openai_coding_runner_writes_files_via_tool_loop(monkeypatch, tmp_path):

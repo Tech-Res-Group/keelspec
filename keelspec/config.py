@@ -88,6 +88,16 @@ class Delivery(BaseModel):
                 for field, weights in value.items()}
 
 
+class Price(BaseModel):
+    """What one model costs, in USD per million tokens. Your contract's numbers, not
+    list prices: KeelSpec ships none, so a cost it reports is one you supplied."""
+
+    input_per_mtok: float
+    output_per_mtok: float
+    cache_read_per_mtok: float | None = None
+    cache_write_per_mtok: float | None = None
+
+
 class Config(BaseModel):
     """A project's product-as-code configuration."""
 
@@ -101,6 +111,9 @@ class Config(BaseModel):
     # Optional: the risk model `keelspec orchestrate` applies. Absent, every feature
     # runs the full line and the human gate asks for no particular role.
     delivery: Delivery | None = None
+    # Optional: model id -> Price, for `keelspec runs` cost metrics. A call whose
+    # model is absent (and whose vendor reported no cost) leaves its run unpriced.
+    prices: dict[str, Price] = Field(default_factory=dict)
 
     def type_by_name(self, name: str) -> ArtifactType | None:
         return next((t for t in self.types if t.name == name), None)

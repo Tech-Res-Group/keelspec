@@ -25,6 +25,7 @@ import concurrent.futures
 import dataclasses
 import json
 import pathlib
+import threading
 from collections.abc import Callable
 from datetime import datetime, timezone
 from typing import Any, Protocol
@@ -222,6 +223,9 @@ class Verdict:
     severity: str
     reason: str
     failing_case: str = ""
+    # True when the critic could not answer. An abstention is not a pass, and the
+    # rejection-rate metric must not count it as one.
+    abstained: bool = False
 
     @property
     def blocking(self) -> bool:
@@ -244,7 +248,8 @@ class Verdict:
     def benign(cls, lens: str, why: str) -> Verdict:
         """An unreachable critic must never block the line -- it just abstains."""
         return cls(lens, False, "none",
-                   f"lens inconclusive ({why}); the remaining lenses stand.")
+                   f"lens inconclusive ({why}); the remaining lenses stand.",
+                   abstained=True)
 
 
 @dataclasses.dataclass
@@ -278,6 +283,9 @@ class RunReport:
     # Which agent built the change, when it was not the built-in Develop station:
     # name, vendor, version, the base commit, and the files each step touched.
     builder: dict[str, Any] = dataclasses.field(default_factory=dict)
+    # Tokens (and any vendor-reported cost) per model call, for cost metrics.
+    # Counts only: no prompts, no responses.
+    usage: list[dict[str, Any]] = dataclasses.field(default_factory=list)
 
     @property
     def blocking(self) -> list[Verdict]:
@@ -308,6 +316,8 @@ class RunReport:
         }
         if self.builder:
             out["builder"] = self.builder
+        if self.usage:
+            out["usage"] = self.usage
         return out
 
     def render(self) -> str:
@@ -525,6 +535,9 @@ class Orchestrator:
         self.approvals = list(approvals or [])
         self.risk = dict(risk or {})
         self.on_phase = on_phase or (lambda _phase: None)
+        # Verify fans out across threads, so usage is collected under a lock.
+        self._usage: list[dict] = []
+        self._usage_lock = threading.Lock()
 
     # ── individual stations ──────────────────────────────────────────────
     def _step(self, station_id: str, phase: str, prompt: str,
@@ -532,6 +545,12 @@ class Orchestrator:
         station = BY_ID[station_id]
         try:
             data = self.runner.run(station, prompt, schema)
+            # A runner may report what the call cost under a reserved key. It is
+            # lifted out here so it never reaches a step's data or a verdict.
+            usage = data.pop("_usage", None) if isinstance(data, dict) else None
+            if usage:
+                with self._usage_lock:
+                    self._usage.append({"station": station.id, "phase": phase, **usage})
             return StepResult(station.id, phase, True, data)
         except Exception as exc:
             return StepResult(station.id, phase, False, {}, str(exc))
@@ -736,10 +755,12 @@ class Orchestrator:
         """Run the line for one feature, and stamp when it started and stopped."""
         report = RunReport(feature=feature, risk=dict(self.risk),
                            started_at=_now())
+        self._usage = []
         try:
             self._run(report, feature, block_on_unresolved)
         finally:
             report.finished_at = _now()
+            report.usage = list(self._usage)
         return report
 
     def _run(self, report: RunReport, feature: str, block_on_unresolved: bool) -> None:

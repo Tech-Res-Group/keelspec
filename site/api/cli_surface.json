@@ -42,6 +42,7 @@
     },
     "runs": {
       "flags": [
+        "--evidence",
         "--json"
       ],
       "help": "add up the orchestrator runs kept in .keelspec/runs"

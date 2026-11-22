@@ -288,6 +288,7 @@ class ExternalBuilder:
         claim = _last_json_object(text)
         change = wt.step(self.protected)          # raises, after rolling back, on a violation
         self.steps.append({"station": station.id, "files": change.files, "usage": usage})
+        tagged = {"model": self.name, **usage}     # lifted onto the run's usage by _step
 
         if cleaning:
             preserved = claim.get("behaviour_preserved") is True
@@ -301,6 +302,7 @@ class ExternalBuilder:
                 "simplifications": [str(s) for s in claim.get("simplifications") or []],
                 "behaviour_preserved": preserved,
                 "notes": str(claim.get("notes") or ""),
+                "_usage": tagged,
             }
 
         summary = change.stat or "(no files changed)"
@@ -313,7 +315,8 @@ class ExternalBuilder:
             notes += f"; the builder's own summary (a claim, not evidence): {claim['diff_summary']}"
         if claim.get("self_notes"):
             notes += f"; builder notes: {claim['self_notes']}"
-        return {"files_changed": change.files, "diff_summary": summary, "self_notes": notes}
+        return {"files_changed": change.files, "diff_summary": summary, "self_notes": notes,
+                "_usage": tagged}
 
     def finish(self, report: Any, *, write: bool = False,
                patch_path: pathlib.Path | None = None) -> list[str]:

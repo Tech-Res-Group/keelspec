@@ -76,6 +76,9 @@ def _build_parser() -> argparse.ArgumentParser:
     runs = sub.add_parser("runs", help="add up the orchestrator runs kept in .keelspec/runs")
     runs.add_argument("--json", action="store_true", dest="as_json",
                       help="emit the summary as JSON")
+    runs.add_argument("--evidence", default=None, metavar="DIR",
+                      help="kept evidence records, for the spec-drift rate "
+                           "(default: .keelspec/evidence)")
     return p
 
 
@@ -270,6 +273,10 @@ def main(argv: list[str] | None = None) -> int:
 
         saved = orchestration.save_report(args.root, report)
         print(f"── run saved to {saved}", file=sys.stderr)
+        if report.status == "proposed":
+            # The link from this run to the PR that merges it, for cost per merged PR.
+            print(f"── when you commit this change, add the trailer:  KeelSpec-Run: {saved.stem}",
+                  file=sys.stderr)
 
         text = report.render()
         if args.output:
@@ -284,7 +291,12 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if report.status == "proposed" else 1
 
     if args.cmd == "runs":
-        summary = metrics.summarise(metrics.load_runs(args.root))
+        evidence_dir = (pathlib.Path(args.root) / args.evidence if args.evidence
+                        else metrics.evidence_dir(args.root))
+        summary = metrics.summarise(
+            metrics.load_runs(args.root), prices=config.prices,
+            merged=metrics.merged_run_ids(args.root),
+            evidence=metrics.load_evidence(evidence_dir))
         if args.as_json:
             sys.stdout.write(json.dumps(summary, indent=2, sort_keys=True) + "\n")
         else:

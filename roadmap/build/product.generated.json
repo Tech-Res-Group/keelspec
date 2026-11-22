@@ -33,10 +33,10 @@
         "Spec-drift rate: the share of evidence records in a window whose findings include PAC-060 (or any PAC-0xx), read from records CI keeps under a configured directory.",
         "Review load per feature: needs-human runs, ST-02 questions asked, and approvals required versus given, all read from files the line already writes.",
         "Every runner records token usage per station on the run record. Cost is computed from a price table in config, never hard-coded, and is reported as unknown when the table is absent.",
-        "A run links to its merged PR through a commit trailer the line writes (KeelSpec-Run: <run id>), so cost per merged PR needs no GitHub API.",
+        "A run links to its merged PR through a commit trailer (KeelSpec-Run: <run id>) that orchestrate prints for a proposed run, so cost per merged PR needs no GitHub API.",
         "The metrics schema moves to keelspec-metrics/2, and /1 fields stay unchanged."
       ],
-      "body": "**Already exists.** `keelspec/metrics.py` and `keelspec runs` report runs, status mix,\nfirst-pass rate, repair rate, mean repair rounds, refutations by lens (counts), triage\ncauses, risk-tier mix and median duration, as `keelspec-metrics/1`. Run records already\nhold verdicts, triage, approvals and timings. Evidence records already hold findings by\ncode.\n\n**Genuinely new.** (1) Rates rather than counts for the critics. (2) Drift needs a\n*history* of evidence records, and today nothing keeps one: `keelspec evidence` writes a\nsingle file. (3) Token usage is not captured anywhere yet: the runners set `max_tokens`\nbut do not record usage. (4) Linking a run to a merged PR.\n\n**Note.** This is the cheapest item. Most of it reads data the line already writes.",
+      "body": "**Already exists.** `keelspec/metrics.py` and `keelspec runs` report runs, status mix,\nfirst-pass rate, repair rate, mean repair rounds, refutations by lens (counts), triage\ncauses, risk-tier mix and median duration, as `keelspec-metrics/1`. Run records already\nhold verdicts, triage, approvals and timings. Evidence records already hold findings by\ncode.\n\n**Genuinely new.** (1) Rates rather than counts for the critics. (2) Drift needs a\n*history* of evidence records, and today nothing keeps one: `keelspec evidence` writes a\nsingle file. (3) Token usage is not captured anywhere yet: the runners set `max_tokens`\nbut do not record usage. (4) Linking a run to a merged PR.\n\n**Built (unreleased).** All six criteria, in `keelspec/metrics.py` and\n`tests/test_metrics.py`. The line never commits, so it prints the trailer rather than\nwriting it; a person, or the tooling that opens the PR, puts it on the commit. The\ncross-provider critic's call is not yet metered: it bypasses the station runner.",
       "customer_impact": "low",
       "data": "internal",
       "id": "FEAT-factory-metrics",
@@ -46,7 +46,7 @@
       "reversible": true,
       "rollback": null,
       "runbook": null,
-      "status": "idea",
+      "status": "building",
       "title": "Factory metrics: critic rejection rate, spec-drift rate, review load, cost per merged PR"
     },
     {

@@ -42,6 +42,13 @@ actually means.
   `shipped`. NFR `evidence` resolves like acceptance tests.
 - **[AI-GOVERNANCE.md](AI-GOVERNANCE.md)** and a scope table in the README saying what
   the line covers, and what it hands to the rest of delivery.
+- **Factory metrics, `keelspec-metrics/2`.** `keelspec runs` adds the rejection rate
+  per lens (abstentions counted apart, via a new `abstained` flag on verdicts), review
+  load, cost and cost per merged PR, and the spec-drift rate from kept evidence
+  records (`--evidence DIR`). Every runner now records token usage per model call on
+  the run (`usage`); prices come only from an optional `prices` table in
+  `product.config.yaml`. A run is linked to its merge by a `KeelSpec-Run:` commit
+  trailer, which `orchestrate` prints for a proposed run. Every `/1` field is unchanged.
 - **Bring your own builder.** `keelspec orchestrate --builder claude-code` (or `codex`)
   runs ST-04 Develop, its repairs and ST-04b Clean through that agent's own CLI, in a
   throwaway git worktree at `HEAD`. What changed is read from git, not from the

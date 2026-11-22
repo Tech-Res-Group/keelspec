@@ -301,12 +301,35 @@ Control flow is ordinary code; reasoning lives inside a station. Supply your own
 
 ```bash
 keelspec runs          # status mix, first-pass rate, refutations by lens,
-keelspec runs --json   # triage causes, risk tiers, median run time
+keelspec runs --json   # triage causes, risk tiers, median run time, and:
 ```
 
-Every run is kept under `.keelspec/runs/`. These numbers measure the line, not the
-business. Whether what it shipped mattered is measured in production, against the
-`outcome` each feature traces to.
+- **Rejection rate per lens**: of the runs where a critic cast a verdict, the share it
+  refuted at least once. Abstentions are counted separately, never as passes.
+- **Review load**: needs-human and blocked runs, questions asked at the human gate,
+  and required approvals given or still missing, per feature and in total.
+- **Cost**, and **cost per merged PR**. Each run records tokens per model call (counts
+  only, no prompts). Prices are yours, in `product.config.yaml`; KeelSpec ships none:
+
+  ```yaml
+  prices:                       # USD per million tokens, from your contract
+    claude-opus-5: {input_per_mtok: 0, output_per_mtok: 0}
+  ```
+
+  A vendor that reports its own cost (an external builder) is taken at its word. A
+  run with any call that cannot be priced either way is reported as unpriced, never
+  guessed. A proposed run prints a `KeelSpec-Run: <run id>` trailer; put it on the
+  commit, and a run counts as merged once that commit is reachable from `HEAD`. Cost
+  per merged PR includes the failed attempts at the same feature.
+- **Spec drift**: the share of kept evidence records whose findings include `PAC-060`,
+  and the share that failed the gate. Keep the record CI makes, e.g.
+  `keelspec evidence -o .keelspec/evidence/$(date -u +%Y%m%dT%H%M%SZ).json`, or point
+  `--evidence DIR` at wherever your CI keeps them.
+
+Every run is kept under `.keelspec/runs/`. The schema is `keelspec-metrics/2`; every
+`/1` field is unchanged. These numbers measure the line, not the business. Whether
+what it shipped mattered is measured in production, against the `outcome` each
+feature traces to.
 
 ## Evidence
 

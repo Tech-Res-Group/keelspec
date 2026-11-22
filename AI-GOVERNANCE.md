@@ -52,7 +52,7 @@ gateway, not by KeelSpec.
 
 | file | contents | keep it? |
 |---|---|---|
-| `.keelspec/runs/<feature>-<stamp>.json` | every station's structured output, every verdict, triage, risk tier, approvals, timings | Your call. It is the audit trail of what the line did. |
+| `.keelspec/runs/<feature>-<stamp>.json` | every station's structured output, every verdict, triage, risk tier, approvals, timings, and token counts per model call | Your call. It is the audit trail of what the line did. |
 | `.keelspec/runs/<feature>-<stamp>.patch` | the change an external builder made, as a git patch | Keep it with its run record. It is what the critics judged. |
 | `.keelspec/disambiguations/<feature>.json` | the human gate: questions, answers, and named approvals by role | Commit it. The commit is the approver's signature. |
 

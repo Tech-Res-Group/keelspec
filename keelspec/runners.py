@@ -79,6 +79,41 @@ def _strip_unsupported(kwargs: dict, message: str) -> bool:
     return False
 
 
+USAGE_KEYS = ("input_tokens", "output_tokens", "cache_read_input_tokens",
+              "cache_creation_input_tokens")
+
+
+def anthropic_usage(response: Any, model: str) -> dict:
+    """Token counts from an Anthropic response, in the line's usage shape."""
+    usage = getattr(response, "usage", None)
+    out: dict[str, Any] = {"model": model}
+    for key in USAGE_KEYS:
+        value = getattr(usage, key, None) if usage is not None else None
+        if isinstance(value, int):
+            out[key] = value
+    return out
+
+
+def openai_usage(payload: dict, model: str) -> dict:
+    """Token counts from an OpenAI-shaped response, in the line's usage shape."""
+    usage = payload.get("usage") or {}
+    out: dict[str, Any] = {"model": payload.get("model") or model}
+    if isinstance(usage.get("prompt_tokens"), int):
+        out["input_tokens"] = usage["prompt_tokens"]
+    if isinstance(usage.get("completion_tokens"), int):
+        out["output_tokens"] = usage["completion_tokens"]
+    return out
+
+
+def add_usage(total: dict, more: dict) -> dict:
+    """Sum two usage records (same model), for multi-turn tool loops."""
+    out = dict(total) or {"model": more.get("model", "")}
+    for key in USAGE_KEYS:
+        if key in more:
+            out[key] = out.get(key, 0) + more[key]
+    return out
+
+
 def create_message(client: Any, base_kwargs: dict, thinking: dict | None = None) -> Any:
     """``messages.create`` that strips a model-unsupported param and retries.
 
@@ -155,12 +190,16 @@ class ClaudeRunner:
             raise RuntimeError(f"{station.id} refused by safety classifier")
 
         text = "".join(b.text for b in response.content if b.type == "text")
+        usage = anthropic_usage(response, base_kwargs["model"])
         if schema is None:
-            return {"text": text}
+            return {"text": text, "_usage": usage}
         try:
-            return json.loads(text)
+            data = json.loads(text)
         except ValueError as exc:
             raise RuntimeError(f"{station.id} returned unparseable JSON") from exc
+        if isinstance(data, dict):
+            data["_usage"] = usage
+        return data
 
 
 # ── the cross-provider adversary ─────────────────────────────────────────────
@@ -391,13 +430,16 @@ class OpenAIRunner:
             text = payload["choices"][0]["message"].get("content") or ""
         except (KeyError, IndexError) as exc:
             raise RuntimeError(f"{station.id}: malformed response from {self.base_url}") from exc
+        usage = openai_usage(payload, str(body.get("model", "")))
         if schema is None:
-            return {"text": text}
+            return {"text": text, "_usage": usage}
         try:
             data = extract_json_object(text)
         except ValueError as exc:
             raise RuntimeError(
                 f"{station.id} returned unparseable JSON (first 200 chars: {text[:200]!r})") from exc
+        if isinstance(data, dict):
+            data["_usage"] = usage
         # A station result must be a JSON OBJECT. A smaller/gateway-routed model sometimes
         # returns a bare string or list; guard it so the downstream station gets a clear
         # error instead of an opaque "'str' has no .get".
