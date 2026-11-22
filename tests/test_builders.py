@@ -241,3 +241,49 @@ def test_the_cli_runs_an_external_builder_end_to_end(repo, agent, monkeypatch, c
     assert pathlib.Path(report["builder"]["patch"]).read_text().count("sum(xs or [])") == 1
     assert any("share a model vendor" in n for n in report["notes"])
     assert "or []" not in (repo / "src" / "app.py").read_text()     # no --write, no change
+
+
+TIERED = ("product_dir: product\noutput: build/product.generated.json\n"
+          "types:\n  - name: features\n    dir: features\n    id_prefix: \"FEAT-\"\n"
+          "delivery:\n  tiers:\n    - name: high\n      min_score: 0\n"
+          "      independent_critic: true\n")
+
+
+def _tiered(repo):
+    from keelspec.cli import main
+    (repo / "product.config.yaml").write_text(TIERED)
+    assert main(["-C", str(repo), "build"]) == 0
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "tiered")
+
+
+def test_a_tier_that_needs_an_independent_critic_refuses_a_same_vendor_line(repo, capsys):
+    from keelspec.cli import main
+    _tiered(repo)
+    capsys.readouterr()
+    # Built-in builder and native critics are both Claude, and no cross-provider lens.
+    assert main(["-C", str(repo), "orchestrate", "FEAT-x"]) == 2
+    assert "requires a critic outside the builder's vendor (anthropic)" in capsys.readouterr().err
+
+
+def test_a_builder_from_another_vendor_satisfies_the_tier(repo, agent, monkeypatch, capsys):
+    import keelspec.builders as builders
+    import keelspec.runners as runners
+    from keelspec.cli import main
+    _tiered(repo)
+    cmd = agent({"write": {"src/app.py": "def total(xs):\n    return sum(xs or [])\n"}},
+                {"reply": '{"simplifications": [], "behaviour_preserved": true}'})
+
+    class FakeCodex(builders.ClaudeCodeBuilder):      # Claude-shaped output, OpenAI vendor
+        vendor = "openai"
+
+        def __init__(self, root, **kw):
+            super().__init__(root, command=cmd, **kw)
+
+    monkeypatch.setitem(builders.BUILDERS, "codex", FakeCodex)
+    monkeypatch.setattr(runners, "ClaudeRunner", StubRunner)
+    capsys.readouterr()
+    assert main(["-C", str(repo), "orchestrate", "FEAT-x", "--builder", "codex"]) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["risk"]["tier"] == "high"
+    assert not any("share a model vendor" in n for n in report["notes"])

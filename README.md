@@ -214,6 +214,7 @@ delivery:
     - name: high
       min_score: 5
       approvers: [product-owner, engineering-owner, security]
+      independent_critic: true   # a critic from another vendor than the builder
     - name: standard
       min_score: 2
       approvers: [product-owner]
@@ -419,8 +420,11 @@ Optional, at the top level:
 
 - **`delivery`** — the risk model `keelspec orchestrate` applies.
   **`risk_factors`** maps a field to the score each of its values adds; **`tiers`**
-  lists `{name, min_score, approvers, lenses, clean, max_repair}`, and the highest
-  tier the score reaches applies. Unset tier fields keep the line's default.
+  lists `{name, min_score, approvers, lenses, clean, max_repair, independent_critic}`,
+  and the highest tier the score reaches applies. `independent_critic: true` refuses
+  to run unless at least one critic comes from a different model vendor than the
+  builder: `--cross-provider`, or a builder such as `codex` when the critics are
+  Claude. Unset tier fields keep the line's default.
 
 ## Extending it — plugins
 

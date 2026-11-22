@@ -37,5 +37,5 @@ laptop, or an API key or service account in CI. The run record names the builder
 
 **Built (unreleased).** Phase 1: `--builder claude-code` and `--builder codex`
 (`keelspec/builders.py`, `tests/test_builders.py`). When the builder and critics share
-a vendor, the run record says so. Making that a hard rule per risk tier is still to do.
+a vendor, the run record says so. A risk tier can make it a hard rule with `independent_critic: true`.
 Devin and Copilot (async, PR-based) are phase 2.

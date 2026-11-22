@@ -42,6 +42,9 @@ actually means.
   `shipped`. NFR `evidence` resolves like acceptance tests.
 - **[AI-GOVERNANCE.md](AI-GOVERNANCE.md)** and a scope table in the README saying what
   the line covers, and what it hands to the rest of delivery.
+- **`independent_critic` on a risk tier**: the run is refused unless at least one
+  critic comes from a different model vendor than the builder. When a tier does not
+  require it, a same-vendor run is noted on the record instead.
 - **`keelspec intake`**: a GitHub issue or Jira ticket becomes a draft feature file,
   which is then the source of truth. `--sync` shows every upstream change as a diff;
   `--apply` writes it and is refused on the default branch, so the change is merged

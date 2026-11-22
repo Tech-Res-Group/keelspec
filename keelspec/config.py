@@ -60,6 +60,9 @@ class RiskTier(BaseModel):
     lenses: list[str] | None = None
     clean: bool | None = None
     max_repair: int | None = None
+    # At least one critic must come from a different model vendor than the builder.
+    # "Devin cannot credibly check Devin", as a rule rather than a note on the run.
+    independent_critic: bool = False
 
 
 class Delivery(BaseModel):

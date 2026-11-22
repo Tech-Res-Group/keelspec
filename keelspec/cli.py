@@ -251,9 +251,11 @@ def main(argv: list[str] | None = None) -> int:
             runner = CodingRunner(root=args.root, write=args.write)
 
         extra_lens = None
+        extra_vendor = ""
         if args.cross_provider:
             from .runners import CrossProviderLens
             lens = CrossProviderLens()
+            extra_vendor = lens.model.split("/", 1)[0]
             if not lens.enabled:
                 print("cross-provider lens skipped: OPENROUTER_API_KEY not set",
                       file=sys.stderr)
@@ -280,7 +282,18 @@ def main(argv: list[str] | None = None) -> int:
 
         # The tier decides lenses, approvers and repair bounds; a flag given on this
         # command line still wins, and the report records the tier either way.
-        options = risk.assess_artifact(config, bundle, args.feature).orchestrator_options()
+        assessment = risk.assess_artifact(config, bundle, args.feature)
+        options = assessment.orchestrator_options()
+        if assessment.tier is not None and assessment.tier.independent_critic                 and not args.dry_run:
+            # Native critics run on Claude (anthropic); the built-in builder does too.
+            builder_vendor = builder.vendor if builder is not None else "anthropic"
+            critic_vendors = {"anthropic"} | ({extra_vendor} if extra_lens else set())
+            if not critic_vendors - {builder_vendor}:
+                print(f"risk tier '{assessment.tier.name}' requires a critic outside the "
+                      f"builder's vendor ({builder_vendor}). Add --cross-provider with "
+                      "OPENROUTER_API_KEY, or use a builder from another vendor.",
+                      file=sys.stderr)
+                return 2
         if args.no_clean:
             options["clean"] = False
         if args.max_repair is not None:
