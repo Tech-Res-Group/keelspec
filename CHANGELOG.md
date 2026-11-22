@@ -42,6 +42,12 @@ actually means.
   `shipped`. NFR `evidence` resolves like acceptance tests.
 - **[AI-GOVERNANCE.md](AI-GOVERNANCE.md)** and a scope table in the README saying what
   the line covers, and what it hands to the rest of delivery.
+- **`keelspec intake`**: a GitHub issue or Jira ticket becomes a draft feature file,
+  which is then the source of truth. `--sync` shows every upstream change as a diff;
+  `--apply` writes it and is refused on the default branch, so the change is merged
+  through the gate. Only ticket-owned fields (title, criteria, description block)
+  ever change, and a field changed on both sides stops for a person. Standard
+  library only; credentials from the environment; nothing sent to a model.
 - **Factory metrics, `keelspec-metrics/2`.** `keelspec runs` adds the rejection rate
   per lens (abstentions counted apart, via a new `abstained` flag on verdicts), review
   load, cost and cost per merged PR, and the spec-drift rate from kept evidence

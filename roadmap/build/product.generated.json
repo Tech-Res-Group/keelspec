@@ -87,7 +87,7 @@
         "Write-back to the ticket is limited to a link to the feature file and its status. The ticket never overrides the file.",
         "Credentials come from the environment only (GH_TOKEN, LINEAR_API_KEY, JIRA_*), and no new runtime dependency is added."
       ],
-      "body": "**Already exists.** The `features` type with a required `acceptance` list, where bare\nstrings are allowed while drafting (PAC-900 fires only at `shipped`). `status: idea`.\nST-01 Understand reads the graph. ST-02 Disambiguate already has the questions file\nand named approvals by role. The MCP server exposes the graph read-only, so an agent\ncan find valid ids instead of inventing them.\n\n**Genuinely new.** Everything about tickets: the command, the three source clients\n(start with GitHub Issues, then Linear, then Jira), the config mapping, re-import\nbehaviour, and the optional drafting step. Nothing in `keelspec/` touches an issue\ntracker today.\n\n**Decided (2026-11-16).** The feature file is the source of truth. A ticket is an input\nchannel: every change to it must reach the file, but only as a proposed change that\npasses the gate and a human merge. That is product-as-code applied to intake, because\nnothing becomes intent without a reviewed commit.",
+      "body": "**Built (unreleased), GitHub Issues and Jira.** `keelspec/intake.py`,\n`tests/test_intake.py`. Sync produces a reviewed proposal: `--apply` writes the change\nand is refused on the default branch, and the branch, commit and pull request are left\nto the person or the CI job that runs it. Not built yet: Linear, the optional `--draft`\nmodel step, write-back of the file link and status to the ticket, and a ready-made\nscheduled workflow.\n\n**Already exists.** The `features` type with a required `acceptance` list, where bare\nstrings are allowed while drafting (PAC-900 fires only at `shipped`). `status: idea`.\nST-01 Understand reads the graph. ST-02 Disambiguate already has the questions file\nand named approvals by role. The MCP server exposes the graph read-only, so an agent\ncan find valid ids instead of inventing them.\n\n**Genuinely new.** Everything about tickets: the command, the three source clients\n(start with GitHub Issues, then Linear, then Jira), the config mapping, re-import\nbehaviour, and the optional drafting step. Nothing in `keelspec/` touches an issue\ntracker today.\n\n**Decided (2026-11-16).** The feature file is the source of truth. A ticket is an input\nchannel: every change to it must reach the file, but only as a proposed change that\npasses the gate and a human merge. That is product-as-code applied to intake, because\nnothing becomes intent without a reviewed commit.",
       "customer_impact": "medium",
       "data": "internal",
       "id": "FEAT-ticket-intake",
@@ -97,7 +97,7 @@
       "reversible": true,
       "rollback": null,
       "runbook": null,
-      "status": "idea",
+      "status": "building",
       "title": "Intake that turns GitHub Issues, Linear or Jira tickets into draft feature files"
     }
   ],

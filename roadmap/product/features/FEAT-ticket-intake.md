@@ -1,7 +1,7 @@
 ---
 id: FEAT-ticket-intake
 title: Intake that turns GitHub Issues, Linear or Jira tickets into draft feature files
-status: idea
+status: building
 outcome: OUT-agent-changes-pass-risk-review
 customer_impact: medium
 data: internal
@@ -18,6 +18,13 @@ acceptance:
   - "Write-back to the ticket is limited to a link to the feature file and its status. The ticket never overrides the file."
   - "Credentials come from the environment only (GH_TOKEN, LINEAR_API_KEY, JIRA_*), and no new runtime dependency is added."
 ---
+**Built (unreleased), GitHub Issues and Jira.** `keelspec/intake.py`,
+`tests/test_intake.py`. Sync produces a reviewed proposal: `--apply` writes the change
+and is refused on the default branch, and the branch, commit and pull request are left
+to the person or the CI job that runs it. Not built yet: Linear, the optional `--draft`
+model step, write-back of the file link and status to the ticket, and a ready-made
+scheduled workflow.
+
 **Already exists.** The `features` type with a required `acceptance` list, where bare
 strings are allowed while drafting (PAC-900 fires only at `shipped`). `status: idea`.
 ST-01 Understand reads the graph. ST-02 Disambiguate already has the questions file

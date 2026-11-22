@@ -18,6 +18,14 @@
       ],
       "help": "emit a content-addressed record of what was checked, when, and on what"
     },
+    "intake": {
+      "flags": [
+        "--apply",
+        "--id",
+        "--sync"
+      ],
+      "help": "import a ticket as a draft feature, or sync imported features with their tickets"
+    },
     "lsp": {
       "flags": [],
       "help": "run the language server on stdio (needs keelspec[lsp])"

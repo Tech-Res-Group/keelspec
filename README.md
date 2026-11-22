@@ -130,6 +130,43 @@ would let the thing being judged edit the evidence.
 { "mcpServers": { "keelspec": { "command": "keelspec", "args": ["mcp"] } } }
 ```
 
+## Tickets in, without giving up the source of truth
+
+```bash
+keelspec intake https://github.com/acme/pay/issues/7   # or acme/pay#7
+keelspec intake PAY-123                               # Jira (JIRA_BASE_URL)
+keelspec intake --sync                                # what changed upstream?
+keelspec intake --sync --apply                        # write it, on a branch
+```
+
+`intake` writes a draft feature from a GitHub issue or a Jira ticket: the title, the
+bullets under its "Acceptance criteria" heading as bare-string criteria, and the
+description in a marked block in the body. The id comes from the ticket key, so
+renaming the ticket never renames the feature.
+
+**The feature file is the source of truth.** Every later change to the ticket must
+reach the file, but only as a proposal: `--sync` shows the diff for every ticket that
+moved, and `--apply` writes it and refuses to on the default branch. Commit it on a
+branch and merge it through the gate like any other change. Run it on a schedule or
+from a tracker webhook; the result is the same.
+
+The ticket owns three things: the title, the criteria and the description block.
+Everything else (status, outcome, NFRs, prose outside the block, a criterion a person
+has tied to a test) is never touched. Where a person and the ticket have both changed
+the same owned field since the last sync, sync stops and says so. It never picks a
+winner. What was last synced lives in `.keelspec/intake/<feature>.json`; commit it.
+
+Credentials come from the environment only: `GH_TOKEN` or `GITHUB_TOKEN`, and
+`JIRA_BASE_URL` with `JIRA_EMAIL` + `JIRA_API_TOKEN` or `JIRA_PAT`. No ticket content is
+sent to a model. Optional config:
+
+```yaml
+intake:
+  type: features          # the artifact type to write (default: features)
+  link_field: ticket      # a frontmatter field for the ticket URL (default: in the body)
+  status: idea            # the draft status (default: idea, or the first enum value)
+```
+
 ## The agent-built lifecycle
 
 `keelspec orchestrate` runs a station line over one artifact: **Understand →

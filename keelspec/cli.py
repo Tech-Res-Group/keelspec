@@ -73,6 +73,19 @@ def _build_parser() -> argparse.ArgumentParser:
     orc.add_argument("-o", "--output", default=None,
                      help="write the run report here instead of stdout")
 
+    ink = sub.add_parser(
+        "intake",
+        help="import a ticket as a draft feature, or sync imported features with their tickets",
+    )
+    ink.add_argument("ticket", nargs="?", default=None,
+                     help="a GitHub issue URL, owner/repo#N, a Jira URL or a Jira key")
+    ink.add_argument("--id", default=None, dest="feature_id",
+                     help="the feature id to create (default: derived from the ticket key)")
+    ink.add_argument("--sync", action="store_true",
+                     help="check every imported feature against its ticket and show the changes")
+    ink.add_argument("--apply", action="store_true",
+                     help="with --sync, write the changes (refused on the default branch)")
+
     runs = sub.add_parser("runs", help="add up the orchestrator runs kept in .keelspec/runs")
     runs.add_argument("--json", action="store_true", dest="as_json",
                       help="emit the summary as JSON")
@@ -125,6 +138,61 @@ def _brief(config, bundle: dict, feature: str) -> str:
                   for name, recs in bundle.items() if isinstance(recs, list)},
     }
     return json.dumps(payload, default=str)[:6000]
+
+
+def _intake(args, config) -> int:
+    import difflib
+
+    from . import intake
+
+    if args.sync == bool(args.ticket):
+        print("give a ticket to import, or --sync, not both", file=sys.stderr)
+        return 2
+    try:
+        if args.ticket:
+            plan = intake.plan_import(config, args.root, intake.fetch(args.ticket),
+                                      args.feature_id)
+            if plan.action == "error":
+                print(plan.error, file=sys.stderr)
+                return 1
+            intake.apply(args.root, plan)
+            print(f"wrote {plan.path} (status: draft; review it, then commit it with "
+                  f"{intake.state_path(args.root, plan.feature)})")
+            return 0
+
+        if args.apply and intake.on_default_branch(args.root):
+            print("refusing to --apply on the default branch: sync changes are proposals. "
+                  "Switch to a branch, apply, commit, and open a pull request.", file=sys.stderr)
+            return 2
+        status = 0
+        for feature in intake.tracked(args.root):
+            plan = intake.plan_sync(config, args.root, feature)
+            if plan.action == "unchanged":
+                if args.apply and plan.ticket is not None:
+                    intake.apply(args.root, plan)        # record the new revision
+                print(f"{feature}: up to date")
+            elif plan.action == "error":
+                print(f"{feature}: {plan.error}", file=sys.stderr)
+                status = 1
+            elif plan.action == "conflict":
+                print(f"{feature}: CONFLICT in {', '.join(plan.conflicts)}: changed both in "
+                      f"{plan.ticket.key} and in the file since the last sync. A person "
+                      f"decides; nothing was written.", file=sys.stderr)
+                status = 1
+            else:
+                diff = difflib.unified_diff(
+                    plan.old_text.splitlines(keepends=True), plan.new_text.splitlines(keepends=True),
+                    fromfile=f"a/{feature}.md", tofile=f"b/{feature}.md")
+                sys.stdout.write("".join(diff))
+                if args.apply:
+                    intake.apply(args.root, plan)
+                    print(f"{feature}: updated from {plan.ticket.key}")
+                else:
+                    print(f"{feature}: {plan.ticket.key} changed (pass --apply on a branch to write it)")
+        return status
+    except intake.IntakeError as exc:
+        print(f"intake: {exc}", file=sys.stderr)
+        return 1
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -289,6 +357,9 @@ def main(argv: list[str] | None = None) -> int:
 
         # blocked, refuted and needs-human are all non-zero: nothing was proposed.
         return 0 if report.status == "proposed" else 1
+
+    if args.cmd == "intake":
+        return _intake(args, config)
 
     if args.cmd == "runs":
         evidence_dir = (pathlib.Path(args.root) / args.evidence if args.evidence

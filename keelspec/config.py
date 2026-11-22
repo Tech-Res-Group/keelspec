@@ -98,6 +98,16 @@ class Price(BaseModel):
     cache_write_per_mtok: float | None = None
 
 
+class Intake(BaseModel):
+    """Where `keelspec intake` writes imported tickets, and how."""
+
+    type: str = "features"
+    # A frontmatter field to hold the ticket URL. Unset, the link lives in the body.
+    link_field: str | None = None
+    # The status a new draft gets. Unset: "idea" if allowed, else the first enum value.
+    status: str | None = None
+
+
 class Config(BaseModel):
     """A project's product-as-code configuration."""
 
@@ -114,6 +124,8 @@ class Config(BaseModel):
     # Optional: model id -> Price, for `keelspec runs` cost metrics. A call whose
     # model is absent (and whose vendor reported no cost) leaves its run unpriced.
     prices: dict[str, Price] = Field(default_factory=dict)
+    # Optional: how `keelspec intake` maps tickets onto artifacts.
+    intake: Intake | None = None
 
     def type_by_name(self, name: str) -> ArtifactType | None:
         return next((t for t in self.types if t.name == name), None)

@@ -28,6 +28,7 @@ gateway that enforces it.
 |---|---|---|
 | Station prompts: the feature, its linked artifacts, other artifact ids, the design, diff summaries, test notes | the configured endpoint | every agent station |
 | File contents ST-04 Develop chooses to read inside the project root | the configured endpoint | Develop and repair |
+| A ticket request (its key) and nothing else | GitHub or your Jira | only with `keelspec intake`; ticket content is read, never sent to a model |
 | Diff summary, test names and coverage notes, **without** product context | OpenRouter | only with `--cross-provider` and `OPENROUTER_API_KEY` |
 
 The cross-provider critic is a third party, so it gets the minimum. If your data
