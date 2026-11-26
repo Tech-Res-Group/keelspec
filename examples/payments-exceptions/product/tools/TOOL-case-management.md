@@ -4,7 +4,9 @@ title: Exceptions case management
 transport: stdio
 server: {command: python, args: ["-m", "servers.case_management"]}
 operations:
-  - {name: get_case, side_effects: read}
+  - name: get_case
+    side_effects: read
+    fields: {customer.name: pii, customer.email: pii}
   - {name: add_comment, side_effects: write}
   - {name: propose_repair, side_effects: money}
   - {name: release_funds, side_effects: money}

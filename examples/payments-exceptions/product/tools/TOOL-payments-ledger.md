@@ -4,7 +4,9 @@ title: Payments ledger (read)
 transport: stdio
 server: {command: python, args: ["-m", "servers.payments_ledger"]}
 operations:
-  - {name: get_payment, side_effects: read}
+  - name: get_payment
+    side_effects: read
+    fields: {debtor.name: pii, debtor.account: pii, creditor.name: pii, creditor.account: pii}
   - {name: list_postings, side_effects: read}
 data_classes: [pii, financial]
 timeout_seconds: 10

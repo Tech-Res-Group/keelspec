@@ -150,6 +150,60 @@ def validate(index: ProductIndex) -> dict:
     }
 
 
+def agent_card(index: ProductIndex, agent_id: str) -> dict:
+    """An agent, resolved: its instructions, grounding, tools with their operations,
+    policies and scenarios. What the runtime would assemble, without running it."""
+    art = index.get(agent_id, "agents")
+    if art is None:
+        return {"error": f"no agent {agent_id!r}"}
+    rec = art.record
+
+    def records(type_name: str, ids) -> list[dict]:
+        """Resolve ids to records; with no type (grounding spans several), by id alone."""
+        out = []
+        for i in ids or []:
+            found = index.get(i, type_name) if type_name else next(iter(index.find(i)), None)
+            if found is not None:
+                out.append(found.record)
+        return out
+
+    from .agents import operations, side_effects_of
+    tools = [{"id": t["id"], "title": t.get("title"),
+              "operations": [{"name": op, "side_effects": side_effects_of(t, op)}
+                             for op in operations(t)],
+              "data_classes": t.get("data_classes")}
+             for t in records("tools", rec.get("tools"))]
+    return {
+        "id": agent_id,
+        "title": rec.get("title"),
+        "purpose": rec.get("purpose"),
+        "concept": rec.get("concept"),
+        "criticality": rec.get("criticality"),
+        "instructions": rec.get("body", ""),
+        "grounding": [{"id": g["id"], "title": g.get("title") or g.get("term"),
+                       "text": g.get("statement") or g.get("definition") or g.get("body")}
+                      for g in records("", rec.get("grounding"))],
+        "tools": tools,
+        "policies": [{"id": p["id"], "effect": p.get("effect"), "match": p.get("match"),
+                      "when": p.get("when")} for p in records("policies", rec.get("policies"))],
+        "scenarios": list(rec.get("scenarios") or []),
+        "budgets": rec.get("budgets"),
+    }
+
+
+def policy_explain(index: ProductIndex, agent_id: str, tool_id: str, operation: str,
+                   args: dict | None = None) -> dict:
+    """The policy decision for a hypothetical call. Executes nothing."""
+    from .runtime.policy import explain
+    bundle: dict[str, list[dict]] = {}
+    for (type_name, _), art in index.artifacts.items():
+        bundle.setdefault(type_name, []).append(art.record)
+    try:
+        return explain(bundle, agent_id, tool_id, operation, args or {})
+    except KeyError as exc:
+        return {"error": str(exc).strip("'\"")}
+
+
 # ── the protocol wiring ──────────────────────────────────────────────────────
 def serve(  # pragma: no cover - protocol glue; needs the optional mcp extra
     config_path: str = "product.config.yaml", root: str = ".", plugin: str | None = None
@@ -215,6 +269,19 @@ def serve(  # pragma: no cover - protocol glue; needs the optional mcp extra
         """Run the KeelSpec gate over the tree and return its findings verbatim:
         the same PAC-NNN codes, severities and locations CI reports."""
         return validate(index())
+
+    @server.tool()
+    def product_agent_card(agent_id: str) -> dict:
+        """An agent resolved: instructions, grounding, tools and operations, policies,
+        scenarios and budgets. Read-only."""
+        return agent_card(index(), agent_id)
+
+    @server.tool()
+    def product_policy_explain(agent_id: str, tool_id: str, operation: str,
+                               args: dict | None = None) -> dict:
+        """Decide a hypothetical tool call with the agent's policies -- allow, redact,
+        require_approval or deny, and which policies decided it. Executes nothing."""
+        return policy_explain(index(), agent_id, tool_id, operation, args)
 
     server.run()
     return 0

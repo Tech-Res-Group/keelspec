@@ -86,6 +86,16 @@ def _build_parser() -> argparse.ArgumentParser:
     ink.add_argument("--apply", action="store_true",
                      help="with --sync, write the changes (refused on the default branch)")
 
+    pol = sub.add_parser("policy", help="the governed-agent policy engine")
+    pol_sub = pol.add_subparsers(dest="policy_cmd", required=True)
+    exp = pol_sub.add_parser(
+        "explain", help="decide a hypothetical tool call without executing anything")
+    exp.add_argument("agent", help="the agent id, e.g. AGENT-payment-exceptions")
+    exp.add_argument("tool", help="the tool id, e.g. TOOL-case-management")
+    exp.add_argument("operation", help="the tool operation, e.g. release_funds")
+    exp.add_argument("args", nargs="?", default="{}",
+                     help="the call's arguments as JSON (default: {})")
+
     runs = sub.add_parser("runs", help="add up the orchestrator runs kept in .keelspec/runs")
     runs.add_argument("--json", action="store_true", dest="as_json",
                       help="emit the summary as JSON")
@@ -370,6 +380,22 @@ def main(argv: list[str] | None = None) -> int:
 
         # blocked, refuted and needs-human are all non-zero: nothing was proposed.
         return 0 if report.status == "proposed" else 1
+
+    if args.cmd == "policy":
+        from .runtime.policy import explain
+        try:
+            call_args = json.loads(args.args)
+        except ValueError as exc:
+            print(f"args must be a JSON object: {exc}", file=sys.stderr)
+            return 2
+        try:
+            out = explain(engine.load(config, args.root), args.agent, args.tool,
+                          args.operation, call_args)
+        except KeyError as exc:
+            print(str(exc).strip("'\""), file=sys.stderr)
+            return 2
+        sys.stdout.write(json.dumps(out, indent=2) + "\n")
+        return 0
 
     if args.cmd == "intake":
         return _intake(args, config)

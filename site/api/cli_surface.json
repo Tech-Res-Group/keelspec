@@ -48,6 +48,10 @@
       ],
       "help": "run the agent-built lifecycle over one artifact (ST-01..ST-06)"
     },
+    "policy": {
+      "flags": [],
+      "help": "the governed-agent policy engine"
+    },
     "runs": {
       "flags": [
         "--evidence",

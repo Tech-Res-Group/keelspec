@@ -298,6 +298,10 @@
       "max_result_bytes": 65536,
       "operations": [
         {
+          "fields": {
+            "customer.email": "pii",
+            "customer.name": "pii"
+          },
           "name": "get_case",
           "side_effects": "read"
         },
@@ -371,6 +375,12 @@
       "max_result_bytes": 65536,
       "operations": [
         {
+          "fields": {
+            "creditor.account": "pii",
+            "creditor.name": "pii",
+            "debtor.account": "pii",
+            "debtor.name": "pii"
+          },
           "name": "get_payment",
           "side_effects": "read"
         },

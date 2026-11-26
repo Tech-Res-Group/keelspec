@@ -35,6 +35,19 @@ actually means.
   milestones. A `redact` policy masks results and is never permission to call.
   `examples/payments-exceptions/` is the reference project: one agent, three tools,
   five policies, three scenarios, validating clean. No runtime yet.
+- **Governed agents, M6: the policy engine.** `keelspec.runtime.policy` decides one
+  tool call from the agent's linked policies: matching, `when` conditions (ANDed;
+  `== != > >= < <= in not_in matches exists`, no eval), precedence
+  deny > require_approval > redact > allow, and default deny (`no_policy`). Only
+  `allow` and `require_approval` permit a call; `redact` masks the result. A
+  condition that cannot be decided fails closed: a deny or require_approval applies,
+  an allow does not. An undeclared tool or operation is never offered and is denied
+  as `not_declared`. `keelspec policy explain AGENT TOOL OP '{args}'` and the MCP tools
+  `product_policy_explain` and `product_agent_card` run the same code the runtime
+  will, so explain and run cannot disagree. Result redaction masks fields an
+  operation tags by data class (`fields: {debtor.name: pii}`, `*` for lists); an
+  operation that tags nothing for a redacted class has its whole result withheld.
+  Pure Python, on the core install.
 - **Multi-target references**: `to: [rules, constraints, terms]` resolves a value
   against any of the listed types. LSP completion, hover and the MCP tools follow it
   with no special code. A single `to:` is unchanged.
