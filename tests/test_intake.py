@@ -9,8 +9,8 @@ import pytest
 import yaml
 
 from keelspec import intake, validate
-from keelspec.engine import build, parse_frontmatter
 from keelspec.config import load_config
+from keelspec.engine import build, parse_frontmatter
 
 CONFIG = {
     "product_dir": "product",

@@ -28,8 +28,14 @@ import re
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from stations import (LENSES, STATIONS, _face, fastpdlc_diagram,  # noqa: E402
-                      rail_cards, roster_counts)
+from stations import (
+    LENSES,
+    STATIONS,
+    _face,
+    fastpdlc_diagram,
+    rail_cards,
+    roster_counts,
+)
 
 HOME = pathlib.Path(__file__).resolve().parent.parent / "public" / "index.html"
 MARK = "<!-- ══ "

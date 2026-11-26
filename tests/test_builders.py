@@ -8,14 +8,20 @@ from __future__ import annotations
 
 import json
 import pathlib
+import re
 import subprocess
 import sys
 import textwrap
 
 import pytest
 
-from keelspec.builders import (BuilderError, ClaudeCodeBuilder, ProtectedPathTouched,
-                               _last_json_object, protected_paths)
+from keelspec.builders import (
+    BuilderError,
+    ClaudeCodeBuilder,
+    ProtectedPathTouched,
+    _last_json_object,
+    protected_paths,
+)
 from keelspec.config import ArtifactType, Config
 from keelspec.orchestration import BY_ID, CLEAN_SCHEMA, Orchestrator, StubRunner
 
@@ -99,7 +105,7 @@ def test_a_builder_that_edits_the_spec_is_rolled_back_and_fails(repo, agent):
     cmd = agent({"write": {"product/features/FEAT-x.md": "---\nid: FEAT-x\nstatus: shipped\n---\n",
                            "src/app.py": "pass\n"}})
     b = _builder(repo, cmd)
-    with pytest.raises(ProtectedPathTouched, match="product/features/FEAT-x.md"):
+    with pytest.raises(ProtectedPathTouched, match=re.escape("product/features/FEAT-x.md")):
         b.run(BY_ID["ST-04"], "implement it")
     wt = b.worktree.project_dir
     assert "status" not in (wt / "product" / "features" / "FEAT-x.md").read_text()
