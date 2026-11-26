@@ -96,7 +96,31 @@ def _build_parser() -> argparse.ArgumentParser:
     exp.add_argument("args", nargs="?", default="{}",
                      help="the call's arguments as JSON (default: {})")
 
-    runs = sub.add_parser("runs", help="add up the orchestrator runs kept in .keelspec/runs")
+    run = sub.add_parser("run", help="run a governed agent (needs keelspec[runtime])")
+    run.add_argument("agent", nargs="?", default=None, help="the agent id, e.g. AGENT-x")
+    run.add_argument("input", nargs="?", default=None, help="the input text for the run")
+    run.add_argument("--resume", default=None, metavar="RUN_ID",
+                     help="continue a run paused for approval, once it is approved")
+    run.add_argument("--fixtures", default=None, metavar="SCN_ID",
+                     help="answer tool calls from this scenario's fixtures (offline)")
+    run.add_argument("--capture-content", action="store_true",
+                     help="also write prompts, completions and tool data to content.jsonl")
+    run.add_argument("--router-explain", action="store_true",
+                     help="print the router's plan for the first step before running")
+    run.add_argument("--runtime-config", default="keelspec.runtime.yaml",
+                     help="router and telemetry settings (default: keelspec.runtime.yaml)")
+
+    apr = sub.add_parser("approvals", help="list, show and sign approval requests")
+    apr.add_argument("action", choices=["list", "show", "approve"])
+    apr.add_argument("run_id", nargs="?", default=None)
+    apr.add_argument("step", nargs="?", type=int, default=None)
+    apr.add_argument("--by", default="", help="who approves (recorded in the file)")
+
+    runs = sub.add_parser(
+        "runs", help="add up the orchestrator runs, or list/show agent run records")
+    runs.add_argument("action", nargs="?", choices=["list", "show"], default=None,
+                      help="list agent run records, or show one (default: the line summary)")
+    runs.add_argument("run_id", nargs="?", default=None)
     runs.add_argument("--json", action="store_true", dest="as_json",
                       help="emit the summary as JSON")
     runs.add_argument("--evidence", default=None, metavar="DIR",
@@ -148,6 +172,103 @@ def _brief(config, bundle: dict, feature: str) -> str:
                   for name, recs in bundle.items() if isinstance(recs, list)},
     }
     return json.dumps(payload, default=str)[:6000]
+
+
+def _run_agent(args, config, registry) -> int:
+    from .runtime import approvals as _ap
+    from .runtime.agent import ApprovalPending, resume_agent, run_agent, system_prompt
+    from .runtime.bundle import BundleRefused, load_bundle
+    from .runtime.fixtures import FixtureExecutor
+    from .runtime.policy import AgentPolicies
+    from .runtime.router_client import RouterClient, RuntimeSettings, new_traceparent
+
+    if bool(args.resume) == bool(args.agent):
+        print("give an agent and input, or --resume RUN_ID", file=sys.stderr)
+        return 2
+    if args.agent and args.input is None:
+        print("give the input text for the run", file=sys.stderr)
+        return 2
+    try:
+        bundle, provenance = load_bundle(config, args.root, args.config, registry)
+    except BundleRefused as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    settings = RuntimeSettings.load(pathlib.Path(args.root) / args.runtime_config)
+    if args.capture_content:
+        settings.capture_content = True
+    if not args.fixtures:
+        print("tool servers are reached through the MCP client, which arrives in "
+              "milestone M8; run offline with --fixtures SCN-id", file=sys.stderr)
+        return 2
+    try:
+        executor = FixtureExecutor.from_scenario(bundle, args.fixtures)
+    except KeyError as exc:
+        print(str(exc).strip("'\""), file=sys.stderr)
+        return 2
+    router = RouterClient(settings.router)
+    kw = {"root": args.root, "router": router, "executor": executor, "settings": settings,
+          "prices": config.prices}
+    try:
+        if args.resume:
+            result = resume_agent(bundle, provenance, args.resume, **kw)
+        else:
+            if args.router_explain:
+                from .runtime.agent import offered_tools
+                ap = AgentPolicies.from_bundle(bundle, args.agent)
+                plan = router.explain(
+                    [{"role": "system", "content": system_prompt(bundle, ap.agent)},
+                     {"role": "user", "content": args.input}], offered_tools(ap),
+                    concept=ap.agent.get("concept") or "general.assist", session="explain",
+                    critical=ap.agent.get("criticality") == "high",
+                    traceparent=new_traceparent())
+                print(json.dumps(plan, indent=2), file=sys.stderr)
+            result = run_agent(bundle, provenance, args.agent, args.input, **kw)
+    except (KeyError, ApprovalPending) as exc:
+        print(str(exc).strip("'\""), file=sys.stderr)
+        return 1
+    rec = result.record
+    print(f"── run {rec.run_id}: {rec.outcome} ({len(rec.steps)} step(s))", file=sys.stderr)
+    if rec.outcome == "awaiting_approval":
+        for req in (_ap.read(args.root, rec.run_id) or {}).get("requests", []):
+            if req["status"] == "pending":
+                print(f"── approval needed for {req['tool_id']}.{req['operation']} by "
+                      f"{', '.join(req['approvers']) or 'a person'}: keelspec approvals "
+                      f"approve {rec.run_id} {req['step']} --by NAME, then "
+                      f"keelspec run --resume {rec.run_id}", file=sys.stderr)
+    if result.final_answer:
+        print(result.final_answer)
+    return 0 if rec.outcome == "completed" else 1
+
+
+def _approvals(args) -> int:
+    from .runtime import approvals
+    if args.action == "list":
+        for r in approvals.all_requests(args.root):
+            who = f" by {r['approved_by']}" if r["approved_by"] else ""
+            print(f"{r['run_id']}  step {r['step']}  {r['tool_id']}.{r['operation']}  "
+                  f"{r['status']}{who}")
+        return 0
+    if not args.run_id:
+        print(f"approvals {args.action} needs a run id", file=sys.stderr)
+        return 2
+    if args.action == "show":
+        data = approvals.read(args.root, args.run_id)
+        if data is None:
+            print(f"no approval requests for run {args.run_id}", file=sys.stderr)
+            return 1
+        sys.stdout.write(json.dumps(data, indent=2) + "\n")
+        return 0
+    if args.step is None:
+        print("approvals approve needs a step number", file=sys.stderr)
+        return 2
+    try:
+        req = approvals.approve(args.root, args.run_id, args.step, args.by)
+    except (KeyError, ValueError) as exc:
+        print(str(exc).strip("'\""), file=sys.stderr)
+        return 1
+    print(f"approved {req['tool_id']}.{req['operation']} at step {req['step']} as "
+          f"{req['approved_by']}; now: keelspec run --resume {args.run_id}")
+    return 0
 
 
 def _intake(args, config) -> int:
@@ -399,6 +520,30 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "intake":
         return _intake(args, config)
+
+    if args.cmd == "run":
+        return _run_agent(args, config, registry)
+
+    if args.cmd == "approvals":
+        return _approvals(args)
+
+    if args.cmd == "runs" and args.action:
+        from .runtime import records
+        if args.action == "list":
+            for r in records.list_runs(args.root):
+                print(f"{r.run_id}  {r.agent_id}  {r.outcome}  {r.started_at}  "
+                      f"{len(r.steps)} step(s)")
+            return 0
+        if not args.run_id:
+            print("runs show needs a run id", file=sys.stderr)
+            return 2
+        try:
+            rec = records.read(args.root, args.run_id)
+        except (OSError, ValueError) as exc:
+            print(f"cannot read run {args.run_id}: {exc}", file=sys.stderr)
+            return 1
+        sys.stdout.write(json.dumps(rec.to_dict(), indent=2, sort_keys=True) + "\n")
+        return 0
 
     if args.cmd == "runs":
         evidence_dir = (pathlib.Path(args.root) / args.evidence if args.evidence

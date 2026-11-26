@@ -1,0 +1,8 @@
+# Runtime settings for `keelspec run`. Secrets never live here: the API key is read
+# from the environment variable named by api_key_env.
+router:
+  base_url: https://api.fiferouter.com/v1   # any OpenAI-compatible endpoint works
+  api_key_env: FIFEROUTER_API_KEY
+  timeout_seconds: 60
+telemetry:
+  capture_content: false                    # true writes prompts and tool data to content.jsonl

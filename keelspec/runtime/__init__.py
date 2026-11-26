@@ -6,3 +6,7 @@ The policy engine and redaction are pure Python and work on the core install, so
 ``keelspec policy explain`` and the MCP ``product_policy_explain`` tool need nothing
 extra.
 """
+
+from .agent import RunResult, resume_agent, run_agent
+
+__all__ = ["RunResult", "resume_agent", "run_agent"]

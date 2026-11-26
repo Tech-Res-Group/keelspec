@@ -35,6 +35,23 @@ actually means.
   milestones. A `redact` policy masks results and is never permission to call.
   `examples/payments-exceptions/` is the reference project: one agent, three tools,
   five policies, three scenarios, validating clean. No runtime yet.
+- **Governed agents, M7: the runtime core** (`pip install 'keelspec[runtime]'`).
+  `keelspec run AGENT "input"` runs one governed agent on the compiled bundle, and
+  refuses (PAC-079) if `validate` reports any error or the bundle is stale. The model
+  is reached through FifeRouter or any OpenAI-compatible endpoint, over HTTP only,
+  with `x-fife-concept`, `x-fife-session`, `x-fife-critical` and a W3C `traceparent`
+  per run; the served model, rung and attempts are recorded. The model is offered
+  only the agent's declared operations, and every call passes the policy engine
+  first: a denial goes back to the model as data and counts against `max_denials`;
+  `require_approval` pauses the run (`keelspec approvals approve RUN STEP --by NAME`,
+  then `keelspec run --resume RUN`). A 402, 422 or 502 from the router stops the run
+  as `refused:<kind>` with no retry; other 5xx and transport errors are retried at
+  most twice. Budgets: steps, cost (from the `prices` table), wall clock, denials.
+  Run records at `.keelspec/runs/<run_id>/run.json` are a closed, content-free
+  schema; `--capture-content` writes content to a separate `content.jsonl` and the
+  record says so. `keelspec runs list|show` reads them; plain `keelspec runs` still
+  prints the line summary. Tools answer from scenario fixtures (`--fixtures SCN-x`)
+  until the MCP client lands in M8.
 - **Governed agents, M6: the policy engine.** `keelspec.runtime.policy` decides one
   tool call from the agent's linked policies: matching, `when` conditions (ANDed;
   `== != > >= < <= in not_in matches exists`, no eval), precedence
