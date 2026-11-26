@@ -83,12 +83,16 @@ def completions_at(index: ProductIndex, rel_path: str, text: str, line_no: int, 
     field_name = field_at(lines, line_no)
     if not field_name:
         return []
-    target = index.target_type(type_name, field_name)
+    targets = index.target_types(type_name, field_name)
+
+    def found(value: str):
+        return next((a for to in targets if (a := index.get(value, to))), None)
+
     return [
         Completion(
             label=value,
-            detail=target or f"{field_name} value",
-            documentation=(art.summary() if (art := index.get(value, target)) else ""),
+            detail=(art.type_name if (art := found(value)) else f"{field_name} value"),
+            documentation=(art.summary() if art else ""),
         )
         for value in index.allowed_values(type_name, field_name)
     ]

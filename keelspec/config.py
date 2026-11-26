@@ -9,15 +9,29 @@ from __future__ import annotations
 import pathlib
 
 import yaml
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class Reference(BaseModel):
     """A cross-reference edge: values of ``field`` on this type must resolve to the
-    ``id`` of an artifact of type ``to``. ``field`` may be a scalar or a list."""
+    ``id`` of an artifact of type ``to``. ``field`` may be a scalar or a list.
+
+    ``to`` may also be a list of types (``to: [rules, constraints, terms]``): a value
+    then resolves if it is the id of an artifact of any of them.
+    """
 
     field: str
-    to: str
+    to: str | list[str]
+
+    @property
+    def targets(self) -> list[str]:
+        """The type(s) a value may resolve to, always as a list."""
+        return [self.to] if isinstance(self.to, str) else list(self.to)
+
+    def describe(self) -> str:
+        """The target type(s) in prose, for messages: 'rules, constraints or terms'."""
+        t = self.targets
+        return t[0] if len(t) == 1 else ", ".join(t[:-1]) + f" or {t[-1]}"
 
 
 class ArtifactType(BaseModel):
@@ -114,6 +128,9 @@ class Intake(BaseModel):
 class Config(BaseModel):
     """A project's product-as-code configuration."""
 
+    # Named bundles of types (``presets: [agents]``), expanded before validation.
+    presets: list[str] = Field(default_factory=list)
+
     product_dir: str = "product"
     output: str = "build/product.generated.json"
     # Bundle key ordering. True (default) sorts keys for stable diffs; False keeps
@@ -129,6 +146,14 @@ class Config(BaseModel):
     prices: dict[str, Price] = Field(default_factory=dict)
     # Optional: how `keelspec intake` maps tickets onto artifacts.
     intake: Intake | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _expand_presets(cls, data):
+        if isinstance(data, dict) and data.get("presets"):
+            from .presets import expand
+            return expand(data)
+        return data
 
     def type_by_name(self, name: str) -> ArtifactType | None:
         return next((t for t in self.types if t.name == name), None)

@@ -197,17 +197,22 @@ def validate(config: Config, root: str | pathlib.Path = ".", registry=None) -> R
 
             # references (PAC-020)
             for ref in t.references:
-                targets = ids_by_type.get(ref.to, set())
+                targets = set().union(*(ids_by_type.get(n, set()) for n in ref.targets))
                 raw = rec.get(ref.field)
                 for val in (raw if isinstance(raw, list) else [raw] if raw else []):
                     if val not in targets:
                         report.add(
                             "PAC-020",
-                            f"{ref.field} '{val}' does not resolve to a {ref.to} id",
+                            f"{ref.field} '{val}' does not resolve to a {ref.describe()} id",
                             where,
                             field=ref.field,
                             value=str(val),
                         )
+
+    # library checks for governed agents (PAC-070..077), only with `presets: [agents]`.
+    from . import agents
+    if agents.enabled(config):
+        agents.validate(bundle, config, report)
 
     # plugin validators — project-specific cross-file / graph checks.
     if registry:

@@ -12,12 +12,32 @@ config key, or the plugin `Registry` surface is a breaking change and bumps the 
 
 ## [Unreleased]
 
+> **Config schema.** `presets` and list-valued `references[].to` are new config keys.
+> They are additive (an existing config validates unchanged), but the policy above
+> treats a config-schema change as major. The version number is open decision D-1 in
+> the v2 spec.
+
 Accountability on the agent-built line, prompted by a business-stakeholder review
 that asked who approves, why a change got the light path, and what a repeated failure
 actually means.
 
 ### Added
 
+- **Governed agents, v2 milestone M5: the artifact types.** `presets: [agents]` in
+  `product.config.yaml` adds four ordinary types, `agents` (AGENT-), `tools` (TOOL-),
+  `policies` (POL-) and `scenarios` (SCN-), and turns on library checks inside
+  `validate`: PAC-070 (a policy names an operation its tool does not declare),
+  PAC-071 (an operation no linked policy permits; warning), PAC-072 (a malformed
+  policy `match` or `when`), PAC-074 (a high-criticality agent can reach a money
+  operation with no `require_approval` or `deny` in front of it), PAC-075 (an agent
+  with no scenarios; warning) and PAC-077 (a scenario names an operation its agent
+  cannot call). PAC-073, 076, 078 and 079 are registered now for the runtime
+  milestones. A `redact` policy masks results and is never permission to call.
+  `examples/payments-exceptions/` is the reference project: one agent, three tools,
+  five policies, three scenarios, validating clean. No runtime yet.
+- **Multi-target references**: `to: [rules, constraints, terms]` resolves a value
+  against any of the listed types. LSP completion, hover and the MCP tools follow it
+  with no special code. A single `to:` is unchanged.
 - **Risk tiers.** `delivery` in `product.config.yaml` scores a feature's own fields
   (`risk_factors`) and picks a tier that sets its Verify lenses, required approvers,
   Clean and repair bound. The score and its reasons are recorded on the run. An

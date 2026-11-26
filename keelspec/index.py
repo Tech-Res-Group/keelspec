@@ -222,8 +222,12 @@ class ProductIndex:
                     raw = rec.get(ref.field)
                     values = raw if isinstance(raw, list) else [raw] if raw else []
                     for v in values:
+                        # With several target types, the edge points at the one the
+                        # value actually resolves to (the first, if it resolves to none).
+                        to = next((n for n in ref.targets if (n, str(v)) in idx.artifacts),
+                                  ref.targets[0])
                         idx.edges.append(
-                            Edge(type_.name, str(rec.get("id")), ref.field, ref.to, str(v))
+                            Edge(type_.name, str(rec.get("id")), ref.field, to, str(v))
                         )
         return idx
 
@@ -255,15 +259,22 @@ class ProductIndex:
                 return t.name
         return ""
 
-    def target_type(self, type_name: str, field_name: str) -> str:
-        """The type a reference field must resolve to, or '' if it is not an edge."""
+    def target_types(self, type_name: str, field_name: str) -> list[str]:
+        """The type(s) a reference field may resolve to, or [] if it is not an edge."""
         t = self.config.type_by_name(type_name)
         if not t:
-            return ""
+            return []
         for ref in t.references:
             if ref.field == field_name:
-                return ref.to
-        return ""
+                return ref.targets
+        return []
+
+    def target_type(self, type_name: str, field_name: str) -> str:
+        """The type(s) a reference field resolves to, as one label ('' if none).
+
+        Kept for callers that show a label; resolution should use ``target_types``.
+        """
+        return " | ".join(self.target_types(type_name, field_name))
 
     def allowed_values(self, type_name: str, field_name: str) -> list[str]:
         """What may legally go in this field: enum members, or ids of the target type.
@@ -276,10 +287,8 @@ class ProductIndex:
             return []
         if field_name in t.enums:
             return list(t.enums[field_name])
-        to = self.target_type(type_name, field_name)
-        if to:
-            return sorted(a.id for a in self.of_type(to))
-        return []
+        targets = self.target_types(type_name, field_name)
+        return sorted({a.id for to in targets for a in self.of_type(to)})
 
     def known_fields(self, type_name: str) -> list[str]:
         """Every frontmatter key this type captures — the key-position completion."""
