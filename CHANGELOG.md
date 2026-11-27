@@ -12,10 +12,15 @@ config key, or the plugin `Registry` surface is a breaking change and bumps the 
 
 ## [Unreleased]
 
-> **Config schema.** `presets` and list-valued `references[].to` are new config keys.
+## [1.0.0] — 2026-11-27
+
+Governed agents: an agent that runs in production is declared, validated, simulated
+and run from the same product graph as the rest of the product.
+
+> **Why a major.** `presets` and list-valued `references[].to` are new config keys.
 > They are additive (an existing config validates unchanged), but the policy above
-> treats a config-schema change as major. The version number is open decision D-1 in
-> the v2 spec.
+> treats a config-schema change as major. The `runtime` extra now requires
+> `mcp>=2.0`. The core install still needs only pyyaml and pydantic.
 
 Accountability on the agent-built line, prompted by a business-stakeholder review
 that asked who approves, why a change got the light path, and what a repeated failure

@@ -264,7 +264,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: Tech-Res-Group/keelspec@v0.7.0
+      - uses: Tech-Res-Group/keelspec@v1.0.0
         with:
           config: product.config.yaml
           plugin: product_hooks.py
