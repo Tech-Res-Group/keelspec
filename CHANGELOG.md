@@ -23,6 +23,9 @@ actually means.
 
 ### Added
 
+- **Governed agents: documentation.** A "Governed agents" section in the README, and
+  a release post drafted in `site/drafts/` (outside `site/content/posts/`, so a site
+  build does not publish it).
 - **Governed agents, M12: `keelspec serve`.** An HTTP API for deployed agents,
   standard library only: `POST /v1/agents/{id}/runs`, `GET /v1/runs/{id}` (the
   content-free record and pending approvals), `POST /v1/runs/{id}/approvals`

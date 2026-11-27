@@ -369,6 +369,64 @@ Every run is kept under `.keelspec/runs/`. The schema is `keelspec-metrics/2`; e
 what it shipped mattered is measured in production, against the `outcome` each
 feature traces to.
 
+## Governed agents
+
+The same product graph can declare an agent that runs in production, not just the
+agents that build your code. You declare the agent, the tools it may call, the
+policies that decide each call, and the scenarios it must pass, all as markdown
+artifacts in the repository. KeelSpec validates them, replays the scenarios in CI,
+and runs the agent with every tool call decided by policy first.
+
+```yaml
+# product.config.yaml
+presets: [agents]          # adds AGENT-, TOOL-, POL- and SCN- types and their checks
+```
+
+The reference project is `examples/payments-exceptions/`: one agent that
+investigates rejected payments, three MCP tool servers (a payments ledger, an
+ISO 20022 parser, case management), five policies and three scenarios, including
+one where remittance text tries to instruct the agent to release funds.
+
+```bash
+cd examples/payments-exceptions
+keelspec validate                                   # PAC-070..077 among the checks
+keelspec policy explain AGENT-payment-exceptions TOOL-case-management release_funds '{}'
+keelspec simulate                                   # three scenarios, offline, no API key
+keelspec tools check                                # each MCP server matches its artifact
+pip install 'keelspec[runtime]'
+keelspec run AGENT-payment-exceptions "Case 88121: pacs.002 RJCT AC04 on E2E-77F"
+keelspec approvals approve <run> <step> --by <name> && keelspec run --resume <run>
+```
+
+What holds, and is tested:
+
+- **Only declared operations are offered to the model**, and every call is decided
+  by the agent's policies before it runs: deny beats approval beats redact beats
+  allow, and no matching policy means deny. `require_approval` pauses the run until
+  a person signs.
+- **The runtime runs the committed bundle** and refuses one that fails validation
+  or is stale (PAC-079). A tool server whose tool list differs from its artifact
+  refuses the run (PAC-073).
+- **Run records carry no content**: ids, decisions, outcomes and token counts. Content
+  is written to a separate file only when you turn capture on, and the record says
+  so. OpenTelemetry spans follow the same rule (`docs/observability.md`).
+- **A router refusal stops the run** (no retry, no quiet downgrade). The model is
+  reached over HTTP through FifeRouter or any OpenAI-compatible endpoint.
+- **`keelspec simulate` replays scenarios with a deliberately naive scripted model**
+  that obeys instructions it finds in tool data, so a passing injection scenario
+  shows the policy held, not that a model behaved. `--evidence` records the result,
+  and an agent marked `deployed` without passing evidence is an error (PAC-076).
+- **`keelspec orchestrate AGENT-x`** adds a Tools station that scaffolds missing MCP
+  servers, and a `policy` lens that searches for arguments or injected text that
+  would run a guarded or money operation with no person in the loop.
+- **`keelspec serve`** puts deployed agents behind an HTTP API (or MCP), with a
+  separate approver token so whoever starts a run cannot approve it.
+  `infra/agent-runtime/` has a container recipe.
+
+What it is not: a hosted service, a visual agent builder, or a guarantee about what a
+model will say. It governs what an agent can *do*: which calls run, which wait for a
+person, and what the record shows afterwards.
+
 ## Evidence
 
 `keelspec evidence` emits a content-addressed record of what was checked, when, on
