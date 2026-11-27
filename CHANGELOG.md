@@ -23,6 +23,19 @@ actually means.
 
 ### Added
 
+- **Governed agents, M11: agent-aware orchestration.** `keelspec orchestrate AGENT-x`
+  adds two things to the line. ST-04c Tools, a machine station after Develop, finds
+  the MCP servers the agent's tools need that do not exist and scaffolds them (only
+  with `--write`, never on a dry run), and lists scenario fixtures that are missing;
+  it does not invent fixture data, since a scenario is product intent. Verify gains
+  a sixth lens, `policy`, which is code rather than a model: it searches boundary
+  argument values from every `when` condition for a way to run a guarded or money
+  operation with no person in the loop, plants an instruction to call each such
+  operation in tool data and replays the agent with the naive scripted model, and
+  replays the agent's scenarios. Its verdict joins the same refute, triage and
+  repair logic as the other lenses, a risk tier's lens list never drops it, and a
+  check that cannot run refutes rather than abstains. Station ids are unchanged;
+  ST-04c is inserted, as ST-04b and ST-06b were.
 - **Governed agents, M10: OpenTelemetry.** `keelspec run` and `keelspec simulate`
   emit one trace per run (`keelspec.run` > `keelspec.step N` > `chat` /
   `keelspec.policy` / `execute_tool`, plus `keelspec.approval`) and the metrics

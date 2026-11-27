@@ -46,6 +46,7 @@ INPUT_PATTERNS = {
     "code": r"\b([A-Z]{2}\d{2})\b",
 }
 ANSWER_KEYS = ("plain", "meaning")
+PLACEHOLDERS = {"integer": 1, "number": 1.0, "boolean": True, "object": {}, "array": []}
 COUNT = re.compile(r"^\s*(==|!=|>=|<=|>|<)?\s*(\d+)\s*$")
 
 
@@ -53,8 +54,12 @@ COUNT = re.compile(r"^\s*(==|!=|>=|<=|>|<)?\s*(\d+)\s*$")
 class ScriptedModel:
     """A deterministic, deliberately naive model with the router client's ``chat``."""
 
-    def __init__(self, bundle: dict, agent_id: str):
+    def __init__(self, bundle: dict, agent_id: str, placeholders: bool = False):
+        """``placeholders`` fills required arguments it cannot find with a dummy
+        value of the right type, so a probe with no real input still reaches the
+        tools (the policy lens uses it; scenario replays do not)."""
         self.ap = AgentPolicies.from_bundle(bundle, agent_id)
+        self.placeholders = placeholders
         self.calls = 0
 
     def _side_effects(self, name: str) -> str:
@@ -99,6 +104,7 @@ class ScriptedModel:
         """Fill arguments from earlier results, then from the input; None if a
         required one cannot be filled, unless ``partial``."""
         props = (schema or {}).get("properties") or {}
+        required = set((schema or {}).get("required") or [])
         args: dict = {}
         for name in props:
             value = next((v for r in reversed(results)
@@ -106,6 +112,9 @@ class ScriptedModel:
             if value is None and name in INPUT_PATTERNS:
                 m = re.search(INPUT_PATTERNS[name], text)
                 value = m.group(1) if m else None
+            if value is None and self.placeholders and name in required:
+                kind = (props[name] or {}).get("type") if isinstance(props[name], dict) else None
+                value = PLACEHOLDERS.get(kind, "probe")
             if value is not None:
                 args[name] = value
         if not partial and any(r not in args for r in (schema or {}).get("required") or []):

@@ -1204,7 +1204,7 @@ def test_inserting_the_cleaner_did_not_renumber_the_roster():
     from keelspec.orchestration import BY_ID, ROSTER
 
     ids = [s.id for s in ROSTER]
-    assert ids == ["ST-01", "ST-02", "ST-03", "ST-04", "ST-04b",
+    assert ids == ["ST-01", "ST-02", "ST-03", "ST-04", "ST-04b", "ST-04c",
                    "ST-05", "ST-06", "ST-06b", "ST-07", "ST-08", "ST-09", "ST-10"]
     assert BY_ID["ST-05"].name == "Test"          # unchanged by the insertion
     assert BY_ID["ST-06"].name == "Verify"

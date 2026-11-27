@@ -611,12 +611,31 @@ def main(argv: list[str] | None = None) -> int:
             print(f"── risk tier: {options['risk']['tier']} "
                   f"(score {options['risk']['score']})", file=sys.stderr)
 
+        agent_hooks: dict = {}
+        if "agents" in config.presets and any(
+                a.get("id") == args.feature for a in bundle.get("agents", [])):
+            # A governed agent: ST-04c scaffolds missing tool servers (only with
+            # --write, never on a dry run) and the policy lens joins Verify. Both read
+            # the tree as it is when they run, after Develop.
+            from .runtime.policy_lens import policy_lens
+            from .runtime.scaffold import tool_gaps
+            write_servers = args.write and not args.dry_run
+            agent_hooks = {
+                "deterministic_lenses": {"policy": lambda: policy_lens(
+                    engine.load(config, args.root), args.feature)},
+                "tools_station": lambda: tool_gaps(
+                    engine.load(config, args.root), args.feature, args.root,
+                    write=write_servers),
+            }
+            print("── governed agent: ST-04c Tools and the policy lens join the line",
+                  file=sys.stderr)
+
         try:
             orchestrator = orchestration.Orchestrator(
                 runner, brief=brief, resolutions=resolutions,
                 extra_lens=extra_lens, approvals=list(approvals.values()),
                 on_phase=lambda phase: print(f"── {phase}", file=sys.stderr),
-                **options,
+                **options, **agent_hooks,
             )
         except ValueError as exc:
             print(f"product.config.yaml delivery policy: {exc}", file=sys.stderr)

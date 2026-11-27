@@ -90,15 +90,16 @@ if __name__ == "__main__":
 
 
 def render_main(tool: dict) -> str:
-    return f'''"""`python -m servers.{slug(tool["id"])}` runs the {tool["id"]} server on stdio."""
+    return f'''"""`python -m` on this package runs the {tool["id"]} server on stdio."""
 from .server import server
 
 server.run()
 '''
 
 
-def render_test(tool: dict) -> str:
+def render_test(tool: dict, module: str | None = None) -> str:
     declared = sorted(operations(tool))
+    module = module or f"servers.{slug(tool['id'])}"
     return f'''"""The server exposes exactly the operations {tool["id"]} declares (PAC-073)."""
 import asyncio
 
@@ -106,7 +107,7 @@ import pytest
 
 pytest.importorskip("mcp")
 
-from servers.{slug(tool["id"])}.server import server  # noqa: E402
+from {module}.server import server  # noqa: E402
 
 DECLARED = {declared!r}
 
@@ -118,16 +119,20 @@ def test_tools_match_the_artifact():
 
 
 def scaffold(tool: dict, root: str | pathlib.Path, out_dir: str = "servers",
-             force: bool = False) -> list[pathlib.Path]:
-    """Write the skeleton under ``<root>/<out_dir>/<slug>/``. Refuses to overwrite
-    existing files unless ``force``; returns the files written."""
+             force: bool = False, package: str | None = None) -> list[pathlib.Path]:
+    """Write the skeleton under ``<root>/<out_dir>/<package>/`` (the package defaults
+    to the tool's slug). Refuses to overwrite existing files unless ``force``; returns
+    the files written."""
     base = pathlib.Path(root) / out_dir
-    pkg = base / slug(tool["id"])
+    package = package or slug(tool["id"])
+    pkg = base / package
+    module = ".".join([*(part for part in pathlib.PurePath(out_dir).parts if part != "."),
+                       package])
     files = {
         pkg / "__init__.py": f'"""The {tool["id"]} MCP server."""\n',
         pkg / "server.py": render_server(tool),
         pkg / "__main__.py": render_main(tool),
-        pkg / "test_server.py": render_test(tool),
+        pkg / "test_server.py": render_test(tool, module),
     }
     clash = [p for p in files if p.exists()]
     if clash and not force:
@@ -135,10 +140,76 @@ def scaffold(tool: dict, root: str | pathlib.Path, out_dir: str = "servers",
                               " (pass --force to replace them)")
     written = []
     init = base / "__init__.py"
-    if not init.exists():
+    if out_dir not in ("", ".") and not init.exists():
         files[init] = '"""MCP tool servers for this project."""\n'
     for path, text in files.items():
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8", newline="\n")
         written.append(path)
     return written
+
+
+def server_module(tool: dict) -> str | None:
+    """The Python module a stdio tool's server runs as (``python -m <module>``), or
+    None when the server is not a local Python module."""
+    server = tool.get("server") if isinstance(tool.get("server"), dict) else {}
+    if (tool.get("transport") or "stdio") != "stdio":
+        return None
+    args = [str(a) for a in server.get("args") or []]
+    if "-m" in args and args.index("-m") + 1 < len(args):
+        return args[args.index("-m") + 1]
+    return None
+
+
+def _scenario_gaps(bundle: dict, agent: dict) -> list[str]:
+    linked = set(agent.get("scenarios") or [])
+    scenarios = [s for s in bundle.get("scenarios", [])
+                 if s.get("id") in linked or s.get("agent") == agent["id"]]
+    if not scenarios:
+        return [f"{agent['id']} has no scenarios"]
+    gaps = []
+    for scn in scenarios:
+        fixtures = scn.get("fixtures") if isinstance(scn.get("fixtures"), dict) else {}
+        expect = scn.get("expect") if isinstance(scn.get("expect"), dict) else {}
+        for call in expect.get("must_call") or []:
+            if call not in fixtures:
+                gaps.append(f"{scn['id']}: must_call {call} has no fixture")
+    return gaps
+
+
+def tool_gaps(bundle: dict, agent_id: str, root: str | pathlib.Path,
+              write: bool = False) -> dict:
+    """ST-04c for an agent: the MCP servers its tools need that do not exist yet
+    (scaffolded when ``write``), and scenario fixtures that are missing.
+
+    Fixtures are listed, never invented: a scenario is product intent, and tool
+    data made up to fill a gap would let the scenario pass without saying anything.
+    """
+    root = pathlib.Path(root)
+    agent = next((a for a in bundle.get("agents", []) if a.get("id") == agent_id), None)
+    if agent is None:
+        raise KeyError(f"no agent {agent_id!r}")
+    tools = {t["id"]: t for t in bundle.get("tools", []) if t.get("id")}
+    generated, missing, notes = [], [], []
+    for tool_id in agent.get("tools") or []:
+        tool = tools.get(tool_id)
+        if tool is None:
+            continue
+        module = server_module(tool)
+        if module is None:
+            if (tool.get("transport") or "stdio") == "http":
+                notes.append(f"{tool_id} is served over HTTP; nothing to generate here")
+            else:
+                notes.append(f"{tool_id} does not run as a Python module; not generated")
+            continue
+        path = root / pathlib.Path(*module.split("."))
+        if path.is_dir() or path.with_suffix(".py").exists():
+            continue
+        parent, _, package = module.rpartition(".")
+        missing.append({"tool": tool_id, "module": module})
+        if write:
+            files = scaffold(tool, root, out_dir=parent.replace(".", "/") or ".",
+                             package=package)
+            generated += [str(f.relative_to(root)).replace("\\", "/") for f in files]
+    return {"servers_missing": missing, "generated": generated,
+            "fixtures_missing": _scenario_gaps(bundle, agent), "notes": notes}

@@ -59,6 +59,9 @@ ROSTER: tuple[Station, ...] = (
     # adversarial station, and having the word on both made readers ask which
     # one fans out. ST-05 is one agent whose separateness is the point; ST-06
     # is many agents whose disagreement is the point.
+    # Governed agents only (`orchestrate AGENT-x`): scaffold the MCP servers the
+    # agent's tools need and list missing scenario fixtures. No model: a machine step.
+    Station("ST-04c", "Tools", "servers and fixtures an agent needs", MACHINE),
     Station("ST-05", "Test", "coverage, by a separate author", AGENT,
             "claude-opus-5", "high"),
     Station("ST-06", "Verify", "5 refuting lenses", AGENT, "claude-opus-5", "high"),
@@ -517,7 +520,9 @@ class Orchestrator:
                  required_approvers: list[str] | tuple[str, ...] = (),
                  approvals: list[dict] | None = None,
                  risk: dict | None = None,
-                 on_phase: Callable[[str], None] | None = None):
+                 on_phase: Callable[[str], None] | None = None,
+                 deterministic_lenses: dict[str, Callable[[], dict]] | None = None,
+                 tools_station: Callable[[], dict] | None = None):
         self.runner = runner
         self.brief = brief
         self.resolutions = resolutions or {}
@@ -535,6 +540,11 @@ class Orchestrator:
         self.approvals = list(approvals or [])
         self.risk = dict(risk or {})
         self.on_phase = on_phase or (lambda _phase: None)
+        # Lenses that are code, not models (the policy lens for an agent). They join
+        # Verify alongside the configured lenses and are never dropped by a risk
+        # tier's lens list: they are cheap, exact, and the point of an agent run.
+        self.deterministic_lenses = dict(deterministic_lenses or {})
+        self.tools_station = tools_station
         # Verify fans out across threads, so usage is collected under a lock.
         self._usage: list[dict] = []
         self._usage_lock = threading.Lock()
@@ -610,6 +620,14 @@ class Orchestrator:
             DEVELOP_SCHEMA,
         )
 
+    def tools(self) -> StepResult:
+        """ST-04c, for an agent: generate missing MCP servers, list missing fixtures."""
+        self.on_phase("Tools")
+        try:
+            return StepResult("ST-04c", "Tools", True, self.tools_station())
+        except Exception as exc:
+            return StepResult("ST-04c", "Tools", False, {}, str(exc))
+
     def clean(self, feature: str, dev: dict) -> StepResult:
         """Simplify what Develop produced, without changing what it does.
 
@@ -679,6 +697,17 @@ class Orchestrator:
 
         tasks: list[Callable[[], Verdict]] = [make(lens, ask) for lens, ask in self.lenses]
         names = [lens for lens, _ in self.lenses]
+
+        for name, check in self.deterministic_lenses.items():
+            def det(name: str = name, check: Callable[[], dict] = check) -> Verdict:
+                try:
+                    return Verdict.from_dict(check(), name)
+                except Exception as exc:
+                    # Fail closed: a check that cannot run has not shown the change
+                    # safe. Unlike a model critic, it does not get to abstain.
+                    return Verdict(name, True, "major", f"lens could not run: {exc}")
+            tasks.append(det)
+            names.append(name)
 
         if self.extra_lens is not None:
             def cross() -> Verdict:
@@ -825,6 +854,15 @@ class Orchestrator:
             report.status = "error"
             report.notes.append(f"Develop failed: {dev.error}")
             return
+
+        if self.tools_station is not None:
+            tooling = self.tools()
+            report.steps.append(tooling)
+            if not tooling.ok:
+                report.notes.append(f"Tools could not run: {tooling.error}")
+            else:
+                for gap in tooling.data.get("fixtures_missing") or []:
+                    report.notes.append(f"missing fixture: {gap}")
 
         if self.clean_enabled:
             cleaned = self.clean(feature, dev.data)
