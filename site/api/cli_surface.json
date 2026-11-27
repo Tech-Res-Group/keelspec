@@ -75,6 +75,17 @@
       ],
       "help": "add up the orchestrator runs, or list/show agent run records"
     },
+    "serve": {
+      "flags": [
+        "--any-status",
+        "--fixtures",
+        "--host",
+        "--mcp",
+        "--port",
+        "--runtime-config"
+      ],
+      "help": "serve governed agents over HTTP, or as MCP tools (needs keelspec[runtime])"
+    },
     "simulate": {
       "flags": [
         "--evidence",

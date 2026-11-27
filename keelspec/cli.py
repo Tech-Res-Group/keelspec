@@ -132,6 +132,19 @@ def _build_parser() -> argparse.ArgumentParser:
                      help="also write an evidence record with the results (default: "
                           ".keelspec/evidence/simulation-<time>.json)")
 
+    srv = sub.add_parser("serve", help="serve governed agents over HTTP, or as MCP tools "
+                                       "(needs keelspec[runtime])")
+    srv.add_argument("--host", default="127.0.0.1", help="interface (default: 127.0.0.1)")
+    srv.add_argument("--port", type=int, default=8080, help="port (default: 8080)")
+    srv.add_argument("--mcp", action="store_true",
+                     help="serve each deployed agent as an MCP tool on stdio instead")
+    srv.add_argument("--any-status", action="store_true",
+                     help="serve agents that are not status: deployed (demos only)")
+    srv.add_argument("--fixtures", default=None, metavar="SCN_ID",
+                     help="answer tool calls from this scenario's fixtures (offline demo)")
+    srv.add_argument("--runtime-config", default="keelspec.runtime.yaml",
+                     help="router and telemetry settings (default: keelspec.runtime.yaml)")
+
     apr = sub.add_parser("approvals", help="list, show and sign approval requests")
     apr.add_argument("action", choices=["list", "show", "approve"])
     apr.add_argument("run_id", nargs="?", default=None)
@@ -303,6 +316,77 @@ def _run_with(args, config, bundle, provenance, settings, executor) -> int:
     if result.final_answer:
         print(result.final_answer)
     return 0 if rec.outcome == "completed" else 1
+
+
+def _serve(args, config, registry) -> int:
+    import os
+
+    from .runtime.bundle import BundleRefused, load_bundle
+    from .runtime.fixtures import FixtureExecutor
+    from .runtime.router_client import RouterClient, RuntimeSettings
+    from .runtime.serve import App, ServeRefused, build_mcp_server, make_server
+    try:
+        bundle, provenance = load_bundle(config, args.root, args.config, registry)
+    except BundleRefused as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    report = engine.validate(config, args.root, registry)
+    settings = RuntimeSettings.load(pathlib.Path(args.root) / args.runtime_config)
+    if args.fixtures:
+        try:
+            FixtureExecutor.from_scenario(bundle, args.fixtures)
+        except KeyError as exc:
+            print(str(exc).strip("'\""), file=sys.stderr)
+            return 2
+
+        def executor_factory():
+            return FixtureExecutor.from_scenario(bundle, args.fixtures)
+    else:
+        try:
+            import mcp  # noqa: F401
+
+            from .runtime.mcp_client import MCPExecutor
+        except ImportError:
+            print("serving against tool servers needs the runtime extra:\n\n"
+                  "    pip install 'keelspec[runtime]'\n\nor serve offline with "
+                  "--fixtures SCN-id", file=sys.stderr)
+            return 2
+
+        def executor_factory():
+            return MCPExecutor(args.root)
+    try:
+        app = App(root=pathlib.Path(args.root), bundle=bundle, provenance=provenance,
+                  validation={"ok": report.ok, "errors": len(report.errors),
+                              "warnings": len(report.warnings)},
+                  settings=settings, router_factory=lambda: RouterClient(settings.router),
+                  executor_factory=executor_factory, prices=config.prices,
+                  run_token=os.environ.get("KEELSPEC_SERVE_TOKEN") or None,
+                  approve_token=os.environ.get("KEELSPEC_APPROVER_TOKEN") or None,
+                  any_status=args.any_status)
+        if not app.servable():
+            print("no agent has status: deployed, so there is nothing to serve "
+                  "(--any-status serves them anyway, for a demo)", file=sys.stderr)
+            return 1
+        if args.mcp:
+            build_mcp_server(app).run()
+            return 0
+        server = make_server(app, args.host, args.port)
+    except (ServeRefused, ImportError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    host, port = server.server_address[:2]
+    print(f"── serving {', '.join(sorted(app.servable()))} on http://{host}:{port} "
+          f"(bundle {provenance.get('bundle_sha256', '')[:12]})", file=sys.stderr)
+    if not app.approve_token:
+        print("── approvals over HTTP are off (no KEELSPEC_APPROVER_TOKEN); sign with "
+              "keelspec approvals approve", file=sys.stderr)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.server_close()
+    return 0
 
 
 def _tool_records(args, config) -> dict[str, dict] | None:
@@ -726,6 +810,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "tools":
         return _tools(args, config)
+
+    if args.cmd == "serve":
+        return _with_telemetry(_serve, args, config, registry)
 
     if args.cmd == "simulate":
         return _with_telemetry(_simulate, args, config, registry)

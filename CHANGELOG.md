@@ -23,6 +23,21 @@ actually means.
 
 ### Added
 
+- **Governed agents, M12: `keelspec serve`.** An HTTP API for deployed agents,
+  standard library only: `POST /v1/agents/{id}/runs`, `GET /v1/runs/{id}` (the
+  content-free record and pending approvals), `POST /v1/runs/{id}/approvals`
+  (approve and resume), and `GET /healthz` (bundle sha256 and validate status). It
+  executes the bundle it loaded, refuses to start on one that fails validation,
+  serves only `status: deployed` agents unless `--any-status`, and opens every tool
+  before a run so a drifted server refuses it (PAC-073). Two tokens, kept apart:
+  `KEELSPEC_SERVE_TOKEN` starts runs and is required beyond loopback;
+  `KEELSPEC_APPROVER_TOKEN`, which must differ, is the only way to approve over
+  HTTP, so whoever asks an agent to act cannot approve what it asks for. Bodies are
+  capped at 64 KB, errors never leak a traceback, and the request log carries
+  method, path and status only. `--mcp` serves each deployed agent as one MCP tool
+  on stdio. `infra/agent-runtime/` has a Dockerfile (validates at build, runs as a
+  non-root user, health-checks `/healthz`) and a hosting recipe for your own server
+  or DigitalOcean App Platform.
 - **Governed agents, M11: agent-aware orchestration.** `keelspec orchestrate AGENT-x`
   adds two things to the line. ST-04c Tools, a machine station after Develop, finds
   the MCP servers the agent's tools need that do not exist and scaffolds them (only
