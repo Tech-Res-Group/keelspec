@@ -376,7 +376,6 @@ def test_cli_run_approve_resume_and_runs(project, monkeypatch, capsys):
 
     monkeypatch.setattr(rc, "RouterClient", mocked)
     root = str(project)
-    assert main(["-C", root, "run", AGENT, "Case 88121"]) == 2          # no tool executor
     assert main(["-C", root, "run", AGENT, "Case 88121", "--fixtures", "SCN-ac04-closed-account"]) == 1
     err = capsys.readouterr().err
     run_id = err.split("── run ")[1].split(":")[0]

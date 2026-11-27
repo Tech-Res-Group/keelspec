@@ -1,0 +1,10 @@
+{
+  "AC01": {"name": "IncorrectAccountNumber", "meaning": "Account number is invalid or missing.", "plain": "The account number is wrong; check it with the originator before resending."},
+  "AC04": {"name": "ClosedAccountNumber", "meaning": "Account number specified has been closed on the bank of account's books.", "plain": "The creditor's account is a closed account; the payment cannot be credited and should be returned or redirected."},
+  "AC06": {"name": "BlockedAccount", "meaning": "Account specified is blocked, prohibiting posting of transactions against it.", "plain": "The account is blocked; nothing can be posted to it until the block is lifted."},
+  "AM04": {"name": "InsufficientFunds", "meaning": "Amount of funds available to cover specified message amount is insufficient.", "plain": "There was not enough money to cover the payment."},
+  "AM05": {"name": "Duplication", "meaning": "Duplication.", "plain": "The payment is a duplicate of one already received; it must not be resent."},
+  "BE04": {"name": "MissingCreditorAddress", "meaning": "Specification of creditor's address, which is required for payment, is missing/not correct.", "plain": "The creditor's address is missing or incomplete."},
+  "MS03": {"name": "NotSpecifiedReasonAgentGenerated", "meaning": "Reason has not been specified by agent.", "plain": "The bank gave no reason; ask it through the investigation channel."},
+  "RC01": {"name": "BankIdentifierIncorrect", "meaning": "Bank identifier code specified in the message has an incorrect format or is not valid.", "plain": "The bank identifier (BIC) is wrong."}
+}

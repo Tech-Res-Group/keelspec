@@ -75,6 +75,21 @@
       ],
       "help": "add up the orchestrator runs, or list/show agent run records"
     },
+    "simulate": {
+      "flags": [
+        "--evidence",
+        "--junit"
+      ],
+      "help": "replay scenarios offline with a scripted model"
+    },
+    "tools": {
+      "flags": [
+        "--force",
+        "--json",
+        "--out"
+      ],
+      "help": "check MCP servers against their TOOL- artifacts, or scaffold a server"
+    },
     "validate": {
       "flags": [
         "--json",

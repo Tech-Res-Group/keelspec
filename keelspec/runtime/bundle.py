@@ -24,16 +24,21 @@ def sha256(path: pathlib.Path) -> str:
 
 
 def load_bundle(config: Config, root: str | pathlib.Path = ".", config_path: str | None = None,
-                registry=None) -> tuple[dict, dict]:
-    """The committed bundle and its provenance, or BundleRefused."""
+                registry=None, ignore: tuple[str, ...] = ()) -> tuple[dict, dict]:
+    """The committed bundle and its provenance, or BundleRefused.
+
+    ``ignore`` names codes that do not refuse. Only ``keelspec simulate`` uses it, for
+    PAC-076: missing simulation evidence must not stop the simulation that would
+    produce it."""
     root = pathlib.Path(root)
     if "agents" not in config.presets:
         raise BundleRefused("PAC-079 product.config.yaml does not enable `presets: [agents]`; "
                             "there are no agents to run")
     report = validate(config, root, registry)
-    if report.errors:
-        shown = "; ".join(d.render() for d in report.errors[:5])
-        more = f" (+{len(report.errors) - 5} more)" if len(report.errors) > 5 else ""
+    errors = [d for d in report.errors if d.code not in ignore]
+    if errors:
+        shown = "; ".join(d.render() for d in errors[:5])
+        more = f" (+{len(errors) - 5} more)" if len(errors) > 5 else ""
         raise BundleRefused(f"PAC-079 the bundle fails validation: {shown}{more}")
     out = root / config.output
     bundle = json.loads(out.read_text(encoding="utf-8"))

@@ -212,7 +212,10 @@ def serve(  # pragma: no cover - protocol glue; needs the optional mcp extra
     try:
         # Absolute import: this module is `keelspec.mcp`, the SDK is top-level `mcp`,
         # and Python 3 resolves this to the latter.
-        from mcp.server.fastmcp import FastMCP
+        try:
+            from mcp.server.mcpserver import MCPServer as FastMCP  # mcp 2.x
+        except ImportError:
+            from mcp.server.fastmcp import FastMCP  # mcp 1.x
     except ImportError:  # pragma: no cover - depends on an optional extra
         import sys
 

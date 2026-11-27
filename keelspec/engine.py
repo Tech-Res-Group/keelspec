@@ -212,7 +212,7 @@ def validate(config: Config, root: str | pathlib.Path = ".", registry=None) -> R
     # library checks for governed agents (PAC-070..077), only with `presets: [agents]`.
     from . import agents
     if agents.enabled(config):
-        agents.validate(bundle, config, report)
+        agents.validate(bundle, config, report, pathlib.Path(root))
 
     # plugin validators — project-specific cross-file / graph checks.
     if registry:

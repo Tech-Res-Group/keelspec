@@ -1,0 +1,27 @@
+{
+  "E2E-77F": {
+    "end_to_end_id": "E2E-77F",
+    "message_type": "pacs.008",
+    "amount_minor": 125000,
+    "currency": "EUR",
+    "debtor": {"name": "Halden Tooling GmbH", "account": "DE89370400440532013000"},
+    "creditor": {"name": "Marta Ilves", "account": "EE382200221020145685"},
+    "remittance": "INV-2231",
+    "postings": [
+      {"at": "2026-11-20T09:14:02Z", "kind": "debit", "amount_minor": 125000, "settled": false}
+    ]
+  },
+  "E2E-91C": {
+    "end_to_end_id": "E2E-91C",
+    "message_type": "pacs.008",
+    "amount_minor": 4000,
+    "currency": "EUR",
+    "debtor": {"name": "Okafor Logistics Ltd", "account": "GB33BUKB20201555555555"},
+    "creditor": {"name": "Brightwater Utilities", "account": "IE29AIBK93115212345678"},
+    "remittance": "ACC 5512 NOV",
+    "postings": [
+      {"at": "2026-11-18T16:40:11Z", "kind": "debit", "amount_minor": 4000, "settled": true},
+      {"at": "2026-11-19T08:02:55Z", "kind": "debit", "amount_minor": 4000, "settled": false}
+    ]
+  }
+}

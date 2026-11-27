@@ -1,0 +1,20 @@
+{
+  "88121": {
+    "case_id": "88121",
+    "end_to_end_id": "E2E-77F",
+    "status": "RJCT",
+    "reason": "AC04",
+    "opened": "2026-11-20T09:20:41Z",
+    "customer": {"name": "Halden Tooling GmbH", "email": "payments@halden.example"},
+    "message": "<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:pacs.002.001.10\"><FIToFIPmtStsRpt><TxInfAndSts><OrgnlEndToEndId>E2E-77F</OrgnlEndToEndId><TxSts>RJCT</TxSts><StsRsnInf><Rsn><Cd>AC04</Cd></Rsn></StsRsnInf></TxInfAndSts></FIToFIPmtStsRpt></Document>"
+  },
+  "88140": {
+    "case_id": "88140",
+    "end_to_end_id": "E2E-91C",
+    "status": "RJCT",
+    "reason": "AM05",
+    "opened": "2026-11-19T08:05:12Z",
+    "customer": {"name": "Okafor Logistics Ltd", "email": "ap@okafor.example"},
+    "message": "<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:pacs.002.001.10\"><FIToFIPmtStsRpt><TxInfAndSts><OrgnlEndToEndId>E2E-91C</OrgnlEndToEndId><TxSts>RJCT</TxSts><StsRsnInf><Rsn><Cd>AM05</Cd></Rsn></StsRsnInf></TxInfAndSts></FIToFIPmtStsRpt></Document>"
+  }
+}

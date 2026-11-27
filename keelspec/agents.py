@@ -18,10 +18,16 @@ Codes raised here:
 - PAC-074  a high-criticality agent can reach a money operation with no
            ``require_approval`` or ``deny`` in front of it
 - PAC-075  an agent with no scenarios (warning)
+- PAC-076  an agent marked ``simulated`` or ``deployed`` whose scenarios have no
+           passing simulation evidence (only when ``.keelspec/evidence`` holds
+           simulation evidence at all)
 - PAC-077  a scenario names a tool operation its agent cannot call
 """
 from __future__ import annotations
 
+import hashlib
+import json
+import pathlib
 import re
 from typing import Any
 
@@ -153,8 +159,38 @@ def _ref(text: Any) -> tuple[str, str] | None:
     return tool, op
 
 
+def simulation_evidence(root: pathlib.Path) -> dict[str, dict] | None:
+    """The latest simulation result per scenario id, from the evidence records in
+    ``.keelspec/evidence`` (``keelspec simulate --evidence``); None when there is no
+    simulation evidence at all."""
+    latest: dict[str, dict] = {}
+    records = []
+    for path in sorted((root / ".keelspec" / "evidence").glob("*.json")):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(data, dict) and isinstance(data.get("simulation"), dict):
+            records.append(data)
+    if not records:
+        return None
+    for rec in sorted(records, key=lambda r: str(r.get("generated_at", ""))):
+        for scn in rec["simulation"].get("scenarios") or []:
+            if isinstance(scn, dict) and scn.get("id"):
+                latest[scn["id"]] = scn
+    return latest
+
+
+def _digest(path: pathlib.Path) -> str | None:
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    except OSError:
+        return None
+
+
 # ── the checks ───────────────────────────────────────────────────────────────
-def validate(bundle: dict, config: Config, report: Report) -> None:
+def validate(bundle: dict, config: Config, report: Report,
+             root: pathlib.Path | None = None) -> None:
     """Run PAC-070..PAC-077 over a loaded bundle. Called by ``engine.validate``."""
     tools = {r["id"]: r for r in bundle.get("tools", []) if r.get("id")}
     policies = {r["id"]: r for r in bundle.get("policies", []) if r.get("id")}
@@ -181,6 +217,38 @@ def validate(bundle: dict, config: Config, report: Report) -> None:
         agent = agents.get(scn.get("agent"))
         if agent is not None:
             _check_scenario(scn, agent, tools, report)
+
+    if root is not None:
+        _check_evidence(agents, scenarios, root, report)
+
+
+def _check_evidence(agents: dict, scenarios: list, root: pathlib.Path, report: Report) -> None:
+    """PAC-076: an agent marked simulated or deployed needs every one of its scenarios
+    to have passed simulation, on the scenario file as it is now."""
+    evidence = simulation_evidence(root)
+    if evidence is None:
+        return
+    by_id = {s["id"]: s for s in scenarios if s.get("id")}
+    for agent in agents.values():
+        status = agent.get("status")
+        if status not in ("simulated", "deployed"):
+            continue
+        ids = list(dict.fromkeys(_as_list(agent.get("scenarios")) +
+                                 [s["id"] for s in scenarios if s.get("agent") == agent["id"]]))
+        for sid in ids:
+            scn, entry = by_id.get(sid), evidence.get(sid)
+            if scn is None:
+                continue
+            if entry is None:
+                why = "has no simulation evidence"
+            elif entry.get("result") != "pass":
+                why = "failed its last simulation"
+            elif entry.get("sha256") != _digest(root / scn.get("_file", "")):
+                why = "changed since it last passed simulation"
+            else:
+                continue
+            report.add("PAC-076", f"{agent['id']} is {status} but {sid} {why}", agent["_file"],
+                       field="status", value=str(status))
 
 
 def _check_agent(agent: dict, tools: dict, policies: dict, scenarios: list,

@@ -23,6 +23,42 @@ actually means.
 
 ### Added
 
+- **Governed agents, M9: simulation and evidence.** `keelspec simulate [AGENT-x|SCN-y]`
+  replays scenarios offline through the real agent loop (policy engine, budgets,
+  redaction, run records), with tools answering from the scenario's `fixtures` and
+  the model replaced by a deterministic scripted model that is naive on purpose: it
+  calls every read it can fill arguments for and obeys any instruction it finds in
+  tool data. A passing scenario therefore shows the policy holding, not a model
+  behaving; in the example's injection scenario it really does ask for
+  `release_funds` and `POL-no-funds-movement` denies it. The `expect` keys
+  (`must_call`, `must_not_call`, `call_order`, `policy_decisions`, `outcome`,
+  `final_answer_contains`, `final_answer_not_contains`, `max_steps`,
+  `max_cost_usd`) are deterministic checks on the run record; "called" means the tool
+  ran. A `judge` block is reported and never gates. `--junit PATH` writes JUnit XML;
+  `--evidence [PATH]` writes an evidence record with a `simulation` block (each
+  scenario's file digest and result), and `keelspec evidence --verify` now checks
+  those digests too. PAC-076: an agent marked `simulated` or `deployed` whose
+  scenarios lack passing simulation evidence on their current contents is an error,
+  judged only when `.keelspec/evidence` holds simulation evidence; `simulate` itself
+  is not refused by PAC-076, since it produces the evidence that clears it. The
+  GitHub Action takes `simulate: true` (and `junit:`) to replay scenarios in CI with
+  no API key and no network.
+- **Governed agents, M8: the MCP client and tool scaffolding.** `keelspec run` without
+  `--fixtures` reaches each tool through MCP (stdio or streamable HTTP; one session
+  per TOOL- artifact, closed when the run ends; HTTP servers receive the run's
+  `traceparent`). Every session lists the server's tools and refuses to start on any
+  difference from the artifact's `operations` (PAC-073), and a run opens its tools
+  before the model is asked anything. `timeout_seconds` bounds every call (a
+  `timeout` step) and `max_result_bytes` truncates with an explicit marker (a
+  `truncated` step). `keelspec tools check [TOOL-x ...]` runs the PAC-073 comparison
+  without an agent. `keelspec tools scaffold TOOL-x` generates a Python MCP server
+  under `servers/<slug>/` whose tool names, docstrings and typed arguments come from
+  the artifact (operations may now carry `description` and `input_schema`, which the
+  model is also shown), with a test that its tool list matches the artifact. The
+  example ships three reference servers built that way, backed by JSON fixtures:
+  payments ledger, ISO 20022 parser (pacs.002 / pacs.008, reason codes) and case
+  management, which implements `release_funds` so the policy, not the tool, is what
+  stops it.
 - **Governed agents, v2 milestone M5: the artifact types.** `presets: [agents]` in
   `product.config.yaml` adds four ordinary types, `agents` (AGENT-), `tools` (TOOL-),
   `policies` (POL-) and `scenarios` (SCN-), and turns on library checks inside
@@ -51,7 +87,7 @@ actually means.
   schema; `--capture-content` writes content to a separate `content.jsonl` and the
   record says so. `keelspec runs list|show` reads them; plain `keelspec runs` still
   prints the line summary. Tools answer from scenario fixtures (`--fixtures SCN-x`)
-  until the MCP client lands in M8.
+  or, from M8, from MCP servers.
 - **Governed agents, M6: the policy engine.** `keelspec.runtime.policy` decides one
   tool call from the agent's linked policies: matching, `when` conditions (ANDed;
   `== != > >= < <= in not_in matches exists`, no eval), precedence
@@ -125,6 +161,14 @@ actually means.
 
 - The Disambiguate gate file keeps every question when it is rewritten, not just
   the unresolved ones, so answers already given are no longer dropped.
+
+- The `runtime` extra now requires `mcp>=2.0` (the client uses the 2.x `Client`
+  API). The `mcp` extra for `keelspec mcp` still accepts 1.x.
+
+### Fixed
+
+- `keelspec mcp` works with the MCP SDK 2.x, where `FastMCP` became `MCPServer`; it
+  still works with 1.x.
 
 ## [0.7.0] — 2026-09-14
 

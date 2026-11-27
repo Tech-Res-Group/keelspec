@@ -5,6 +5,8 @@
     keelspec validate --watch            # the same gate, on every save
     keelspec evidence -o build/ev.json   # content-addressed audit record
     keelspec runs                        # what the agent-built line has been doing
+    keelspec simulate                    # replay agent scenarios offline
+    keelspec tools check                 # MCP servers vs their TOOL- artifacts (PAC-073)
     keelspec lsp                         # language server, on stdio
     keelspec mcp                         # the graph as tools, for an agent
     keelspec -c product.config.yaml -p product_hooks.py validate
@@ -14,6 +16,7 @@ Exit code is non-zero iff validation found errors — wire ``keelspec validate``
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import pathlib
 import sys
@@ -110,6 +113,25 @@ def _build_parser() -> argparse.ArgumentParser:
     run.add_argument("--runtime-config", default="keelspec.runtime.yaml",
                      help="router and telemetry settings (default: keelspec.runtime.yaml)")
 
+    tl = sub.add_parser("tools", help="check MCP servers against their TOOL- artifacts, "
+                                      "or scaffold a server")
+    tl.add_argument("action", choices=["check", "scaffold"])
+    tl.add_argument("tool_ids", nargs="*", metavar="TOOL_ID",
+                    help="check: these tools (default: all); scaffold: exactly one")
+    tl.add_argument("--out", default="servers",
+                    help="scaffold: directory the server package goes under (default: servers)")
+    tl.add_argument("--force", action="store_true", help="scaffold: overwrite existing files")
+    tl.add_argument("--json", action="store_true", dest="as_json",
+                    help="check: emit findings as JSON")
+
+    sim = sub.add_parser("simulate", help="replay scenarios offline with a scripted model")
+    sim.add_argument("target", nargs="?", default=None,
+                     help="an agent (AGENT-x) or one scenario (SCN-y); default: every scenario")
+    sim.add_argument("--junit", default=None, metavar="PATH", help="also write JUnit XML here")
+    sim.add_argument("--evidence", nargs="?", const="", default=None, metavar="PATH",
+                     help="also write an evidence record with the results (default: "
+                          ".keelspec/evidence/simulation-<time>.json)")
+
     apr = sub.add_parser("approvals", help="list, show and sign approval requests")
     apr.add_argument("action", choices=["list", "show", "approve"])
     apr.add_argument("run_id", nargs="?", default=None)
@@ -175,12 +197,9 @@ def _brief(config, bundle: dict, feature: str) -> str:
 
 
 def _run_agent(args, config, registry) -> int:
-    from .runtime import approvals as _ap
-    from .runtime.agent import ApprovalPending, resume_agent, run_agent, system_prompt
     from .runtime.bundle import BundleRefused, load_bundle
     from .runtime.fixtures import FixtureExecutor
-    from .runtime.policy import AgentPolicies
-    from .runtime.router_client import RouterClient, RuntimeSettings, new_traceparent
+    from .runtime.router_client import RuntimeSettings
 
     if bool(args.resume) == bool(args.agent):
         print("give an agent and input, or --resume RUN_ID", file=sys.stderr)
@@ -196,15 +215,49 @@ def _run_agent(args, config, registry) -> int:
     settings = RuntimeSettings.load(pathlib.Path(args.root) / args.runtime_config)
     if args.capture_content:
         settings.capture_content = True
-    if not args.fixtures:
-        print("tool servers are reached through the MCP client, which arrives in "
-              "milestone M8; run offline with --fixtures SCN-id", file=sys.stderr)
-        return 2
-    try:
-        executor = FixtureExecutor.from_scenario(bundle, args.fixtures)
-    except KeyError as exc:
-        print(str(exc).strip("'\""), file=sys.stderr)
-        return 2
+    if args.fixtures:
+        try:
+            executor = FixtureExecutor.from_scenario(bundle, args.fixtures)
+        except KeyError as exc:
+            print(str(exc).strip("'\""), file=sys.stderr)
+            return 2
+    else:
+        try:
+            import mcp  # noqa: F401  (fail early, with the install hint)
+
+            from .runtime.mcp_client import MCPExecutor
+        except ImportError:
+            print("running against tool servers needs the runtime extra:\n\n"
+                  "    pip install 'keelspec[runtime]'\n\nor run offline with "
+                  "--fixtures SCN-id", file=sys.stderr)
+            return 2
+        executor = MCPExecutor(args.root)
+    with contextlib.ExitStack() as stack:
+        if hasattr(executor, "close"):
+            stack.callback(executor.close)
+        return _run_with(args, config, bundle, provenance, settings, executor)
+
+
+def _run_with(args, config, bundle, provenance, settings, executor) -> int:
+    from .runtime import approvals as _ap
+    from .runtime.agent import ApprovalPending, resume_agent, run_agent, system_prompt
+    from .runtime.fixtures import ToolError
+    from .runtime.policy import AgentPolicies
+    from .runtime.router_client import RouterClient, new_traceparent
+
+    if args.agent and hasattr(executor, "open"):
+        # Open every declared tool's session first: a drifted server refuses the run
+        # before the model sees anything (PAC-073).
+        try:
+            ap = AgentPolicies.from_bundle(bundle, args.agent)
+            for tool in ap.tools.values():
+                executor.open(tool)
+        except KeyError as exc:
+            print(str(exc).strip("'\""), file=sys.stderr)
+            return 1
+        except ToolError as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
     router = RouterClient(settings.router)
     kw = {"root": args.root, "router": router, "executor": executor, "settings": settings,
           "prices": config.prices}
@@ -238,6 +291,119 @@ def _run_agent(args, config, registry) -> int:
     if result.final_answer:
         print(result.final_answer)
     return 0 if rec.outcome == "completed" else 1
+
+
+def _tool_records(args, config) -> dict[str, dict] | None:
+    if "agents" not in config.presets:
+        print("product.config.yaml does not enable `presets: [agents]`; there are no "
+              "TOOL- artifacts", file=sys.stderr)
+        return None
+    return {r["id"]: r for r in engine.load(config, args.root).get("tools", []) if r.get("id")}
+
+
+def _tools(args, config) -> int:
+    tools = _tool_records(args, config)
+    if tools is None:
+        return 2
+    unknown = [t for t in args.tool_ids if t not in tools]
+    if unknown:
+        print(f"no tool {', '.join(unknown)} (known: {', '.join(sorted(tools)) or 'none'})",
+              file=sys.stderr)
+        return 2
+
+    if args.action == "scaffold":
+        from .runtime.scaffold import scaffold
+        if len(args.tool_ids) != 1:
+            print("tools scaffold takes exactly one TOOL id", file=sys.stderr)
+            return 2
+        try:
+            written = scaffold(tools[args.tool_ids[0]], args.root, args.out, args.force)
+        except FileExistsError as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+        for path in written:
+            print(f"wrote {path}")
+        return 0
+
+    try:
+        import mcp  # noqa: F401
+
+        from .runtime.mcp_client import MCPExecutor, drift
+    except ImportError:
+        print("tools check connects to MCP servers and needs the runtime extra:\n\n"
+              "    pip install 'keelspec[runtime]'\n", file=sys.stderr)
+        return 2
+    from .diagnostics import Report
+    from .runtime.fixtures import ToolError
+    report, unreachable = Report(), []
+    with MCPExecutor(args.root) as ex:
+        for tool_id in args.tool_ids or sorted(tools):
+            tool = tools[tool_id]
+            try:
+                names = ex.tool_names(tool)
+            except ToolError as exc:
+                unreachable.append(str(exc))
+                continue
+            for problem in drift(tool, names):
+                report.add("PAC-073", problem, tool.get("_file", ""), field="operations")
+    if args.as_json:
+        json.dump({"findings": [{"code": d.code, "where": d.where, "message": d.message}
+                                for d in report.diagnostics],
+                   "unreachable": unreachable}, sys.stdout, indent=2)
+        sys.stdout.write("\n")
+    else:
+        for d in report.diagnostics:
+            print(d.render())
+        for line in unreachable:
+            print(f"cannot check: {line}")
+        checked = len(args.tool_ids or tools) - len(unreachable)
+        print(f"keelspec tools: {checked} server(s) checked, {len(report.diagnostics)} "
+              f"PAC-073 finding(s), {len(unreachable)} unreachable", file=sys.stderr)
+    return 1 if report.diagnostics or unreachable else 0
+
+
+def _simulate(args, config, registry) -> int:
+    from datetime import datetime, timezone
+
+    from .runtime import simulate as sim
+    from .runtime.bundle import BundleRefused, load_bundle
+    try:
+        bundle, provenance = load_bundle(config, args.root, args.config, registry,
+                                         ignore=("PAC-076",))
+    except BundleRefused as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    try:
+        results = sim.simulate(bundle, provenance, args.target)
+    except KeyError as exc:
+        print(str(exc).strip("'\""), file=sys.stderr)
+        return 2
+    for r in results:
+        print(f"{'PASS' if r.passed else 'FAIL'}  {r.scenario_id}  ({r.agent_id}, "
+              f"{r.outcome}, {r.steps} step(s))")
+        for failure in r.failures:
+            print(f"      {failure}")
+        for note in r.notes:
+            print(f"      note: {note}")
+    passed = sum(r.passed for r in results)
+    print(f"keelspec simulate: {passed}/{len(results)} scenario(s) passed "
+          f"(model: {sim.SCRIPTED_MODEL})", file=sys.stderr)
+    if args.junit:
+        out = pathlib.Path(args.root) / args.junit
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(sim.junit(results), encoding="utf-8", newline="\n")
+        print(f"wrote {out}", file=sys.stderr)
+    if args.evidence is not None:
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        rel = args.evidence or f".keelspec/evidence/simulation-{stamp}.json"
+        record = evidence.build_record(config, args.root, registry,
+                                       simulation=sim.evidence_section(results, args.root,
+                                                                       provenance))
+        out = pathlib.Path(args.root) / rel
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(evidence.render(record), encoding="utf-8", newline="\n")
+        print(f"wrote {out}", file=sys.stderr)
+    return 0 if passed == len(results) else 1
 
 
 def _approvals(args) -> int:
@@ -526,6 +692,12 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "approvals":
         return _approvals(args)
+
+    if args.cmd == "tools":
+        return _tools(args, config)
+
+    if args.cmd == "simulate":
+        return _simulate(args, config, registry)
 
     if args.cmd == "runs" and args.action:
         from .runtime import records

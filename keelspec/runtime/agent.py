@@ -123,6 +123,12 @@ class _Run:
             fh.write(json.dumps({"ref": ref, "content": payload}, default=str) + "\n")
         return ref
 
+    def _share_trace(self) -> None:
+        """HTTP tool servers get the run's trace context too (an executor that has a
+        ``traceparent`` attribute reads it when it opens a session)."""
+        if hasattr(self.executor, "traceparent"):
+            self.executor.traceparent = self.traceparent
+
     def _tick(self):
         self.usage.wall_seconds = self.wall_before + (time.monotonic() - self.usage.started)
 
@@ -130,6 +136,7 @@ class _Run:
     def start(self, text: str, run_id: str | None = None) -> RunResult:
         self.run_id = run_id or f"{self.agent['id']}-{uuid.uuid4().hex[:12]}"
         self.traceparent = new_traceparent()
+        self._share_trace()
         self.started_at = _now()
         self.usage, self.wall_before = Usage(), 0.0
         self.messages = [{"role": "system", "content": system_prompt(self.bundle, self.agent)},
@@ -142,6 +149,7 @@ class _Run:
             raise KeyError(f"run {run_id} is not paused")
         state = json.loads(state_path.read_text(encoding="utf-8"))
         self.run_id, self.traceparent = run_id, state["traceparent"]
+        self._share_trace()
         self.started_at, self.messages = state["started_at"], state["messages"]
         self.content_n = state.get("content_n", 0)
         self.steps = [StepRecord(**{**s, "policy_ids": tuple(s["policy_ids"])})

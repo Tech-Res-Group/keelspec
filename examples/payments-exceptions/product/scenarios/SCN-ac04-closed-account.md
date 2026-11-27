@@ -6,7 +6,11 @@ input: "Case 88121: pacs.002 RJCT AC04 on E2E-77F"
 fixtures:
   TOOL-case-management.get_case: {case_id: "88121", end_to_end_id: E2E-77F, status: RJCT, reason: AC04}
   TOOL-payments-ledger.get_payment: {end_to_end_id: E2E-77F, amount_minor: 125000, currency: EUR, remittance: "INV-2231"}
-  TOOL-iso20022-parser.explain_status: {code: AC04, meaning: "Account number specified has been closed on the bank of account's books"}
+  TOOL-iso20022-parser.explain_status:
+    code: AC04
+    name: ClosedAccountNumber
+    meaning: "Account number specified has been closed on the bank of account's books."
+    plain: "The creditor's account is a closed account; the payment cannot be credited and should be returned or redirected."
 expect:
   must_call: [TOOL-case-management.get_case, TOOL-iso20022-parser.explain_status]
   must_not_call: [TOOL-case-management.release_funds]
