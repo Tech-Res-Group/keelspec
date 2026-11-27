@@ -1,0 +1,128 @@
+{
+  "features": [
+    {
+      "_file": "product/features/FEAT-builder-adapters.md",
+      "acceptance": [
+        "`keelspec orchestrate FEAT-x --builder claude-code` (and `codex`) runs ST-04 through that agent's headless CLI in an isolated git worktree, and every other station is unchanged.",
+        "The Develop result (files_changed, diff_summary) is computed from the worktree's actual git diff, never from the agent's own report of what it did.",
+        "A diff that touches product_dir, the committed bundle, .keelspec/ or CI config fails Develop (NFR-external-builder-contained).",
+        "Devin and Copilot coding agent run as asynchronous adapters: open the task, wait with a timeout for the branch or PR, fetch its diff, and abstain cleanly on timeout.",
+        "The run record names the builder, its version and the worktree commit, so `keelspec runs` can split first-pass rate by builder.",
+        "AI-GOVERNANCE.md's data table lists, per adapter, what leaves the machine and to whom.",
+        "No new runtime dependency: adapters shell out to the agent's own CLI or call its HTTP API with the standard library, matching CrossProviderLens."
+      ],
+      "body": "**Already exists.** The `Runner` protocol (`keelspec/orchestration.py`, \"the runner\nseam\") already lets a project replace any station. `CodingRunner` and\n`OpenAICodingRunner` (`keelspec/coding.py`) run Develop as a bounded tool loop through\na `Sandbox`. `DEVELOP_SCHEMA` is the contract Develop must return. `StubRunner` and\n`--dry-run` give an offline test path. `--write` is already opt-in.\n\n**Genuinely new.** (1) A `--builder` choice in the CLI, which today always wires\n`CodingRunner`. (2) Worktree isolation plus diff-based accounting, because external\nagents bring their own shell, so the `Sandbox` guarantee no longer holds (see the NFR).\n(3) Asynchronous, PR-based adapters for Devin and Copilot, which do not fit a\nsynchronous `run()` call. (4) Builder identity on the run record.\n\n**Order.** Claude Code and Codex first: both have local headless CLIs, so they fit\n`run()` directly. Devin and Copilot second, once the async shape is settled.\n\n**Decided (2026-11-16).** KeelSpec never handles credentials. Each adapter runs the\nagent's own CLI, which authenticates however it is configured: a personal login on a\nlaptop, or an API key or service account in CI. The run record names the builder.\n\n**Built (unreleased).** Phase 1: `--builder claude-code` and `--builder codex`\n(`keelspec/builders.py`, `tests/test_builders.py`). When the builder and critics share\na vendor, the run record says so. A risk tier can make it a hard rule with `independent_critic: true`.\nDevin and Copilot (async, PR-based) are phase 2.",
+      "customer_impact": "high",
+      "data": "financial",
+      "id": "FEAT-builder-adapters",
+      "nfrs": [
+        "NFR-external-builder-contained"
+      ],
+      "outcome": "OUT-agent-changes-pass-risk-review",
+      "owner": null,
+      "reversible": true,
+      "rollback": null,
+      "runbook": null,
+      "status": "building",
+      "title": "Ready-made builder adapters at ST-04 Develop (Claude Code, Codex, Devin, Copilot coding agent)"
+    },
+    {
+      "_file": "product/features/FEAT-factory-metrics.md",
+      "acceptance": [
+        "`keelspec runs --json` reports a rejection rate per lens: blocker or major refutations divided by verdicts cast, with abstentions counted separately.",
+        "Spec-drift rate: the share of evidence records in a window whose findings include PAC-060 (or any PAC-0xx), read from records CI keeps under a configured directory.",
+        "Review load per feature: needs-human runs, ST-02 questions asked, and approvals required versus given, all read from files the line already writes.",
+        "Every runner records token usage per station on the run record. Cost is computed from a price table in config, never hard-coded, and is reported as unknown when the table is absent.",
+        "A run links to its merged PR through a commit trailer (KeelSpec-Run: <run id>) that orchestrate prints for a proposed run, so cost per merged PR needs no GitHub API.",
+        "The metrics schema moves to keelspec-metrics/2, and /1 fields stay unchanged."
+      ],
+      "body": "**Already exists.** `keelspec/metrics.py` and `keelspec runs` report runs, status mix,\nfirst-pass rate, repair rate, mean repair rounds, refutations by lens (counts), triage\ncauses, risk-tier mix and median duration, as `keelspec-metrics/1`. Run records already\nhold verdicts, triage, approvals and timings. Evidence records already hold findings by\ncode.\n\n**Genuinely new.** (1) Rates rather than counts for the critics. (2) Drift needs a\n*history* of evidence records, and today nothing keeps one: `keelspec evidence` writes a\nsingle file. (3) Token usage is not captured anywhere yet: the runners set `max_tokens`\nbut do not record usage. (4) Linking a run to a merged PR.\n\n**Built (unreleased).** All six criteria, in `keelspec/metrics.py` and\n`tests/test_metrics.py`. The line never commits, so it prints the trailer rather than\nwriting it; a person, or the tooling that opens the PR, puts it on the commit. The\ncross-provider critic's call is not yet metered: it bypasses the station runner.",
+      "customer_impact": "low",
+      "data": "internal",
+      "id": "FEAT-factory-metrics",
+      "nfrs": null,
+      "outcome": "OUT-agent-changes-pass-risk-review",
+      "owner": null,
+      "reversible": true,
+      "rollback": null,
+      "runbook": null,
+      "status": "building",
+      "title": "Factory metrics: critic rejection rate, spec-drift rate, review load, cost per merged PR"
+    },
+    {
+      "_file": "product/features/FEAT-hosted-dashboard.md",
+      "acceptance": [
+        "Runs entirely inside the customer's network. No data reaches the vendor, and the CLI never phones home.",
+        "Collects keelspec-evidence and keelspec-metrics JSON from every repository (through an opt-in `upload:` input on the GitHub Action, off by default) and re-verifies each evidence record's digests on arrival.",
+        "Retains and searches evidence, run records and approvals across repositories, so an audit question is answered without opening each repo.",
+        "Central policy: risk tiers and required approvers set once for the organisation, and a repository cannot loosen them.",
+        "Approvals signed through SSO identities with role-based access, replacing the self-asserted name in a commit.",
+        "Exports evidence in a form the customer's audit and GRC tooling can ingest.",
+        "A hosted tier with the same features comes later, for teams that can use SaaS. Selling it to regulated buyers would need SOC 2 or equivalent first."
+      ],
+      "body": "**Decided (2026-11-16).** For regulated industries (banks and payments first, then\ninsurance, healthcare and medical devices, government suppliers and audited public\ncompanies), the paid product is a **self-hosted enterprise edition**. The open-source\ncore stays Apache-2.0 and complete for one repository; the paid edition adds what only\nmatters across many repositories and to an auditor. Start with paid support and\nonboarding for the first two or three regulated customers, and build the edition from\nwhat they ask for.\n\n**Already exists.** Stable, versioned JSON: `keelspec-evidence/1` (content-addressed and\nverifiable) and `keelspec-metrics/1`. The reusable GitHub Action as the collection point.\n\n**Genuinely new.** All of it: the service, storage and retention, policy, SSO and RBAC,\nexport, packaging for self-hosting. It should wait for FEAT-factory-metrics.\n\n**Licence note.** The core is Apache-2.0, not LGPL. The moat is the enterprise edition\nand the support, not the licence.",
+      "customer_impact": "medium",
+      "data": "internal",
+      "id": "FEAT-hosted-dashboard",
+      "nfrs": null,
+      "outcome": "OUT-agent-changes-pass-risk-review",
+      "owner": null,
+      "reversible": true,
+      "rollback": null,
+      "runbook": null,
+      "status": "idea",
+      "title": "Enterprise edition: self-hosted first, a hosted tier later"
+    },
+    {
+      "_file": "product/features/FEAT-ticket-intake.md",
+      "acceptance": [
+        "`keelspec intake <issue URL | LIN-123 | JIRA-KEY>` writes product/features/FEAT-<slug>.md with status `idea`, a link back to the ticket, and acceptance criteria as bare strings, and the result passes `keelspec validate`.",
+        "Field mapping lives in product.config.yaml (an `intake:` block naming the target type and fields), so intake never writes a field the project's schema does not declare.",
+        "Without `--draft`, intake is deterministic and sends ticket content to no model.",
+        "With `--draft`, a model proposes acceptance criteria and writes what it could not determine as ST-02 questions in .keelspec/disambiguations/, rather than inventing answers. It never fills in an approval.",
+        "The feature file is the source of truth. Each imported file records its ticket key and the ticket revision it was last synced from.",
+        "`keelspec intake --sync` detects every ticket whose revision has moved and turns each change into a proposed edit to the feature file, on a branch and pull request. It never writes to the default branch. The edit meets `keelspec validate` and a human merge like any other change.",
+        "If the ticket and the file have both changed since the last sync, the sync shows both sides and stops for a person. It never picks a winner.",
+        "Sync can run from a scheduled CI job or from a tracker webhook, and the result is identical either way.",
+        "Write-back to the ticket is limited to a link to the feature file and its status. The ticket never overrides the file.",
+        "Credentials come from the environment only (GH_TOKEN, LINEAR_API_KEY, JIRA_*), and no new runtime dependency is added."
+      ],
+      "body": "**Built (unreleased), GitHub Issues and Jira.** `keelspec/intake.py`,\n`tests/test_intake.py`. Sync produces a reviewed proposal: `--apply` writes the change\nand is refused on the default branch, and the branch, commit and pull request are left\nto the person or the CI job that runs it. Not built yet: Linear, the optional `--draft`\nmodel step, write-back of the file link and status to the ticket, and a ready-made\nscheduled workflow.\n\n**Already exists.** The `features` type with a required `acceptance` list, where bare\nstrings are allowed while drafting (PAC-900 fires only at `shipped`). `status: idea`.\nST-01 Understand reads the graph. ST-02 Disambiguate already has the questions file\nand named approvals by role. The MCP server exposes the graph read-only, so an agent\ncan find valid ids instead of inventing them.\n\n**Genuinely new.** Everything about tickets: the command, the three source clients\n(start with GitHub Issues, then Linear, then Jira), the config mapping, re-import\nbehaviour, and the optional drafting step. Nothing in `keelspec/` touches an issue\ntracker today.\n\n**Decided (2026-11-16).** The feature file is the source of truth. A ticket is an input\nchannel: every change to it must reach the file, but only as a proposed change that\npasses the gate and a human merge. That is product-as-code applied to intake, because\nnothing becomes intent without a reviewed commit.",
+      "customer_impact": "medium",
+      "data": "internal",
+      "id": "FEAT-ticket-intake",
+      "nfrs": null,
+      "outcome": "OUT-agent-changes-pass-risk-review",
+      "owner": null,
+      "reversible": true,
+      "rollback": null,
+      "runbook": null,
+      "status": "building",
+      "title": "Intake that turns GitHub Issues, Linear or Jira tickets into draft feature files"
+    }
+  ],
+  "nfrs": [
+    {
+      "_file": "product/nfrs/NFR-external-builder-contained.md",
+      "body": "Today's Develop sandbox (keelspec/coding.py) guarantees list/read/write only, inside the\nproject root, with no shell, network or delete. Claude Code, Codex, Devin and Copilot's\nagent all have a shell, and most have network access. The guarantee therefore has to\nmove from \"what tools the agent has\" to \"what diff we accept\", or the pitch \"KeelSpec\ndecides what merges\" is false for the very agents it names.",
+      "category": "security",
+      "evidence": null,
+      "id": "NFR-external-builder-contained",
+      "threshold": "An external agent's work reaches the line only as the git diff of an isolated worktree. A diff that touches product_dir, the committed bundle, .keelspec/, or CI configuration fails the Develop step.",
+      "title": "An external builder cannot edit what it is judged against"
+    }
+  ],
+  "note": "AUTO-GENERATED by KeelSpec (keelspec build). Do not edit by hand — edit the product/ source files and rerun.",
+  "outcomes": [
+    {
+      "_file": "product/outcomes/OUT-agent-changes-pass-risk-review.md",
+      "baseline": "not measured yet (pharthing / KibiPay is the one known case)",
+      "body": "The first audience already uses coding agents and cannot get their output past risk\nand compliance. Each roadmap item below exists to move this number, and none of them\nis worth building if it does not.",
+      "id": "OUT-agent-changes-pass-risk-review",
+      "metric": "repositories in payments or financial services running `keelspec validate` as a required check on pull requests opened by coding agents",
+      "owner": "product-owner",
+      "target": "to be set by the product owner",
+      "title": "Regulated teams merge agent-built changes with KeelSpec as the required check"
+    }
+  ]
+}

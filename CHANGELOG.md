@@ -10,6 +10,239 @@ description of the present. The format follows
 meaning gets a new code and the old one is retired. Changing the JSON bundle shape, a
 config key, or the plugin `Registry` surface is a breaking change and bumps the major.
 
+## [Unreleased]
+
+## [1.0.1] — 2026-11-27
+
+The first installable 1.x release. 1.0.0 was tagged on GitHub, but its PyPI publish
+failed and it was never uploaded, so 1.0.1 carries everything listed under 1.0.0 plus
+the decisions below (`docs/decisions.md`).
+
+### Changed
+
+- **No default model endpoint (D-5).** `router.base_url` used to default to hosted
+  FifeRouter. It is now empty, and `keelspec run` and `keelspec serve` refuse to
+  start, with exit code 2 and an example, until `keelspec.runtime.yaml` sets it.
+  Where prompts and tool data go is the product team's decision.
+- **"Governed agents", not "v2" (D-6).** The feature name in docs and code drops the
+  "v2" label.
+
+### Added
+
+- `docs/decisions.md`, the governed-agent decisions D-1 to D-7 and their reasons.
+
+### Fixed
+
+- `RELEASING.md` and `publish.yml` named the old repository owner for the PyPI
+  trusted publisher. It is `Tech-Res-Group`.
+
+## [1.0.0] — 2026-11-27
+
+Governed agents: an agent that runs in production is declared, validated, simulated
+and run from the same product graph as the rest of the product.
+
+> **Why a major.** `presets` and list-valued `references[].to` are new config keys.
+> They are additive (an existing config validates unchanged), but the policy above
+> treats a config-schema change as major. The `runtime` extra now requires
+> `mcp>=2.0`. The core install still needs only pyyaml and pydantic.
+
+Accountability on the agent-built line, prompted by a business-stakeholder review
+that asked who approves, why a change got the light path, and what a repeated failure
+actually means.
+
+### Added
+
+- **Governed agents: documentation.** A "Governed agents" section in the README, and
+  a release post drafted in `site/drafts/` (outside `site/content/posts/`, so a site
+  build does not publish it).
+- **Governed agents, M12: `keelspec serve`.** An HTTP API for deployed agents,
+  standard library only: `POST /v1/agents/{id}/runs`, `GET /v1/runs/{id}` (the
+  content-free record and pending approvals), `POST /v1/runs/{id}/approvals`
+  (approve and resume), and `GET /healthz` (bundle sha256 and validate status). It
+  executes the bundle it loaded, refuses to start on one that fails validation,
+  serves only `status: deployed` agents unless `--any-status`, and opens every tool
+  before a run so a drifted server refuses it (PAC-073). Two tokens, kept apart:
+  `KEELSPEC_SERVE_TOKEN` starts runs and is required beyond loopback;
+  `KEELSPEC_APPROVER_TOKEN`, which must differ, is the only way to approve over
+  HTTP, so whoever asks an agent to act cannot approve what it asks for. Bodies are
+  capped at 64 KB, errors never leak a traceback, and the request log carries
+  method, path and status only. `--mcp` serves each deployed agent as one MCP tool
+  on stdio. `infra/agent-runtime/` has a Dockerfile (validates at build, runs as a
+  non-root user, health-checks `/healthz`) and a hosting recipe for your own server
+  or DigitalOcean App Platform.
+- **Governed agents, M11: agent-aware orchestration.** `keelspec orchestrate AGENT-x`
+  adds two things to the line. ST-04c Tools, a machine station after Develop, finds
+  the MCP servers the agent's tools need that do not exist and scaffolds them (only
+  with `--write`, never on a dry run), and lists scenario fixtures that are missing;
+  it does not invent fixture data, since a scenario is product intent. Verify gains
+  a sixth lens, `policy`, which is code rather than a model: it searches boundary
+  argument values from every `when` condition for a way to run a guarded or money
+  operation with no person in the loop, plants an instruction to call each such
+  operation in tool data and replays the agent with the naive scripted model, and
+  replays the agent's scenarios. Its verdict joins the same refute, triage and
+  repair logic as the other lenses, a risk tier's lens list never drops it, and a
+  check that cannot run refutes rather than abstains. Station ids are unchanged;
+  ST-04c is inserted, as ST-04b and ST-06b were.
+- **Governed agents, M10: OpenTelemetry.** `keelspec run` and `keelspec simulate`
+  emit one trace per run (`keelspec.run` > `keelspec.step N` > `chat` /
+  `keelspec.policy` / `execute_tool`, plus `keelspec.approval`) and the metrics
+  `keelspec.runs`, `keelspec.policy.decisions`, `keelspec.run.duration`,
+  `keelspec.run.cost_usd` and `gen_ai.client.token.usage`. Model and tool spans
+  follow the GenAI semantic conventions, with every name pinned in
+  `keelspec/runtime/telemetry.py`. Spans carry no content unless capture is on (the
+  same switch as `content.jsonl`); approvers appear as roles, never names. The
+  router receives the `chat` span's `traceparent`, a resumed run stays in the paused
+  run's trace, and simulated runs are tagged `keelspec.simulated=true`. Export is
+  configured only by the standard `OTEL_*` variables (`pip install
+  'keelspec[otel]'`); without OpenTelemetry the spans are no-ops. Langfuse and
+  Grafana Tempo recipes are in `docs/observability.md`.
+- **Governed agents, M9: simulation and evidence.** `keelspec simulate [AGENT-x|SCN-y]`
+  replays scenarios offline through the real agent loop (policy engine, budgets,
+  redaction, run records), with tools answering from the scenario's `fixtures` and
+  the model replaced by a deterministic scripted model that is naive on purpose: it
+  calls every read it can fill arguments for and obeys any instruction it finds in
+  tool data. A passing scenario therefore shows the policy holding, not a model
+  behaving; in the example's injection scenario it really does ask for
+  `release_funds` and `POL-no-funds-movement` denies it. The `expect` keys
+  (`must_call`, `must_not_call`, `call_order`, `policy_decisions`, `outcome`,
+  `final_answer_contains`, `final_answer_not_contains`, `max_steps`,
+  `max_cost_usd`) are deterministic checks on the run record; "called" means the tool
+  ran. A `judge` block is reported and never gates. `--junit PATH` writes JUnit XML;
+  `--evidence [PATH]` writes an evidence record with a `simulation` block (each
+  scenario's file digest and result), and `keelspec evidence --verify` now checks
+  those digests too. PAC-076: an agent marked `simulated` or `deployed` whose
+  scenarios lack passing simulation evidence on their current contents is an error,
+  judged only when `.keelspec/evidence` holds simulation evidence; `simulate` itself
+  is not refused by PAC-076, since it produces the evidence that clears it. The
+  GitHub Action takes `simulate: true` (and `junit:`) to replay scenarios in CI with
+  no API key and no network.
+- **Governed agents, M8: the MCP client and tool scaffolding.** `keelspec run` without
+  `--fixtures` reaches each tool through MCP (stdio or streamable HTTP; one session
+  per TOOL- artifact, closed when the run ends; HTTP servers receive the run's
+  `traceparent`). Every session lists the server's tools and refuses to start on any
+  difference from the artifact's `operations` (PAC-073), and a run opens its tools
+  before the model is asked anything. `timeout_seconds` bounds every call (a
+  `timeout` step) and `max_result_bytes` truncates with an explicit marker (a
+  `truncated` step). `keelspec tools check [TOOL-x ...]` runs the PAC-073 comparison
+  without an agent. `keelspec tools scaffold TOOL-x` generates a Python MCP server
+  under `servers/<slug>/` whose tool names, docstrings and typed arguments come from
+  the artifact (operations may now carry `description` and `input_schema`, which the
+  model is also shown), with a test that its tool list matches the artifact. The
+  example ships three reference servers built that way, backed by JSON fixtures:
+  payments ledger, ISO 20022 parser (pacs.002 / pacs.008, reason codes) and case
+  management, which implements `release_funds` so the policy, not the tool, is what
+  stops it.
+- **Governed agents, M5: the artifact types.** `presets: [agents]` in
+  `product.config.yaml` adds four ordinary types, `agents` (AGENT-), `tools` (TOOL-),
+  `policies` (POL-) and `scenarios` (SCN-), and turns on library checks inside
+  `validate`: PAC-070 (a policy names an operation its tool does not declare),
+  PAC-071 (an operation no linked policy permits; warning), PAC-072 (a malformed
+  policy `match` or `when`), PAC-074 (a high-criticality agent can reach a money
+  operation with no `require_approval` or `deny` in front of it), PAC-075 (an agent
+  with no scenarios; warning) and PAC-077 (a scenario names an operation its agent
+  cannot call). PAC-073, 076, 078 and 079 are registered now for the runtime
+  milestones. A `redact` policy masks results and is never permission to call.
+  `examples/payments-exceptions/` is the reference project: one agent, three tools,
+  five policies, three scenarios, validating clean. No runtime yet.
+- **Governed agents, M7: the runtime core** (`pip install 'keelspec[runtime]'`).
+  `keelspec run AGENT "input"` runs one governed agent on the compiled bundle, and
+  refuses (PAC-079) if `validate` reports any error or the bundle is stale. The model
+  is reached through FifeRouter or any OpenAI-compatible endpoint, over HTTP only,
+  with `x-fife-concept`, `x-fife-session`, `x-fife-critical` and a W3C `traceparent`
+  per run; the served model, rung and attempts are recorded. The model is offered
+  only the agent's declared operations, and every call passes the policy engine
+  first: a denial goes back to the model as data and counts against `max_denials`;
+  `require_approval` pauses the run (`keelspec approvals approve RUN STEP --by NAME`,
+  then `keelspec run --resume RUN`). A 402, 422 or 502 from the router stops the run
+  as `refused:<kind>` with no retry; other 5xx and transport errors are retried at
+  most twice. Budgets: steps, cost (from the `prices` table), wall clock, denials.
+  Run records at `.keelspec/runs/<run_id>/run.json` are a closed, content-free
+  schema; `--capture-content` writes content to a separate `content.jsonl` and the
+  record says so. `keelspec runs list|show` reads them; plain `keelspec runs` still
+  prints the line summary. Tools answer from scenario fixtures (`--fixtures SCN-x`)
+  or, from M8, from MCP servers.
+- **Governed agents, M6: the policy engine.** `keelspec.runtime.policy` decides one
+  tool call from the agent's linked policies: matching, `when` conditions (ANDed;
+  `== != > >= < <= in not_in matches exists`, no eval), precedence
+  deny > require_approval > redact > allow, and default deny (`no_policy`). Only
+  `allow` and `require_approval` permit a call; `redact` masks the result. A
+  condition that cannot be decided fails closed: a deny or require_approval applies,
+  an allow does not. An undeclared tool or operation is never offered and is denied
+  as `not_declared`. `keelspec policy explain AGENT TOOL OP '{args}'` and the MCP tools
+  `product_policy_explain` and `product_agent_card` run the same code the runtime
+  will, so explain and run cannot disagree. Result redaction masks fields an
+  operation tags by data class (`fields: {debtor.name: pii}`, `*` for lists); an
+  operation that tags nothing for a redacted class has its whole result withheld.
+  Pure Python, on the core install.
+- **Multi-target references**: `to: [rules, constraints, terms]` resolves a value
+  against any of the listed types. LSP completion, hover and the MCP tools follow it
+  with no special code. A single `to:` is unchanged.
+- **Risk tiers.** `delivery` in `product.config.yaml` scores a feature's own fields
+  (`risk_factors`) and picks a tier that sets its Verify lenses, required approvers,
+  Clean and repair bound. The score and its reasons are recorded on the run. An
+  artifact that cannot be found is assessed at the highest tier.
+- **Named approvers at the human gate.** A tier's `approvers` are roles that must each
+  put a name in the gate file (or `--approve ROLE=NAME`) before Design. Unlike open
+  questions, a required approval cannot be made advisory.
+- **ST-06b Triage**, inserted rather than renumbered. A refuted change is classified
+  as requirement, design, dependency, environment, implementation, model or
+  business-decision. Only implementation is repaired automatically; everything else
+  ends as the new `needs-human` status with the question a person must answer.
+- **A fifth Verify lens, `integrity`**: does the business process around the change
+  survive it, and not just its own criteria? Every native lens now sees the
+  feature's linked artifacts. The cross-provider critic deliberately does not.
+- **`keelspec runs`**: status mix, first-pass and repair rates, refutations by lens,
+  triage causes and risk tiers, added up from `.keelspec/runs/`. Runs are now
+  timestamped.
+- **`PAC-002`** (warning): a type's `recommended` field is empty.
+- **Scaffold:** `outcomes` and `nfrs` types, with features linking to both, and a
+  release-readiness gate in `product_hooks.py`: `PAC-903` (no outcome), `PAC-904`
+  (an NFR without evidence) and `PAC-905` (no owner, rollback or runbook), all on
+  `shipped`. NFR `evidence` resolves like acceptance tests.
+- **[AI-GOVERNANCE.md](AI-GOVERNANCE.md)** and a scope table in the README saying what
+  the line covers, and what it hands to the rest of delivery.
+- **`independent_critic` on a risk tier**: the run is refused unless at least one
+  critic comes from a different model vendor than the builder. When a tier does not
+  require it, a same-vendor run is noted on the record instead.
+- **`keelspec intake`**: a GitHub issue or Jira ticket becomes a draft feature file,
+  which is then the source of truth. `--sync` shows every upstream change as a diff;
+  `--apply` writes it and is refused on the default branch, so the change is merged
+  through the gate. Only ticket-owned fields (title, criteria, description block)
+  ever change, and a field changed on both sides stops for a person. Standard
+  library only; credentials from the environment; nothing sent to a model.
+- **Factory metrics, `keelspec-metrics/2`.** `keelspec runs` adds the rejection rate
+  per lens (abstentions counted apart, via a new `abstained` flag on verdicts), review
+  load, cost and cost per merged PR, and the spec-drift rate from kept evidence
+  records (`--evidence DIR`). Every runner now records token usage per model call on
+  the run (`usage`); prices come only from an optional `prices` table in
+  `product.config.yaml`. A run is linked to its merge by a `KeelSpec-Run:` commit
+  trailer, which `orchestrate` prints for a proposed run. Every `/1` field is unchanged.
+- **Bring your own builder.** `keelspec orchestrate --builder claude-code` (or `codex`)
+  runs ST-04 Develop, its repairs and ST-04b Clean through that agent's own CLI, in a
+  throwaway git worktree at `HEAD`. What changed is read from git, not from the
+  agent; the reviewers get the real diff. A step that touches the product directory,
+  the bundle, the config, the plugin, `.keelspec/` or CI configuration is rolled back
+  and fails the run. The change is saved as a patch beside the run record, and applied
+  to the working tree only with `--write` and only when the line proposes it. The run
+  record names the builder, its version and its base commit. KeelSpec never handles
+  the agent's credentials.
+
+### Changed
+
+- A Develop step that fails now ends the run as `error`. It used to carry on, and
+  Test and the critics would review a change that was never made.
+
+- The Disambiguate gate file keeps every question when it is rewritten, not just
+  the unresolved ones, so answers already given are no longer dropped.
+
+- The `runtime` extra now requires `mcp>=2.0` (the client uses the 2.x `Client`
+  API). The `mcp` extra for `keelspec mcp` still accepts 1.x.
+
+### Fixed
+
+- `keelspec mcp` works with the MCP SDK 2.x, where `FastMCP` became `MCPServer`; it
+  still works with 1.x.
+
 ## [0.7.0] — 2026-09-14
 
 ### Changed

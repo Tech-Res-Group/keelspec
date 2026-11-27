@@ -1,10 +1,16 @@
 # KeelSpec
 
-> Product intent as a validated graph, and an agent-built lifecycle that builds
-> against it. Typed artifacts compile to one JSON bundle; a deterministic gate
-> fails CI when the bundle drifts from its sources.
+> The governance layer for software factories. Product intent lives as typed,
+> versioned source; any coding agent (or person) proposes a change; a deterministic
+> gate that calls no model decides whether it may merge; a human merges. Agents
+> propose, gates enforce, a human merges.
 
-Python library, LGPL-3.0, on PyPI as `keelspec`. Two runtime dependencies and no
+KeelSpec runs the FastPDLC lifecycle: ten stations, ST-01 to ST-10. It automates
+ST-01 to ST-06; ST-07 to ST-10 are hand-off points to the team's own CI, CD and
+operations. It does not run agents in managed sandboxes, and it holds no compliance
+certification.
+
+Python library, Apache-2.0, on PyPI as `keelspec`. Two runtime dependencies and no
 network access in the core.
 
 ## When to use this
@@ -21,8 +27,10 @@ Reach for KeelSpec when someone needs to:
   audit, compliance and regulated domains.
 - **Run a multi-agent build pipeline with a deterministic judge.**
   `keelspec orchestrate` runs Understand -> Disambiguate (human gate) -> Design ->
-  Develop -> Clean -> Test -> adversarial Verify, with four refuting critics and a
-  bounded repair loop.
+  Develop -> Clean -> Test -> adversarial Verify -> Triage, with five refuting critics
+  (plus an optional sixth on a different model provider, `--cross-provider`) and a
+  bounded repair loop. Stations run through a `Runner`; the library ships runners for
+  the Anthropic API and any OpenAI-compatible endpoint.
 
 Do **not** reach for it as a wiki, a docs-site generator, a test runner, or a
 general coding agent. It validates and judges; it does not execute your system, and
@@ -49,10 +57,11 @@ bundle is stale. Projects register their own in a `9xx` range via plugins.
 
 ## Docs
 
-- [Home](https://keelspec.com/): what it is and the diagnostic codes
+- [Home](https://keelspec.com/): the gate, the FastPDLC stations, evidence, and the diagnostic codes
 - [Lifecycle](https://keelspec.com/lifecycle.html): PDLC and SDLC behind one gate
 - [Blog](https://keelspec.com/blog/): 21 articles on product-as-code
-- [Source and README](https://github.com/tarvitave/keelspec)
+- [Source and README](https://github.com/Tech-Res-Group/keelspec)
+- [Payments case study](https://keelspec.com/blog/payments-case-study.html)
 - [PyPI](https://pypi.org/project/keelspec/)
 
 Every page on this site is also available as markdown — send

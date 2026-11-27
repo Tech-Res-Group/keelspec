@@ -1,0 +1,36 @@
+# The KeelSpec roadmap, as product-as-code: outcomes, NFRs and features in the
+# format the copier template defines (template/product.config.yaml.jinja), minus the
+# test-resolution plugin. Validate with: keelspec -C roadmap build && keelspec -C roadmap validate
+product_dir: product
+output: build/product.generated.json
+types:
+  - name: outcomes
+    dir: outcomes
+    id_prefix: "OUT-"
+    required: [id, title, metric, target, owner]
+    fields: [title, metric, baseline, target, owner]
+  - name: nfrs
+    dir: nfrs
+    id_prefix: "NFR-"
+    required: [id, title, category, threshold]
+    fields: [title, category, threshold, evidence]
+    enums:
+      category: [availability, performance, scalability, retention, auditability,
+                 observability, accessibility, recovery, idempotency, reconciliation,
+                 residency, security]
+  - name: features
+    dir: features
+    id_prefix: "FEAT-"
+    required: [id, title, status, acceptance]
+    recommended: [outcome]
+    fields: [title, status, outcome, nfrs, customer_impact, data, reversible,
+             owner, rollback, runbook, acceptance]
+    enums:
+      status: [idea, building, shipped]
+      customer_impact: [low, medium, high]
+      data: [public, internal, financial, pii]
+    references:
+      - field: outcome
+        to: outcomes
+      - field: nfrs
+        to: nfrs

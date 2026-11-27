@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KeelSpec — A workforce builds it. A gate judges it.</title>
-<meta name="description" content="Product intent as versioned source, a workforce of agents building against it, and a deterministic PAC-NNN gate that judges every pull request. Agents propose, gates enforce, a human merges.">
+<title>KeelSpec — The gate for software factories</title>
+<meta name="description" content="Bring any agent fleet. KeelSpec keeps product intent as typed, versioned source, gates every pull request with a deterministic check that calls no model, and records evidence you can verify. Agents propose, gates enforce, a human merges.">
 <link rel="canonical" href="https://keelspec.com/">
 
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://keelspec.com/">
-<meta property="og:title" content="KeelSpec — A workforce builds it. A gate judges it.">
-<meta property="og:description" content="A workforce of agents builds from versioned intent. A deterministic gate judges every pull request, including an agent's own.">
+<meta property="og:title" content="KeelSpec — The gate for software factories">
+<meta property="og:description" content="Bring any agent fleet. KeelSpec decides what merges: a deterministic gate that belongs to no agent vendor or model provider, with evidence you can verify.">
 <meta name="twitter:card" content="summary_large_image">
 <meta property="og:image" content="https://keelspec.com/og.png">
 <meta property="og:image:width" content="1200">
@@ -18,7 +18,7 @@
 <meta property="og:image:alt" content="KeelSpec — a workforce builds it, a gate judges it.">
 
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='9' fill='%23191919'/><path d='M10.5 21.5 L17 28 L29.5 12.5' fill='none' stroke='%23fbcc00' stroke-width='4.6' stroke-linecap='round' stroke-linejoin='round'/><circle cx='10.5' cy='21.5' r='3.6' fill='%23fff'/><circle cx='29.5' cy='12.5' r='3.6' fill='%2300b67a'/></svg>">
-<link rel="stylesheet" href="/styles.css?v=2087441c60">
+<link rel="stylesheet" href="/styles.css?v=f9c77a8a25">
 <link rel="stylesheet" href="/blog.css?v=ec4b67b85c">
 
 <script type="application/ld+json">
@@ -28,9 +28,9 @@
   "name": "KeelSpec",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Linux, macOS, Windows",
-  "description": "Product-as-code as a validated graph. Declare typed product artifacts, validate the reference graph, compile a JSON bundle, and gate CI on drift.",
+  "description": "The governance layer for software factories. Typed product intent as versioned source, a deterministic CI gate for every pull request from any coding agent, and content-addressed evidence records.",
   "url": "https://keelspec.com/",
-  "license": "https://www.gnu.org/licenses/lgpl-3.0.html",
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
 }
 </script>
@@ -41,7 +41,7 @@
   "name": "KeelSpec",
   "url": "https://keelspec.com/",
   "logo": "https://keelspec.com/og.png",
-  "description": "Product intent as a validated graph, with an agent-built lifecycle and a deterministic gate.",
+  "description": "The governance layer for software factories: typed intent, a deterministic gate, and a human at the merge.",
   "founder": {
     "@type": "Person",
     "name": "Colin Wynd",
@@ -51,7 +51,7 @@
     ]
   },
   "sameAs": [
-    "https://github.com/tarvitave/keelspec",
+    "https://github.com/Tech-Res-Group/keelspec",
     "https://pypi.org/project/keelspec/",
     "https://www.linkedin.com/in/colinwynd"
   ],
@@ -87,14 +87,13 @@
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
 
     <nav class="nav-links" id="navLinks">
-      <a href="#how">How it works</a>
-      <a href="/lifecycle.html">Lifecycle</a>
-      <a href="#lenses">Lenses</a>
+      <a href="#story">How it works</a>
+      <a href="#fastpdlc">FastPDLC</a>
+      <a href="#evidence">Evidence</a>
       <a href="#diagnostics">Diagnostics</a>
-      <a href="#plugins">Plugins</a>
       <a href="/blog/">Blog</a>
       <a href="#faq">FAQ</a>
-      <a href="https://github.com/tarvitave/keelspec">GitHub</a>
+      <a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a>
       <a class="btn btn-primary nav-cta" href="#start">Get started</a>
     </nav>
   </div>
@@ -105,7 +104,7 @@
 <!-- ══ hero ═════════════════════════════════════════════════════════════ -->
 <section class="section hero">
 
-  <p class="rail-label">The line &mdash; six agent stations, two human gates, three deterministic</p>
+  <p class="rail-label">The line &mdash; seven agent stations, two human gates, three deterministic</p>
   <div class="rail" aria-hidden="true">
     <div class="rail-track" id="railTrack">
       <article class="station" data-kind="agent">
@@ -171,7 +170,7 @@
       <h3 class="st-name">Test</h3>
     </div>
   </div>
-  <p class="st-role">adversarial coverage</p>
+  <p class="st-role">coverage, by a separate author</p>
   <code class="st-model">opus / high</code>
   <span class="badge st-kind" style="">agent</span>
 </article><article class="station" data-kind="agent">
@@ -182,7 +181,18 @@
       <h3 class="st-name">Verify</h3>
     </div>
   </div>
-  <p class="st-role">4 refuting lenses</p>
+  <p class="st-role">5 refuting lenses</p>
+  <code class="st-model">opus / high</code>
+  <span class="badge st-kind" style="">agent</span>
+</article><article class="station" data-kind="agent">
+  <div class="st-head">
+    <svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#ffd36e" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 15 L23 17" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 15 L35 17" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><circle cx="17" cy="23" r="3.6" fill="#191919"/><circle cx="31" cy="23" r="3.6" fill="#191919"/><path d="M15 32 L33 32" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>
+    <div>
+      <span class="st-id">ST-06b</span>
+      <h3 class="st-name">Triage</h3>
+    </div>
+  </div>
+  <p class="st-role">why it failed</p>
   <code class="st-model">opus / high</code>
   <span class="badge st-kind" style="">agent</span>
 </article><article class="station" data-kind="machine">
@@ -235,31 +245,33 @@
 
   <div class="wrap hero-grid">
     <div>
-      <h1>A workforce builds it. A <span class="hl">gate judges it.</span></h1>
+      <span class="eyebrow">Governance for coding agents</span>
+      <h1>The gate for <span class="hl">software factories.</span></h1>
 
       <p class="lede hero-sub">
-        Product intent lives as <strong>versioned source</strong>. A team of agents builds
-        against it. Then a deterministic gate judges the result &mdash; the same
-        <code style="font-family:var(--mono)">PAC-NNN</code> rubric on every pull request,
-        including an agent's own. Agents propose, gates enforce, a human merges.
+        Bring any agent fleet: Claude Code, Codex, Devin, Copilot.
+        <strong>KeelSpec decides what merges.</strong> Its gate calls no model and belongs
+        to no agent vendor, so it can check all of them. Devin can't credibly check Devin,
+        and Factory can't check Factory.
       </p>
+      <p class="hero-tag">Agents propose, gates enforce, a human merges.</p>
 
       <div class="hero-actions">
         <div class="copy-block">
-          <code id="cmdInstall">pip install 'keelspec[agents]'</code>
+          <code id="cmdInstall">pip install keelspec</code>
           <button class="copy-btn" data-copy="#cmdInstall">Copy</button>
         </div>
         <a class="btn btn-primary" href="#start">Get started</a>
       </div>
 
       <div class="copy-block" style="margin-top:0.9rem;max-width:30rem">
-        <code id="cmdOrchestrate">keelspec orchestrate FEAT-refunds</code>
-        <button class="copy-btn" data-copy="#cmdOrchestrate">Copy</button>
+        <code id="cmdEvidence">keelspec evidence</code>
+        <button class="copy-btn" data-copy="#cmdEvidence">Copy</button>
       </div>
 
       <div class="hero-meta">
-        <span><svg class="tick" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="#00b67a" stroke="#191919" stroke-width="2"/><path d="M6 10.4l2.6 2.6L14 7.6" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Agents never auto-merge</span>
-        <span><svg class="tick" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="#00b67a" stroke="#191919" stroke-width="2"/><path d="M6 10.4l2.6 2.6L14 7.6" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Deterministic judge, always</span>
+        <span><svg class="tick" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="#00b67a" stroke="#191919" stroke-width="2"/><path d="M6 10.4l2.6 2.6L14 7.6" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Nothing auto-merges</span>
+        <span><svg class="tick" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="#00b67a" stroke="#191919" stroke-width="2"/><path d="M6 10.4l2.6 2.6L14 7.6" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> The gate calls no model</span>
         <span><svg class="tick" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="#00b67a" stroke="#191919" stroke-width="2"/><path d="M6 10.4l2.6 2.6L14 7.6" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Reproducible evidence, any commit</span>
       </div>
     </div>
@@ -291,54 +303,345 @@
 
 <hr class="rule">
 
-<!-- ══ problem ══════════════════════════════════════════════════════════ -->
-<section class="section band-cream" id="problem">
+<!-- ══ story ═════════════════════════════════════════════════════════════ -->
+<section class="section" id="story">
   <div class="wrap">
     <div class="section-head reveal">
-      <span class="eyebrow">The rot</span>
-      <h2>You wrote it down, but&hellip;</h2>
-      <p class="lede">Every team has the documents. Almost no team has a mechanism that
-        notices when they stop being true.</p>
+      <span class="eyebrow">How it works</span>
+      <h2>Spec. Any agent. Gate.</h2>
+      <p class="lede">KeelSpec owns the three things a builder should not own about its own
+        work: the intent it is judged against, the check that judges it, and the record of
+        what passed.</p>
     </div>
 
-    <div class="problem-stage reveal">
-      <div class="bubble b1">&ldquo;The glossary contradicts the API docs.&rdquo;</div>
-      <div class="bubble pale b2">&ldquo;Three features reference a rule we deleted in March.&rdquo;</div>
-      <div class="bubble pale b3">&ldquo;The spec says v2. We shipped v3 last quarter.&rdquo;</div>
-      <div class="bubble b4">&ldquo;Which of these four docs is canonical?&rdquo;</div>
+    <ol class="story">
+      <li class="card story-step reveal">
+        <div class="step-n">01</div>
+        <span class="eyebrow">The spec</span>
+        <h3>Typed product intent, in your repo.</h3>
+        <p>Features, rules, decisions, whatever types you declare: markdown with typed frontmatter,
+          validated as a graph and compiled into a committed bundle. Open questions stop the
+          line before design, and named roles accept the spec.</p>
+        <p class="story-key"><code>PAC-060</code> fails the build when the committed bundle
+          drifts from its sources.</p>
+      </li>
 
-      <div class="doc doc-1" aria-hidden="true">
-        <div class="doc-title">requirements-v2-FINAL.md</div>
-        <div class="doc-line w92"></div><div class="doc-line w60"></div>
-        <div class="doc-line w80"></div><div class="doc-line w45"></div>
+      <li class="card story-step reveal">
+        <div class="step-n">02</div>
+        <span class="eyebrow">Any agent</span>
+        <h3>The builder is swappable.</h3>
+        <p>Every station runs through one <code>Runner</code> seam. The library ships runners
+          for the Anthropic API and for any OpenAI-compatible endpoint, such as your own model
+          gateway, and you can supply your own. A pull request from any agent, or any
+          person, meets the same gate.</p>
+        <p class="story-key"><span class="badge badge-road">Roadmap</span> Ready-made
+          adapters for Claude Code, Codex, Devin and Copilot's coding agent.</p>
+      </li>
+
+      <li class="card story-step reveal">
+        <div class="step-n">03</div>
+        <span class="eyebrow">The gate</span>
+        <h3>Deterministic first, then a person.</h3>
+        <p><code>keelspec validate</code> calls no model. The same tree gets the same
+          <code>PAC-NNN</code> verdict on every pull request, and the exit code is the
+          contract. Inside the line, five critics try to refute each change, with an optional
+          sixth on a different model provider.</p>
+        <p class="story-key">Nothing auto-merges. A human does.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ══ fastpdlc ══════════════════════════════════════════════════════════ -->
+<section class="section band-cream" id="fastpdlc">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">The method</span>
+      <h2>KeelSpec runs the FastPDLC lifecycle.</h2>
+      <p class="lede">Ten stations from a written-down story to production. KeelSpec automates
+        the engineering segment, from understanding the spec to a change that has been built,
+        tested and attacked. Everything after the pull request is a hand-off to the process
+        you already run.</p>
+    </div>
+
+    <div class="pdlc">
+      <div class="pdlc-group pdlc-auto reveal">
+        <div class="pdlc-label"><span class="badge badge-ink">Automated</span>
+          <span>ST-01 to ST-06, run by <code>keelspec orchestrate</code>,
+          with a human gate at ST-02</span></div>
+        <ol class="pdlc-row pdlc-row-auto">
+        <li class="pdlc-st" data-kind="agent">
+          <div class="pdlc-top"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#4a90e2" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 17 L23 15" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 17 L35 15" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><rect x="11" y="19" width="26" height="9" rx="4.5" fill="#191919"/><circle cx="17" cy="23.5" r="2" fill="#fff"/><circle cx="31" cy="23.5" r="2" fill="#fff"/><path d="M15 30 Q24 35 33 30" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><span class="st-id">ST-01</span></div>
+          <h3>Understand</h3>
+          <p class="pdlc-note">read the graph</p>
+          <span class="badge pdlc-kind">agent</span>
+        </li><li class="pdlc-st" data-kind="human">
+          <div class="pdlc-top"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#fff" stroke="#191919" stroke-width="3"/><circle cx="24" cy="18" r="7.5" fill="#191919"/><path d="M10 42 Q24 25 38 42 Z" fill="#191919"/></svg><span class="st-id">ST-02</span></div>
+          <h3>Disambiguate</h3>
+          <p class="pdlc-note">human gate</p>
+          <span class="badge pdlc-kind">human</span>
+        </li><li class="pdlc-st" data-kind="agent">
+          <div class="pdlc-top"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#b47cff" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 16 L23 16" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 16 L35 16" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><rect x="11" y="19" width="26" height="9" rx="4.5" fill="#191919"/><circle cx="17" cy="23.5" r="2" fill="#fff"/><circle cx="31" cy="23.5" r="2" fill="#fff"/><path d="M15 33 Q24 28 33 33" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><span class="st-id">ST-03</span></div>
+          <h3>Design</h3>
+          <p class="pdlc-note">the Architect</p>
+          <span class="badge pdlc-kind">agent</span>
+        </li><li class="pdlc-st" data-kind="agent">
+          <div class="pdlc-top"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#ff6b4a" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 17 L23 15" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 17 L35 15" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><circle cx="17" cy="23" r="3.6" fill="#191919"/><circle cx="31" cy="23" r="3.6" fill="#191919"/><path d="M15 30 Q24 35 33 30" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><span class="st-id">ST-04</span></div>
+          <h3>Develop</h3>
+          <p class="pdlc-note">writes code</p>
+          <span class="badge pdlc-kind">agent</span><span class="pdlc-sub"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#ff8fd0" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 15 L23 17" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 15 L35 17" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><rect x="11" y="19" width="26" height="9" rx="4.5" fill="#191919"/><circle cx="17" cy="23.5" r="2" fill="#fff"/><circle cx="31" cy="23.5" r="2" fill="#fff"/><path d="M15 32 L33 32" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><span><b>ST-04b</b> Clean &middot; simplify, not change</span></span>
+        </li><li class="pdlc-st" data-kind="agent">
+          <div class="pdlc-top"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#00b67a" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 16 L23 16" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 16 L35 16" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><circle cx="17" cy="23" r="3.6" fill="#191919"/><circle cx="31" cy="23" r="3.6" fill="#191919"/><path d="M15 33 Q24 28 33 33" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><span class="st-id">ST-05</span></div>
+          <h3>Test</h3>
+          <p class="pdlc-note">coverage, by a separate author</p>
+          <span class="badge pdlc-kind">agent</span>
+        </li><li class="pdlc-st" data-kind="agent">
+          <div class="pdlc-top"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#8b1538" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 17 L23 15" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 17 L35 15" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><rect x="11" y="19" width="26" height="9" rx="4.5" fill="#191919"/><circle cx="17" cy="23.5" r="2" fill="#fff"/><circle cx="31" cy="23.5" r="2" fill="#fff"/><path d="M15 30 Q24 35 33 30" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><span class="st-id">ST-06</span></div>
+          <h3>Verify</h3>
+          <p class="pdlc-note">5 refuting lenses</p>
+          <span class="badge pdlc-kind">agent</span><span class="pdlc-sub"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#ffd36e" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 15 L23 17" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 15 L35 17" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><circle cx="17" cy="23" r="3.6" fill="#191919"/><circle cx="31" cy="23" r="3.6" fill="#191919"/><path d="M15 32 L33 32" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><span><b>ST-06b</b> Triage &middot; why it failed</span></span>
+        </li>
+        </ol>
+        <p class="pdlc-loop"><span aria-hidden="true">&#8634;</span> Triage sends only an
+          <b>implementation</b> fault back to Develop, within a repair limit. A requirement,
+          design, dependency, environment, model or business-decision fault stops the line
+          for a person.</p>
       </div>
 
-      <div class="doc doc-2" aria-hidden="true">
-        <div class="doc-title">glossary (copy).docx</div>
-        <div class="doc-line w80"></div><div class="doc-line w92"></div>
-        <div class="doc-line w45"></div><div class="doc-line w60"></div>
-      </div>
+      <div class="pdlc-break reveal"><span>The line ends with a report. Nothing merges on its own.</span></div>
 
-      <div class="doc doc-3">
-        <div class="doc-title">product/spec.md</div>
-        <div class="doc-line w92 struck"></div>
-        <div class="doc-line w80"></div>
-        <div class="doc-line w60 struck"></div>
-        <div class="doc-line w92"></div>
-        <div class="doc-line w45 struck"></div>
-        <div class="stamp">LAST TRUE: 14 MONTHS AGO</div>
+      <div class="pdlc-group pdlc-hand reveal">
+        <div class="pdlc-label"><span class="badge">Hand-off points</span>
+          <span>ST-07 to ST-10, owned by your process, not automated by KeelSpec</span></div>
+        <ol class="pdlc-row pdlc-row-hand" start="7">
+        <li class="pdlc-st" data-kind="machine">
+          <div class="pdlc-top"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#fff" stroke="#191919" stroke-width="3"/><rect x="11" y="13" width="26" height="5" rx="2.5" fill="#191919"/><rect x="11" y="22" width="26" height="5" rx="2.5" fill="#191919"/><rect x="11" y="31" width="16" height="5" rx="2.5" fill="#191919"/></svg><span class="st-id">ST-07</span></div>
+          <h3>Assemble</h3>
+          <p class="pdlc-note">Your branch and PR tooling collects the change. The line hands over a report.</p>
+          <span class="badge pdlc-kind">deterministic</span>
+        </li><li class="pdlc-st" data-kind="machine">
+          <div class="pdlc-top"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#fbcc00" stroke="#191919" stroke-width="3"/><rect x="11" y="13" width="26" height="5" rx="2.5" fill="#191919"/><rect x="11" y="22" width="26" height="5" rx="2.5" fill="#191919"/><rect x="11" y="31" width="16" height="5" rx="2.5" fill="#191919"/></svg><span class="st-id">ST-08</span></div>
+          <h3>CI gates</h3>
+          <p class="pdlc-note">Your CI runs <code>keelspec validate</code> next to your own tests.</p>
+          <span class="badge pdlc-kind">deterministic</span>
+        </li><li class="pdlc-st" data-kind="human">
+          <div class="pdlc-top"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#fff" stroke="#191919" stroke-width="3"/><circle cx="24" cy="18" r="7.5" fill="#191919"/><path d="M10 42 Q24 25 38 42 Z" fill="#191919"/></svg><span class="st-id">ST-09</span></div>
+          <h3>Human merge</h3>
+          <p class="pdlc-note">A person merges. KeelSpec never does.</p>
+          <span class="badge pdlc-kind">human</span>
+        </li><li class="pdlc-st" data-kind="machine">
+          <div class="pdlc-top"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#fff" stroke="#191919" stroke-width="3"/><rect x="11" y="13" width="26" height="5" rx="2.5" fill="#191919"/><rect x="11" y="22" width="26" height="5" rx="2.5" fill="#191919"/><rect x="11" y="31" width="16" height="5" rx="2.5" fill="#191919"/></svg><span class="st-id">ST-10</span></div>
+          <h3>Production</h3>
+          <p class="pdlc-note">Your CD and operations. Measured against the outcome the feature traces to.</p>
+          <span class="badge pdlc-kind">deterministic</span>
+        </li>
+        </ol>
+      </div>
+    </div>
+
+    <p class="pdlc-more reveal">The scope is deliberate. See
+      <a href="/lifecycle.html">the lifecycle page</a> and
+      <a href="https://github.com/Tech-Res-Group/keelspec/blob/main/AI-GOVERNANCE.md">AI-GOVERNANCE.md</a> for what the line does
+      with models and data.</p>
+  </div>
+</section>
+
+<!-- ══ the refuting lenses ═══════════════════════════════════════════════ -->
+<section class="section" id="lenses">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">ST-06 &middot; Verify</span>
+      <h2>Five agent critics, each trying to refute the work.</h2>
+      <p class="lede">The agent that builds a change does not get to grade it. A separate
+        station attacks the result through five independent lenses, each defaulting to
+        <em>refuted</em> unless convinced. Four ask whether the change meets its specification;
+        the fifth asks whether the business process around it survives.</p>
+    </div>
+
+    <div class="lenses">
+      <article class="lens reveal" style="--c:#ff6b4a">
+        <div class="lens-head"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#ff6b4a" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 16 L23 16" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 16 L35 16" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><rect x="11" y="19" width="26" height="9" rx="4.5" fill="#191919"/><circle cx="17" cy="23.5" r="2" fill="#fff"/><circle cx="31" cy="23.5" r="2" fill="#fff"/><path d="M15 33 Q24 28 33 33" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><h3>correctness</h3></div>
+        <p>Find an input where it does the WRONG thing — and do the tests pass vacuously?</p>
+        <span class="badge">agent critic</span>
+      </article>
+      <article class="lens reveal" style="--c:#00b67a">
+        <div class="lens-head"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#00b67a" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 17 L23 15" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 17 L35 15" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><circle cx="17" cy="23" r="3.6" fill="#191919"/><circle cx="31" cy="23" r="3.6" fill="#191919"/><path d="M15 30 Q24 35 33 30" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><h3>coverage</h3></div>
+        <p>Does every acceptance criterion map to a test that would catch its regression?</p>
+        <span class="badge">agent critic</span>
+      </article>
+      <article class="lens reveal" style="--c:#4a90e2">
+        <div class="lens-head"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#4a90e2" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 15 L23 17" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 15 L35 17" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><rect x="11" y="19" width="26" height="9" rx="4.5" fill="#191919"/><circle cx="17" cy="23.5" r="2" fill="#fff"/><circle cx="31" cy="23.5" r="2" fill="#fff"/><path d="M15 32 L33 32" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><h3>security</h3></div>
+        <p>Payments lens: authz, trust boundaries, injection, PII, secrets, spend / consent.</p>
+        <span class="badge">agent critic</span>
+      </article>
+      <article class="lens reveal" style="--c:#b47cff">
+        <div class="lens-head"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#b47cff" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 16 L23 16" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 16 L35 16" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><circle cx="17" cy="23" r="3.6" fill="#191919"/><circle cx="31" cy="23" r="3.6" fill="#191919"/><path d="M15 33 Q24 28 33 33" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><h3>reproduce</h3></div>
+        <p>Ignore the happy path: concurrency, partial failure, retries / idempotency, rollback.</p>
+        <span class="badge">agent critic</span>
+      </article>
+      <article class="lens reveal" style="--c:#fbcc00">
+        <div class="lens-head"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#fbcc00" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 17 L23 15" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 17 L35 15" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><rect x="11" y="19" width="26" height="9" rx="4.5" fill="#191919"/><circle cx="17" cy="23.5" r="2" fill="#fff"/><circle cx="31" cy="23.5" r="2" fill="#fff"/><path d="M15 30 Q24 35 33 30" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><h3>integrity</h3></div>
+        <p>Every criterion passes — so which business scenario, exception path or downstream consumer does it still break?</p>
+        <span class="badge">agent critic</span>
+      </article>
+    </div>
+
+    <div class="proof-note reveal" style="margin-top:2rem">
+      <span class="badge">Optional sixth</span>
+      <p><code>--cross-provider</code> adds a verdict from a model outside the builder's family,
+        so it cannot share the builder's blind spots. It sees a diff summary and test notes,
+        <strong>without</strong> product context. If the call fails, it abstains rather than
+        blocking.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ evidence ══════════════════════════════════════════════════════════ -->
+<section class="section band-ink" id="evidence">
+  <div class="wrap split">
+    <div class="reveal">
+      <span class="eyebrow" style="color:var(--yellow)">Evidence</span>
+      <h2 style="margin-top:0.9rem">The audit trail an SDLC or model-risk review asks for.</h2>
+      <p class="lede" style="margin-top:1.1rem;color:#c9c9c9">The review starts with
+        <em>&ldquo;prove your documented rules matched what you shipped.&rdquo;</em> KeelSpec
+        answers with files in your repository, checked by recomputing digests rather than by
+        trusting whoever produced them.</p>
+      <ul class="feature-list ev-list">
+        <li>
+          <span class="n">#</span>
+          <span><b><code>keelspec evidence</code></b><span>A content-addressed record: the commit,
+            whether the tree was clean, the tool version, the config, a SHA-256 for every
+            artifact and the bundle, every finding, and the result. Its exit code follows
+            <code>validate</code>, so CI gates and records in one step.</span></span>
+        </li>
+        <li>
+          <span class="n">&#10003;</span>
+          <span><b><code>--verify</code></b><span>Recomputes every digest against the tree. For an
+            old record, check out its commit and run it again: bundles are byte-stable.</span></span>
+        </li>
+        <li>
+          <span class="n">&#9998;</span>
+          <span><b>Run records and named approvals</b><span>Every orchestrated run keeps each
+            station's output, every verdict, the triage cause and the risk tier. Required
+            approvers sign the spec by role, and the commit that fills in the name is the
+            signature.</span></span>
+        </li>
+      </ul>
+      <p class="ev-scope">KeelSpec produces evidence. It does not make you compliant and holds no
+        certification. What the evidence must show is your organisation's policy.</p>
+    </div>
+
+    <div class="term reveal">
+      <div class="term-bar">
+        <span class="term-dot" style="background:#ff6b4a"></span>
+        <span class="term-dot" style="background:#fbcc00"></span>
+        <span class="term-dot" style="background:#00b67a"></span>
+        <span class="term-name">ci / evidence</span>
+      </div>
+      <div class="term-body">
+        <span class="l t-cmd">keelspec evidence -o build/evidence.json</span>
+        <span class="l t-dim">wrote build/evidence.json</span>
+        <span class="l">&nbsp;</span>
+        <span class="l t-cmd">keelspec evidence --verify build/evidence.json</span>
+        <span class="l t-ok">evidence verified: every digest still matches</span>
+        <span class="l t-ok">(recorded 2026-11-16T21:07:01Z)</span>
+        <span class="l">&nbsp;</span>
+        <span class="l t-dim"># build/evidence.json, excerpt</span>
+        <span class="l">&quot;schema&quot;: &quot;keelspec-evidence/1&quot;,</span>
+        <span class="l">&quot;result&quot;: <span class="t-ok">&quot;pass&quot;</span>,</span>
+        <span class="l">&quot;repository&quot;: { &quot;commit&quot;: &quot;b69d32c&hellip;&quot;, &quot;clean&quot;: true },</span>
+        <span class="l">&quot;bundle&quot;: { &quot;matches_sources&quot;: true,</span>
+        <span class="l">            &quot;sha256&quot;: &quot;9f50b849&hellip;&quot; },</span>
+        <span class="l">&quot;checks&quot;: { &quot;errors&quot;: 0, &quot;warnings&quot;: 0 }</span>
       </div>
     </div>
   </div>
 </section>
 
-<hr class="rule">
+<!-- ══ where it fits ═════════════════════════════════════════════════════ -->
+<section class="section" id="compare">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Where it fits</span>
+      <h2>On top of your agents, not instead of them.</h2>
+      <p class="lede">Devin, Factory.ai, Claude Code, Codex and Copilot's coding agent build
+        software. KeelSpec does not compete with them on building. It is the part a builder
+        cannot credibly supply for itself: a check it does not control.</p>
+    </div>
+
+    <div class="fit reveal">
+      <div class="fit-col">
+        <h3>Your agent fleet brings</h3>
+        <ul>
+          <li>The builder, and whatever runs it: sandboxes, parallel runs, IDE and chat
+            integrations, ticket intake.</li>
+          <li>Its own review and testing, if you use them.</li>
+          <li>Its own pricing, hosting and enterprise terms.</li>
+        </ul>
+      </div>
+      <div class="fit-col fit-keel">
+        <h3>KeelSpec adds</h3>
+        <ul>
+          <li>Typed, versioned intent the change is judged against, with <code>PAC-060</code>
+            on drift.</li>
+          <li>A gate that calls no model and belongs to no agent vendor or model provider.</li>
+          <li>Five refuting critics, an optional sixth on a different model provider, and
+            triage before repair.</li>
+          <li>Evidence records that are verified by recomputation.</li>
+          <li>All of it in your repo and your CI: <code>pip install keelspec</code>, a GitHub
+            Action, Apache-2.0.</li>
+        </ul>
+      </div>
+      <div class="fit-col fit-not">
+        <h3>KeelSpec does not</h3>
+        <ul>
+          <li>Run agents in managed sandboxes or in the cloud.</li>
+          <li>Replace your CI, CD or change management. ST-07 to ST-10 are hand-offs.</li>
+          <li>Provide SSO, or hold SOC 2 or any other certification.</li>
+          <li>Merge anything.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="proof-note reveal" style="margin-top:2rem">
+      <span class="badge badge-road">Roadmap</span>
+      <p>Not built yet: ready-made builder adapters for Claude Code, Codex, Devin and Copilot's
+        coding agent, and intake that turns GitHub Issues, Linear or Jira tickets into feature
+        files with acceptance criteria. Today, <code>keelspec runs</code> already reports
+        first-pass rate and refutations by lens.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ proof ═════════════════════════════════════════════════════════════ -->
+<section class="section band-cream" id="proof">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Used in production</span>
+      <h2>The only product gate at a payments platform.</h2>
+      <p class="lede">KeelSpec is the product-as-code engine of the
+        <strong>pharthing / KibiPay</strong> payments platform. It was extracted from a working
+        system so other teams could use it.</p>
+    </div>
+
+    <div class="proof-note reveal">
+      <span class="badge">Parity test</span>
+      <p>pharthing's CI runs <strong>keelspec validate</strong> as its sole product gate, through
+        a plugin that adds its domain checks. A <strong>byte-identical parity test</strong> proves
+        the extracted engine produces exactly the bundle the in-house one did.</p>
+    </div>
+
+    <p class="reveal" style="margin-top:1.6rem">
+      <a class="btn btn-primary" href="/blog/payments-case-study.html">Read the case study</a>
+    </p>
+  </div>
+</section>
 
 <!-- ══ how it works ═════════════════════════════════════════════════════ -->
 <section class="section" id="how">
   <div class="wrap">
     <div class="section-head reveal">
-      <span class="eyebrow">How it works</span>
+      <span class="eyebrow">The spec, in practice</span>
       <h2>Declare it. Author it. Gate it.</h2>
       <p class="lede">One config file, plain markdown artifacts, and a command whose exit
         code is the whole contract.</p>
@@ -392,7 +695,7 @@ the system.</code></pre>
     <span class="k">runs-on</span>: ubuntu-latest
     <span class="k">steps</span>:
       - <span class="k">uses</span>: actions/checkout@v4
-      - <span class="k">uses</span>: <span class="p">tarvitave/keelspec@v0.2.0</span>
+      - <span class="k">uses</span>: <span class="p">Tech-Res-Group/keelspec@v1.0.1</span>
         <span class="k">with</span>:
           <span class="k">config</span>: product.config.yaml
           <span class="k">plugin</span>: product_hooks.py</code></pre>
@@ -487,51 +790,6 @@ the system.</code></pre>
   </div>
 </section>
 
-
-<!-- ══ the four refuting lenses ═══════════════════════════════════════════ -->
-<section class="section band-cream" id="lenses">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <span class="eyebrow">ST-06 &middot; Verify</span>
-      <h2>Four agent critics, each trying to refute the work.</h2>
-      <p class="lede">The agent that builds a change does not get to grade it. A separate
-        station attacks the result through four independent lenses, on a different provider
-        &mdash; so the critic cannot share the builder's blind spots. Diversity is a
-        correctness lever, not a nicety.</p>
-    </div>
-
-    <div class="lenses">
-      <article class="lens reveal" style="--c:#ff6b4a">
-        <div class="lens-head"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#ff6b4a" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 16 L23 16" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 16 L35 16" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><rect x="11" y="19" width="26" height="9" rx="4.5" fill="#191919"/><circle cx="17" cy="23.5" r="2" fill="#fff"/><circle cx="31" cy="23.5" r="2" fill="#fff"/><path d="M15 33 Q24 28 33 33" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><h3>correctness</h3></div>
-        <p>Find an input where it does the WRONG thing — and do the tests pass vacuously?</p>
-        <span class="badge">agent critic</span>
-      </article>
-      <article class="lens reveal" style="--c:#00b67a">
-        <div class="lens-head"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#00b67a" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 17 L23 15" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 17 L35 15" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><circle cx="17" cy="23" r="3.6" fill="#191919"/><circle cx="31" cy="23" r="3.6" fill="#191919"/><path d="M15 30 Q24 35 33 30" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><h3>coverage</h3></div>
-        <p>Does every acceptance criterion map to a test that would catch its regression?</p>
-        <span class="badge">agent critic</span>
-      </article>
-      <article class="lens reveal" style="--c:#4a90e2">
-        <div class="lens-head"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#4a90e2" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 15 L23 17" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 15 L35 17" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><rect x="11" y="19" width="26" height="9" rx="4.5" fill="#191919"/><circle cx="17" cy="23.5" r="2" fill="#fff"/><circle cx="31" cy="23.5" r="2" fill="#fff"/><path d="M15 32 L33 32" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><h3>security</h3></div>
-        <p>Payments lens: authz, trust boundaries, injection, PII, secrets, spend / consent.</p>
-        <span class="badge">agent critic</span>
-      </article>
-      <article class="lens reveal" style="--c:#b47cff">
-        <div class="lens-head"><svg viewBox="0 0 48 48" class="st-avatar" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="12" fill="#b47cff" stroke="#191919" stroke-width="3"/><path d="M8 44 Q24 30 40 44" fill="#191919" opacity="0.18"/><circle cx="24" cy="22" r="15" fill="#fff" stroke="#191919" stroke-width="3"/><path d="M13 16 L23 16" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M25 16 L35 16" stroke="#191919" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0"/><circle cx="17" cy="23" r="3.6" fill="#191919"/><circle cx="31" cy="23" r="3.6" fill="#191919"/><path d="M15 33 Q24 28 33 33" stroke="#191919" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><h3>reproduce</h3></div>
-        <p>Ignore the happy path: concurrency, partial failure, retries / idempotency, rollback.</p>
-        <span class="badge">agent critic</span>
-      </article>
-    </div>
-
-    <div class="proof-note reveal" style="margin-top:2rem">
-      <span class="badge">The principle</span>
-      <p>Provenance is not correctness. Knowing which agent wrote a line tells you nothing
-        about whether the line is right &mdash; so <strong>correctness is stacked on top, in
-        depth</strong>: an adversarial test station, four refuting lenses, then a deterministic
-        gate, then a human.</p>
-    </div>
-  </div>
-</section>
 
 <!-- ══ timeline ═════════════════════════════════════════════════════════ -->
 <section class="section band-ink" id="timeline">
@@ -674,40 +932,11 @@ the system.</code></pre>
 
 <hr class="rule">
 
-<!-- ══ proof ════════════════════════════════════════════════════════════ -->
-<section class="section band-cream" id="proof">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <span class="eyebrow">Used in production</span>
-      <h2>Extracted from a payments platform, not a demo.</h2>
-      <p class="lede">KeelSpec is the product-as-code engine of the
-        <strong>pharthing / KibiPay</strong> payments platform. It was pulled out of a
-        working system so any team could use it.</p>
-    </div>
-
-    <div class="stats reveal">
-      <div class="stat"><div class="stat-n">39</div><div class="stat-l">features under the gate</div></div>
-      <div class="stat"><div class="stat-n">283<span style="font-size:0.5em">KB</span></div><div class="stat-l">render bundle compiled</div></div>
-      <div class="stat"><div class="stat-n">1</div><div class="stat-l">CI gate — the only one</div></div>
-      <div class="stat"><div class="stat-n">0</div><div class="stat-l">bytes lost in extraction</div></div>
-    </div>
-
-    <div class="proof-note reveal">
-      <span class="badge">Parity test</span>
-      <p>pharthing's CI runs <strong>keelspec validate</strong> as its sole product gate,
-        via a plugin that adds its domain-specific checks. A
-        <strong>byte-identical parity test</strong> proves the extracted engine produces
-        exactly the bundle the original in-house one did — nothing was lost on the way out.
-        That's the plugin system, doing real work, in production.</p>
-    </div>
-  </div>
-</section>
-
 <!-- ══ scaffold ═════════════════════════════════════════════════════════ -->
 <section class="scaffold" id="start">
   <div class="wrap">
     <div>
-      <span class="eyebrow">Start in one command &middot; v0.2.0 on PyPI</span>
+      <span class="eyebrow">Start in one command &middot; v1.0.1 on PyPI</span>
       <h2 style="margin-top:0.8rem">A valid product-as-code repo on its first commit.</h2>
       <p>The copier template scaffolds the config, example artifacts and the CI gate.
         <code style="font-family:var(--mono);font-weight:600">--trust</code> lets it run
@@ -716,11 +945,11 @@ the system.</code></pre>
     </div>
     <div style="min-width:min(100%, 30rem)">
       <div class="copy-block">
-        <code id="cmdCopier">pipx run copier copy --trust gh:tarvitave/keelspec my-product-repo</code>
+        <code id="cmdCopier">pipx run copier copy --trust gh:Tech-Res-Group/keelspec my-product-repo</code>
         <button class="copy-btn" data-copy="#cmdCopier">Copy</button>
       </div>
       <div style="display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap">
-        <a class="btn" href="https://github.com/tarvitave/keelspec#quickstart">Read the quickstart</a>
+        <a class="btn" href="https://github.com/Tech-Res-Group/keelspec#quickstart">Read the quickstart</a>
         <a class="btn" href="https://pypi.org/project/keelspec/">View on PyPI</a>
       </div>
     </div>
@@ -786,11 +1015,36 @@ the system.</code></pre>
       </details>
 
       <details>
-        <summary>Why the LGPL (Lesser General Public License)?</summary>
-        <div class="answer">Copyleft on KeelSpec itself, so improvements to the engine come
-          back. It's the <em>lesser</em> GPL deliberately: importing it as a library, or running
-          it in your CI, does not make your project LGPL. Your product artifacts and your
-          plugins are yours.</div>
+        <summary>Which coding agents does it work with?</summary>
+        <div class="answer">The gate works with all of them, because it reads the repository, not
+          the agent: <code>keelspec validate</code> runs in your CI on every pull request, whoever
+          opened it. The built-in line, <code>keelspec orchestrate</code>, runs its stations through
+          a <code>Runner</code>; the library ships runners for the Anthropic API and for any
+          OpenAI-compatible endpoint, and you can write your own. Ready-made adapters for Claude
+          Code, Codex, Devin and Copilot's coding agent are on the roadmap, not built yet.</div>
+      </details>
+
+      <details>
+        <summary>Does KeelSpec make us compliant?</summary>
+        <div class="answer">No, and it does not claim to. It holds no certification and provides
+          no SSO or access control; those come from your Git host, your CI and your organisation.
+          What it gives an SDLC or model-risk review is evidence: content-addressed records you
+          can verify by recomputing digests, run records, and named approvals by role.</div>
+      </details>
+
+      <details>
+        <summary>What is FastPDLC?</summary>
+        <div class="answer">The name of the method: ten stations from a written-down story to
+          production, ST-01 to ST-10. KeelSpec automates ST-01 to ST-06 and treats ST-07 to ST-10
+          as hand-offs to your own process. Versions up to 0.6.3 of the tool itself were published
+          as <code>fastpdlc</code>; the package is now <code>keelspec</code>.</div>
+      </details>
+
+      <details>
+        <summary>What licence is it under?</summary>
+        <div class="answer">Apache-2.0. Use it, embed it, ship it; there are no obligations back
+          beyond the notice. Your product artifacts and your plugins are yours. Versions up to
+          0.6.3 were LGPL-3.0-or-later.</div>
       </details>
     </div>
   </div>
@@ -805,8 +1059,8 @@ the system.</code></pre>
       afternoon.</p>
 
     <div class="cta-actions reveal">
-      <a class="btn btn-primary btn-lg" href="https://github.com/tarvitave/keelspec">Get started on GitHub</a>
-      <a class="btn btn-lg" href="#how">See how it works</a>
+      <a class="btn btn-primary btn-lg" href="https://github.com/Tech-Res-Group/keelspec">Get started on GitHub</a>
+      <a class="btn btn-lg" href="#story">See how it works</a>
     </div>
 
     <form class="signup reveal" id="signupForm" novalidate>
@@ -831,14 +1085,16 @@ the system.</code></pre>
     <div class="footer-grid">
       <div>
         <a class="logo" href="/" aria-label="KeelSpec home"><svg class="logo-glyph" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.6" y="1.6" width="36.8" height="36.8" rx="9" fill="#191919"/><path d="M10.5 21.5 L17 28 L29.5 12.5" fill="none" stroke="#fbcc00" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10.5" cy="21.5" r="3.6" fill="#fff"/><circle cx="29.5" cy="12.5" r="3.6" fill="#00b67a"/></svg><span class="logo-word">KeelSpec</span></a>
-        <p class="footer-blurb">Product-as-code as a validated graph — for any project.
-          Typed artifacts in, a compiled bundle out, and a CI gate in between.</p>
+        <p class="footer-blurb">The governance layer for software factories. Typed intent in,
+          a deterministic gate in between, and a person at the merge.</p>
       </div>
 
       <div>
         <h4>Product</h4>
         <ul>
-          <li><a href="#how">How it works</a></li>
+          <li><a href="#story">How it works</a></li>
+          <li><a href="#fastpdlc">FastPDLC</a></li>
+          <li><a href="#evidence">Evidence</a></li>
           <li><a href="/lifecycle.html">Lifecycle</a></li>
           <li><a href="#diagnostics">Diagnostic codes</a></li>
           <li><a href="#plugins">Plugins</a></li>
@@ -853,10 +1109,10 @@ the system.</code></pre>
           <li><a href="/who-we-are.html">Who we are</a></li>
           <li><a href="/contact.html">Contact us</a></li>
           <li><a href="/newsletters/">Newsletters</a></li>
-          <li><a href="https://github.com/tarvitave/keelspec">GitHub</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec">GitHub</a></li>
           <li><a href="https://pypi.org/project/keelspec/">PyPI</a></li>
-          <li><a href="https://github.com/tarvitave/keelspec/issues">Issues</a></li>
-          <li><a href="https://github.com/tarvitave/keelspec/blob/main/RELEASING.md">Releases</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec/issues">Issues</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec/blob/main/RELEASING.md">Releases</a></li>
         </ul>
       </div>
 
@@ -866,7 +1122,7 @@ the system.</code></pre>
           <li><a href="/privacy.html">Privacy policy</a></li>
           <li><a href="/terms.html">Terms of use</a></li>
           <li><a href="/sms-opt-in.html">SMS opt-in</a></li>
-          <li><a href="https://github.com/tarvitave/keelspec/blob/main/LICENSE">LGPL-3.0-or-later</a></li>
+          <li><a href="https://github.com/Tech-Res-Group/keelspec/blob/main/LICENSE">Apache-2.0</a></li>
         </ul>
       </div>
     </div>

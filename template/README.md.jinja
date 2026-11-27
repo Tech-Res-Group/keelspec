@@ -44,13 +44,30 @@ Each file under `{{ product_dir }}/<type>/` is one record. Its `id` must start w
 the type's prefix and match the filename (e.g. `{{ product_dir }}/terms/TERM-payment.md`
 has `id: TERM-payment`). Reference fields must resolve to a real id.
 
-Two types ship here — a glossary and a feature — because the point lands faster with
-two than with eight. [`product.config.yaml`](product.config.yaml) is where you add
-more: decisions, constraints, business rules, metrics. Each is about eight lines.
+Four types ship here: a glossary, the **outcome** a feature exists to move, the
+measurable **NFRs** it must meet, and the **feature** itself.
+[`product.config.yaml`](product.config.yaml) is where you add more: decisions,
+constraints, business rules, systems, interfaces. Each is about eight lines.
+
+## What shipping takes
+
+Drafting is free. Setting a feature's `status` to `shipped` demands the rest of the
+chain:
+
+| code | the feature is shipped, but |
+|---|---|
+| `PAC-900` | an acceptance criterion names no test |
+| `PAC-903` | it traces to no `outcome` (while drafting this is only a `PAC-002` warning) |
+| `PAC-904` | an NFR it names has no `evidence` |
+| `PAC-905` | it has no `owner`, `rollback` or `runbook` |
+
+`delivery` in the config is the risk model for `keelspec orchestrate`. It scores
+`customer_impact`, `data` and `reversible` to decide which reviews run and which roles
+must accept the spec before anything is built.
 
 ## Your own rules
 
 [`product_hooks.py`](product_hooks.py) holds the checks a config file cannot express —
-here, that every acceptance criterion resolves to a test that exists, and that a
-`shipped` feature has no unproven criterion. Add your own beside them; the `9xx`
+here, that every acceptance criterion and NFR resolves to a test that exists, and
+that a `shipped` feature is release-ready. Add your own beside them; the `9xx`
 diagnostic range is yours, and `0xx`–`06x` belong to the engine.

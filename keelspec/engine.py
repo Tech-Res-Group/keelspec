@@ -168,6 +168,11 @@ def validate(config: Config, root: str | pathlib.Path = ".", registry=None) -> R
                 if _is_empty(val):
                     report.add("PAC-001", f"missing required field '{req}'", where,
                                field=req)
+            # recommended fields (PAC-002) -- advisory, never gating
+            for rec_field in t.recommended:
+                if rec_field not in t.required and _is_empty(rec.get(rec_field)):
+                    report.add("PAC-002", f"recommended field '{rec_field}' is empty",
+                               where, "warning", field=rec_field)
 
             # id prefix + filename (PAC-010 / PAC-011)
             if rid:
@@ -192,17 +197,22 @@ def validate(config: Config, root: str | pathlib.Path = ".", registry=None) -> R
 
             # references (PAC-020)
             for ref in t.references:
-                targets = ids_by_type.get(ref.to, set())
+                targets = set().union(*(ids_by_type.get(n, set()) for n in ref.targets))
                 raw = rec.get(ref.field)
                 for val in (raw if isinstance(raw, list) else [raw] if raw else []):
                     if val not in targets:
                         report.add(
                             "PAC-020",
-                            f"{ref.field} '{val}' does not resolve to a {ref.to} id",
+                            f"{ref.field} '{val}' does not resolve to a {ref.describe()} id",
                             where,
                             field=ref.field,
                             value=str(val),
                         )
+
+    # library checks for governed agents (PAC-070..077), only with `presets: [agents]`.
+    from . import agents
+    if agents.enabled(config):
+        agents.validate(bundle, config, report, pathlib.Path(root))
 
     # plugin validators — project-specific cross-file / graph checks.
     if registry:

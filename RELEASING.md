@@ -13,7 +13,7 @@ Do this once, before the first release. It's the only manual step.
    first): go to <https://pypi.org/manage/account/publishing/> → *Add a pending
    publisher* and fill in:
    - **PyPI project name:** `keelspec`
-   - **Owner:** `tarvitave`
+   - **Owner:** `Tech-Res-Group`
    - **Repository name:** `keelspec`
    - **Workflow name:** `publish.yml`
    - **Environment name:** `pypi`
@@ -22,6 +22,19 @@ Do this once, before the first release. It's the only manual step.
    you can add release protection rules later.
 
 That's it — no `PYPI_API_TOKEN`, no `twine` credentials.
+
+**Who owns what.** The PyPI project `keelspec` belongs to the `tarvitave` PyPI
+account, and `tarvitave` is the copyright holder (`NOTICE`). The publisher's
+**Owner** field is something else: it names the GitHub account the repository lives
+under, and PyPI checks it against GitHub's signed token on every upload. The
+repository lives at `Tech-Res-Group/keelspec`, so the field must say
+`Tech-Res-Group`. Redirects from the old `tarvitave/...` URLs don't count, and a
+publisher set to `tarvitave` fails with `invalid-publisher`, as the 1.0.0 publish
+did.
+
+The project already exists, so later changes go under the project's settings
+(<https://pypi.org/manage/project/keelspec/settings/publishing/>), not under
+pending publishers.
 
 ## Cutting a release
 

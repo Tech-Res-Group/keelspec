@@ -3,6 +3,14 @@ id: FEAT-example
 title: An example capability of {{ project_name }}
 status: building
 about: [TERM-example]
+outcome: OUT-example
+nfrs: [NFR-example]
+customer_impact: low
+data: internal
+reversible: true
+owner: ""
+rollback: ""
+runbook: ""
 acceptance:
   - text: The example holds when the input is empty.
     tests:
@@ -20,3 +28,11 @@ Two things here are load-bearing. `about` must resolve to a real term id. And ea
 The second criterion has no test, which is allowed — until `status` becomes
 `shipped`, at which point it is **PAC-900**. Drafting without proof is fine; shipping
 without it is the thing the gate exists to stop.
+
+Shipping asks for more than tests. `outcome` says why the work exists (**PAC-903**
+without one). `owner`, `rollback` and `runbook` say who answers when it breaks and
+what they do about it (**PAC-905** while any is empty). They are blank here because
+nothing is being released yet.
+
+`customer_impact`, `data` and `reversible` are what `keelspec orchestrate` scores to
+choose this feature's risk tier — see `delivery` in `product.config.yaml`.

@@ -1,12 +1,16 @@
 # Reusable GitHub Action: run the KeelSpec product-as-code gate in any repo.
 #
-#   - uses: Tech-Res-Group/keelspec@v0.7.0
+#   - uses: Tech-Res-Group/keelspec@v1.0.1
 #     with:
 #       config: product.config.yaml     # optional (this is the default)
 #       plugin: scripts/product_hooks.py # optional project-specific checks
-#       version: "0.7.0"                 # optional pin; empty = latest on PyPI
+#       version: "1.0.1"                 # optional pin; empty = latest on PyPI
+#       simulate: true                   # optional: also replay agent scenarios
 #
 # It installs KeelSpec and runs `keelspec … validate`, whose exit code is the gate.
+# With `simulate: true` it then runs `keelspec … simulate`, which replays every
+# governed-agent scenario offline (scripted model, fixture tools; no API key, no
+# network) and writes JUnit XML to the path in `junit`.
 name: 'KeelSpec validate'
 description: 'Validate product-as-code as a typed, referenced, non-stale graph with KeelSpec.'
 branding:
@@ -27,13 +31,21 @@ inputs:
     required: false
     default: ''
   version:
-    description: 'KeelSpec version to install, e.g. "0.7.0". Empty installs the latest on PyPI.'
+    description: 'KeelSpec version to install, e.g. "1.0.1". Empty installs the latest on PyPI.'
     required: false
     default: ''
   python-version:
     description: 'Python to set up for the run.'
     required: false
     default: '3.12'
+  simulate:
+    description: 'Also replay governed-agent scenarios with `keelspec simulate` (needs `presets: [agents]`).'
+    required: false
+    default: 'false'
+  junit:
+    description: 'Where `simulate` writes its JUnit XML, relative to root.'
+    required: false
+    default: 'keelspec-simulation.xml'
 
 runs:
   using: composite
@@ -57,3 +69,12 @@ runs:
         args=(-c "${{ inputs.config }}" -C "${{ inputs.root }}")
         if [ -n "${{ inputs.plugin }}" ]; then args+=(-p "${{ inputs.plugin }}"); fi
         keelspec "${args[@]}" validate
+
+    - name: Simulate governed agents
+      if: ${{ inputs.simulate == 'true' }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        args=(-c "${{ inputs.config }}" -C "${{ inputs.root }}")
+        if [ -n "${{ inputs.plugin }}" ]; then args+=(-p "${{ inputs.plugin }}"); fi
+        keelspec "${args[@]}" simulate --junit "${{ inputs.junit }}"

@@ -10,6 +10,8 @@ new one. Ranges mirror the original product-as-code design:
   * ``02x`` — cross-reference resolution
   * ``03x`` — enum / allowed-value
   * ``06x`` — generated-bundle staleness
+  * ``07x`` — governed agents (``presets: [agents]``): tools, policies, scenarios,
+    and the runtime that enforces them
 
 Projects add their own checks (see ``hooks``) and register custom codes via
 ``register()`` — keep them in a project-specific range (e.g. ``9xx``) so they never
@@ -23,12 +25,26 @@ from dataclasses import dataclass
 # ── core code registry ───────────────────────────────────────────────────────
 CODES: dict[str, str] = {
     "PAC-001": "artifact is missing a required field",
+    "PAC-002": "artifact leaves a recommended field empty (warning)",
     "PAC-010": "artifact id does not start with its type's id_prefix",
     "PAC-011": "artifact id does not match its filename",
     "PAC-012": "duplicate artifact id within a type",
     "PAC-020": "a reference field does not resolve to a known artifact",
     "PAC-030": "a field value is not in the type's allowed set",
     "PAC-060": "the committed generated bundle is missing or stale",
+    # Governed agents. 070-099 belong to the library; consumers keep 9xx.
+    "PAC-070": "an agent references a tool operation not declared on the tool",
+    "PAC-071": "an agent uses a tool operation with no allow policy (would always be denied)",
+    "PAC-072": "a policy when condition is malformed (unknown op, bad path)",
+    "PAC-073": "an MCP server's tool list does not match the tool artifact's operations",
+    "PAC-074": ("an agent with criticality: high has no require_approval or deny policy "
+                "covering a money side-effect operation"),
+    "PAC-075": "an agent has no scenarios",
+    "PAC-076": ("an agent's status: simulated or deployed but a linked scenario has no "
+                "passing simulation evidence"),
+    "PAC-077": "a scenario fixture names a tool operation the agent cannot call",
+    "PAC-078": "the runtime config's router concept is not in the router's published catalogue",
+    "PAC-079": "a run was started against a bundle that fails validation or is stale",
 }
 
 

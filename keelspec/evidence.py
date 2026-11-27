@@ -73,8 +73,13 @@ def _version() -> str:
         return "unknown"
 
 
-def build_record(config: Config, root: str | pathlib.Path = ".", registry=None) -> dict:
-    """Validate, digest everything, and return the evidence record."""
+def build_record(config: Config, root: str | pathlib.Path = ".", registry=None,
+                 simulation: dict | None = None) -> dict:
+    """Validate, digest everything, and return the evidence record.
+
+    ``simulation`` is the block ``keelspec simulate --evidence`` adds: each scenario
+    with the digest of the file it ran from and its result. A failing simulation
+    fails the record, as a failing validation does."""
     root_path = pathlib.Path(root).resolve()
     report = validate(config, root, registry)
     bundle = load(config, root)
@@ -105,7 +110,7 @@ def build_record(config: Config, root: str | pathlib.Path = ".", registry=None) 
         for d in sorted(report.diagnostics, key=lambda d: (d.severity, d.code, d.where))
     ]
 
-    return {
+    record = {
         "schema": SCHEMA,
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "tool": {"name": "keelspec", "version": _version()},
@@ -140,6 +145,11 @@ def build_record(config: Config, root: str | pathlib.Path = ".", registry=None) 
         "findings": findings,
         "result": "pass" if report.ok else "fail",
     }
+    if simulation is not None:
+        record["simulation"] = simulation
+        if simulation.get("result") != "pass":
+            record["result"] = "fail"
+    return record
 
 
 def render(record: dict) -> str:
@@ -174,6 +184,14 @@ def verify(record: dict, root: str | pathlib.Path = ".") -> list[str]:
                 problems.append(f"{collection}: {rel} is missing")
             elif expected != actual:
                 problems.append(f"{collection}: {rel} changed since the record was made")
+
+    for scn in (record.get("simulation") or {}).get("scenarios") or []:
+        rel = scn.get("file") or ""
+        actual = _sha256(root_path / rel)
+        if actual is None:
+            problems.append(f"simulation: {scn.get('id')} ({rel}) is missing")
+        elif actual != scn.get("sha256"):
+            problems.append(f"simulation: {scn.get('id')} ({rel}) changed since it was simulated")
 
     bundle = record.get("bundle") or {}
     if bundle.get("path"):

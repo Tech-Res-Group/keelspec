@@ -118,3 +118,44 @@ def test_the_readme_demo_names_a_code_the_plugin_registers(scaffold):
     hooks = (scaffold / "product_hooks.py").read_text(encoding="utf-8")
     for code in re.findall(r"PAC-9\d\d", readme):
         assert f'register_code("{code}"' in hooks, f"{code} is quoted but never registered"
+
+
+def test_shipping_demands_an_outcome_and_an_owner(scaffold):
+    """Passing tests is not release readiness: who owns it, how it is rolled back,
+    and what business result it is for all have to be on file to ship."""
+    feature = scaffold / "product" / "features" / "FEAT-example.md"
+    _edit(feature, "status: building", "status: shipped")
+    _edit(feature, "outcome: OUT-example\n", "")
+    assert _run(scaffold, "build")[0] == 0
+    code, out = _run(scaffold, "validate")
+    assert code == 1
+    assert "PAC-903" in out and "PAC-905" in out
+    assert "shipped without owner, rollback, runbook" in out
+
+
+def test_a_drafting_feature_without_an_outcome_only_warns(scaffold):
+    _edit(scaffold / "product" / "features" / "FEAT-example.md",
+          "outcome: OUT-example\n", "")
+    assert _run(scaffold, "build")[0] == 0
+    code, out = _run(scaffold, "validate")
+    assert code == 0, out
+    assert "WARN  PAC-002" in out
+
+
+def test_renaming_an_nfrs_evidence_fails_the_build(scaffold):
+    """NFR evidence is held to the same standard as an acceptance criterion."""
+    _edit(scaffold / "tests" / "test_example.py",
+          "def test_the_example_is_idempotent", "def test_renamed")
+    code, out = _run(scaffold, "validate")
+    assert code == 1
+    assert "PAC-902" in out and "NFR-example" in out
+
+
+def test_the_scaffold_ships_a_working_risk_policy(scaffold):
+    from keelspec.config import load_config
+    from keelspec.engine import load
+    from keelspec.risk import assess_artifact
+
+    config = load_config(scaffold / "product.config.yaml")
+    a = assess_artifact(config, load(config, scaffold), "FEAT-example")
+    assert a.tier.name == "light"            # low impact, internal, reversible

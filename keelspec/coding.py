@@ -198,7 +198,8 @@ class CodingRunner:
         client = self._get_client()
         messages: list[dict] = [{"role": "user", "content": prompt}]
 
-        from .runners import create_message
+        from .runners import add_usage, anthropic_usage, create_message
+        usage: dict = {}
         for _turn in range(self.max_turns):
             base_kwargs = {
                 "model": self.model,
@@ -209,6 +210,7 @@ class CodingRunner:
                 "messages": messages,
             }
             response = create_message(client, base_kwargs, self._thinking)
+            usage = add_usage(usage, anthropic_usage(response, self.model))
             if getattr(response, "stop_reason", None) == "refusal":
                 raise RuntimeError(f"{station.id} refused by safety classifier")
 
@@ -234,6 +236,7 @@ class CodingRunner:
                 "diff_summary": (f"stopped after {self.max_turns} turns without "
                                  f"converging; treat this change as incomplete"),
                 "self_notes": "turn limit reached",
+                "_usage": usage,
             }
 
         # One more call, no tools, to get the structured result.
@@ -250,6 +253,7 @@ class CodingRunner:
                                       "schema": schema or DEVELOP_SCHEMA}},
             messages=messages,
         )
+        usage = add_usage(usage, anthropic_usage(final, self.model))
         text = "".join(b.text for b in final.content if b.type == "text")
         try:
             data = json.loads(text)
@@ -262,6 +266,7 @@ class CodingRunner:
         data.setdefault("self_notes", "")
         if not self.sandbox.write_enabled:
             data["self_notes"] += " (dry run: no files were written)"
+        data["_usage"] = usage
         return data
 
 
@@ -312,13 +317,15 @@ class OpenAICodingRunner(CodingRunner):
         if station.id not in ("ST-04", "ST-04b"):
             return self.fallback.run(station, prompt, schema)
 
-        from .runners import openai_chat
+        from .runners import add_usage, openai_chat, openai_usage
+        usage: dict = {}
         messages: list[dict] = [{"role": "system", "content": SYSTEM},
                                 {"role": "user", "content": prompt}]
         for _turn in range(self.max_turns):
             body = {"model": self.model, "max_tokens": 8192,
                     "tools": OPENAI_TOOLS, "tool_choice": "auto", "messages": messages}
             payload, _ = openai_chat(self.base_url, self._api_key, body, self._timeout, self._headers_for(station))
+            usage = add_usage(usage, openai_usage(payload, self.model))
             msg = payload["choices"][0]["message"]
             tool_calls = msg.get("tool_calls") or []
             if not tool_calls:
@@ -338,6 +345,7 @@ class OpenAICodingRunner(CodingRunner):
                 "diff_summary": (f"stopped after {self.max_turns} turns without "
                                  f"converging; treat this change as incomplete"),
                 "self_notes": "turn limit reached",
+                "_usage": usage,
             }
 
         # Converged — one more call, no tools, for the structured result. Ask for JSON in
@@ -350,6 +358,7 @@ class OpenAICodingRunner(CodingRunner):
                                     "no markdown fences."})
         body = {"model": self.model, "max_tokens": 4096, "messages": messages}
         payload, _ = openai_chat(self.base_url, self._api_key, body, self._timeout, self._headers_for(station))
+        usage = add_usage(usage, openai_usage(payload, self.model))
         text = payload["choices"][0]["message"].get("content") or ""
         try:
             data = extract_json_object(text)
@@ -361,4 +370,5 @@ class OpenAICodingRunner(CodingRunner):
         data.setdefault("self_notes", "")
         if not self.sandbox.write_enabled:
             data["self_notes"] += " (dry run: no files were written)"
+        data["_usage"] = usage
         return data

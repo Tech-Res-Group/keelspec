@@ -20,6 +20,9 @@ from collections import Counter
 
 PUBLIC = pathlib.Path(__file__).resolve().parent.parent / "public"
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from stations import STATIONS  # noqa: E402  (the roster the rail is built from)
+
 # Tags that never close, so an unbalanced-tag check must not expect them to.
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link",
         "meta", "param", "source", "track", "wbr"}
@@ -131,9 +134,10 @@ def check_page(path: pathlib.Path) -> list[tuple[str, str]]:
 
     # The homepage rail holds the roster twice only at runtime (JS clones it for the
     # loop); the served HTML must contain exactly one set.
-    if rel == "/index.html" and parser.stations_in_rail != 11:
+    if rel == "/index.html" and parser.stations_in_rail != len(STATIONS):
         out.append(("SITE-011",
-                    f"{rel}: {parser.stations_in_rail} station cards in the rail, expected 11"))
+                    f"{rel}: {parser.stations_in_rail} station cards in the rail, "
+                    f"expected {len(STATIONS)}"))
 
     dupes = [href for href, n in Counter(parser.nav_links).items() if n > 1 and href]
     for href in dupes:

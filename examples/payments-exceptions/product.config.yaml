@@ -1,0 +1,25 @@
+# The canonical governed-agent example: a payments exceptions investigator.
+# `presets: [agents]` adds the agents, tools, policies and scenarios types and the
+# PAC-070..077 checks; rules, constraints and terms are this project's own types.
+product_dir: product
+output: build/product.generated.json
+presets: [agents]
+types:
+  - name: rules
+    dir: rules
+    id_prefix: "BR-"
+    required: [id, title, statement]
+    fields: [title, statement]
+  - name: constraints
+    dir: constraints
+    id_prefix: "CON-"
+    required: [id, title, statement]
+    fields: [title, statement]
+  - name: terms
+    dir: terms
+    id_prefix: "TERM-"
+    required: [id, term, definition]
+    fields: [term, definition, see_also]
+    references:
+      - field: see_also
+        to: terms
