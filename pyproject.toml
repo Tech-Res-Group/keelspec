@@ -31,6 +31,8 @@ mcp = ["mcp>=1.0"]
 # The governed-agent runtime: the router client speaks HTTP (httpx), and tool
 # servers are reached over MCP. FifeRouter is a service, never a dependency (I-7).
 runtime = ["httpx>=0.27", "mcp>=2.0"]
+# Traces and metrics from the runtime over OTLP. Without it, spans are no-ops.
+otel = ["opentelemetry-api>=1.27", "opentelemetry-sdk>=1.27", "opentelemetry-exporter-otlp>=1.27"]
 
 [project.scripts]
 keelspec = "keelspec.cli:main"

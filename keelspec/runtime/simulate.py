@@ -35,6 +35,7 @@ from .agent import run_agent
 from .fixtures import FixtureExecutor
 from .policy import AgentPolicies
 from .router_client import RouterReply, RuntimeSettings, parse_tool_name
+from .telemetry import Telemetry
 
 SCRIPTED_MODEL = "keelspec-scripted/1"
 READ_ONLY = {"none", "read"}
@@ -257,7 +258,8 @@ def run_scenario(bundle: dict, provenance: dict, scn: dict) -> ScenarioResult:
             result = run_agent(bundle, provenance, agent_id, str(scn.get("input") or ""),
                                root=tmp, router=ScriptedModel(bundle, agent_id),
                                executor=FixtureExecutor(scn.get("fixtures") or {}),
-                               settings=RuntimeSettings(), prices={})
+                               settings=RuntimeSettings(), prices={},
+                               telemetry=Telemetry(simulated=True))
         except KeyError as exc:
             return ScenarioResult(scn["id"], agent_id, scn.get("_file", ""), False,
                                   (f"cannot run: {str(exc).strip(chr(39))}",), "error", 0,

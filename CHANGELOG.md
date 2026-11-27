@@ -23,6 +23,19 @@ actually means.
 
 ### Added
 
+- **Governed agents, M10: OpenTelemetry.** `keelspec run` and `keelspec simulate`
+  emit one trace per run (`keelspec.run` > `keelspec.step N` > `chat` /
+  `keelspec.policy` / `execute_tool`, plus `keelspec.approval`) and the metrics
+  `keelspec.runs`, `keelspec.policy.decisions`, `keelspec.run.duration`,
+  `keelspec.run.cost_usd` and `gen_ai.client.token.usage`. Model and tool spans
+  follow the GenAI semantic conventions, with every name pinned in
+  `keelspec/runtime/telemetry.py`. Spans carry no content unless capture is on (the
+  same switch as `content.jsonl`); approvers appear as roles, never names. The
+  router receives the `chat` span's `traceparent`, a resumed run stays in the paused
+  run's trace, and simulated runs are tagged `keelspec.simulated=true`. Export is
+  configured only by the standard `OTEL_*` variables (`pip install
+  'keelspec[otel]'`); without OpenTelemetry the spans are no-ops. Langfuse and
+  Grafana Tempo recipes are in `docs/observability.md`.
 - **Governed agents, M9: simulation and evidence.** `keelspec simulate [AGENT-x|SCN-y]`
   replays scenarios offline through the real agent loop (policy engine, budgets,
   redaction, run records), with tools answering from the scenario's `fixtures` and

@@ -196,6 +196,18 @@ def _brief(config, bundle: dict, feature: str) -> str:
     return json.dumps(payload, default=str)[:6000]
 
 
+def _with_telemetry(handler, *args) -> int:
+    """Export spans while a runtime command runs, when the OTEL_* environment asks
+    for it, and flush them before exiting."""
+    from .runtime.telemetry import configure_from_env
+    configured = configure_from_env()
+    try:
+        return handler(*args)
+    finally:
+        if configured is not None:
+            configured.shutdown()
+
+
 def _run_agent(args, config, registry) -> int:
     from .runtime.bundle import BundleRefused, load_bundle
     from .runtime.fixtures import FixtureExecutor
@@ -688,7 +700,7 @@ def main(argv: list[str] | None = None) -> int:
         return _intake(args, config)
 
     if args.cmd == "run":
-        return _run_agent(args, config, registry)
+        return _with_telemetry(_run_agent, args, config, registry)
 
     if args.cmd == "approvals":
         return _approvals(args)
@@ -697,7 +709,7 @@ def main(argv: list[str] | None = None) -> int:
         return _tools(args, config)
 
     if args.cmd == "simulate":
-        return _simulate(args, config, registry)
+        return _with_telemetry(_simulate, args, config, registry)
 
     if args.cmd == "runs" and args.action:
         from .runtime import records

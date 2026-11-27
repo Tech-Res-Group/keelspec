@@ -28,8 +28,10 @@ import time
 import uuid
 from typing import Any
 
+from ..agents import side_effects_of
 from ..metrics import _call_cost
 from . import approvals
+from . import telemetry as T
 from .budgets import Budgets, Usage, exceeded
 from .fixtures import ToolError, ToolExecutor
 from .policy import AgentPolicies, evaluate, offered_operations
@@ -94,7 +96,8 @@ def offered_tools(ap: AgentPolicies) -> list[dict]:
 
 class _Run:
     def __init__(self, bundle, provenance, agent_id, *, root, router: RouterClient,
-                 executor: ToolExecutor, settings: RuntimeSettings, prices=None, clock=time.time):
+                 executor: ToolExecutor, settings: RuntimeSettings, prices=None, clock=time.time,
+                 telemetry: T.Telemetry | None = None):
         self.bundle, self.provenance = bundle, provenance
         self.ap = AgentPolicies.from_bundle(bundle, agent_id)
         self.agent = self.ap.agent
@@ -105,6 +108,7 @@ class _Run:
         self.budgets = Budgets.from_agent(self.agent)
         self.steps: list[StepRecord] = []
         self.content_n = 0
+        self.tel = telemetry or T.Telemetry(capture_content=settings.capture_content)
 
     # ── bookkeeping ──────────────────────────────────────────────────────────
     def _step(self, **fields) -> StepRecord:
@@ -133,15 +137,25 @@ class _Run:
         self.usage.wall_seconds = self.wall_before + (time.monotonic() - self.usage.started)
 
     # ── the loop ─────────────────────────────────────────────────────────────
+    def _run_attrs(self) -> dict:
+        return {T.GEN_AI_OPERATION_NAME: T.OP_INVOKE_AGENT, T.GEN_AI_AGENT_ID: self.agent["id"],
+                T.GEN_AI_AGENT_NAME: self.agent.get("title"), T.KS_AGENT_ID: self.agent["id"],
+                T.KS_RUN_ID: self.run_id,
+                T.KS_BUNDLE_SHA: self.provenance.get("bundle_sha256") or None,
+                T.KS_SIMULATED: self.tel.simulated}
+
     def start(self, text: str, run_id: str | None = None) -> RunResult:
         self.run_id = run_id or f"{self.agent['id']}-{uuid.uuid4().hex[:12]}"
-        self.traceparent = new_traceparent()
-        self._share_trace()
         self.started_at = _now()
         self.usage, self.wall_before = Usage(), 0.0
         self.messages = [{"role": "system", "content": system_prompt(self.bundle, self.agent)},
                          {"role": "user", "content": text}]
-        return self._loop([])
+        with self.tel.span(T.SPAN_RUN, self._run_attrs()) as span:
+            self.run_span = span
+            # The run's trace context: the run span's when telemetry records, else our own.
+            self.traceparent = self.tel.traceparent(span) or new_traceparent()
+            self._share_trace()
+            return self._loop([])
 
     def resume(self, run_id: str) -> RunResult:
         state_path = run_dir(self.root, run_id) / "state.json"
@@ -163,13 +177,22 @@ class _Run:
         if not req or req["status"] != "approved":
             raise ApprovalPending(f"run {run_id} step {head['step']} is not approved yet: "
                                   f"keelspec approvals approve {run_id} {head['step']} --by NAME")
-        t = self.clock()
-        self._step(kind="approval", ts_start=t, ts_end=self.clock(), tool_id=head["tool_id"],
-                   operation=head["operation"], policy_effect="require_approval",
-                   policy_ids=tuple(req["policy_ids"]),
-                   policy_reason=f"approved by {req['approved_by']} ({', '.join(req['approvers'])})")
-        self._execute(head, tuple(head["redact_classes"]))
-        return self._loop(queue[1:])
+        # The resumed segment joins the paused run's trace.
+        with self.tel.span(T.SPAN_RUN, {**self._run_attrs(), T.KS_RESUMED: True},
+                           parent_traceparent=self.traceparent) as span:
+            self.run_span = span
+            t = self.clock()
+            with self.tel.span(T.SPAN_APPROVAL, {
+                    T.KS_TOOL_ID: head["tool_id"], T.KS_TOOL_OPERATION: head["operation"],
+                    T.KS_POLICY_IDS: req["policy_ids"], T.KS_APPROVERS: req["approvers"],
+                    T.KS_STEP: len(self.steps) + 1, T.KS_OUTCOME: "approved"}):
+                self._step(kind="approval", ts_start=t, ts_end=self.clock(),
+                           tool_id=head["tool_id"], operation=head["operation"],
+                           policy_effect="require_approval", policy_ids=tuple(req["policy_ids"]),
+                           policy_reason=f"approved by {req['approved_by']} "
+                                         f"({', '.join(req['approvers'])})")
+            self._execute(head, tuple(head["redact_classes"]))
+            return self._loop(queue[1:])
 
     def _loop(self, queue: list[dict]) -> RunResult:
         outcome, final = "error", ""
@@ -178,41 +201,61 @@ class _Run:
         tools = offered_tools(self.ap)
         concept = self.agent.get("concept") or "general.assist"
         critical = self.agent.get("criticality") == "high"
+        model = self.settings.router.model
         while True:
             self._tick()
             hit = exceeded(self.budgets, self.usage)
             if hit:
                 outcome = hit
                 break
-            t = self.clock()
-            try:
-                reply = self.router.chat(self.messages, tools, concept=concept,
-                                         session=self.run_id, critical=critical,
-                                         traceparent=self.traceparent)
-            except RouterRefusal as refusal:
-                self._step(kind="model", ts_start=t, ts_end=self.clock(), concept=concept,
-                           outcome="refused")
-                outcome = f"refused:{refusal.kind}"
-                break
-            except RouterError:
-                self._step(kind="model", ts_start=t, ts_end=self.clock(), concept=concept,
-                           outcome="error")
-                outcome = "error"
-                break
-            self.usage.steps += 1
-            cost = _call_cost({"model": reply.served_model or "",
-                               "input_tokens": reply.input_tokens or 0,
-                               "output_tokens": reply.output_tokens or 0}, self.prices)
-            if cost is not None:
-                self.usage.cost_usd += cost
-            message = {"role": "assistant", "content": reply.message.get("content")}
-            if reply.message.get("tool_calls"):
-                message["tool_calls"] = reply.message["tool_calls"]
-            self._step(kind="model", ts_start=t, ts_end=self.clock(), concept=reply.concept,
-                       served_model=reply.served_model, router_rung=reply.rung,
-                       router_attempts=reply.attempts, input_tokens=reply.input_tokens,
-                       output_tokens=reply.output_tokens, cost_usd=cost,
-                       content_ref=self._capture(message))
+            n = len(self.steps) + 1
+            with self.tel.span(f"keelspec.step {n}", {T.KS_STEP: n}), \
+                    self.tel.span(f"chat {model}", {
+                        T.GEN_AI_OPERATION_NAME: T.OP_CHAT, T.GEN_AI_REQUEST_MODEL: model,
+                        T.GEN_AI_CONVERSATION_ID: self.run_id, T.KS_ROUTER_CONCEPT: concept},
+                        client=True) as chat:
+                self.tel.content(chat, T.GEN_AI_INPUT_MESSAGES, self.messages)
+                t = self.clock()
+                try:
+                    reply = self.router.chat(self.messages, tools, concept=concept,
+                                             session=self.run_id, critical=critical,
+                                             traceparent=self.tel.traceparent(chat) or
+                                             self.traceparent)
+                except RouterRefusal as refusal:
+                    self._step(kind="model", ts_start=t, ts_end=self.clock(), concept=concept,
+                               outcome="refused")
+                    self.tel.error(chat, f"refused:{refusal.kind}")
+                    outcome = f"refused:{refusal.kind}"
+                    break
+                except RouterError:
+                    self._step(kind="model", ts_start=t, ts_end=self.clock(), concept=concept,
+                               outcome="error")
+                    self.tel.error(chat, "router error")
+                    outcome = "error"
+                    break
+                self.usage.steps += 1
+                cost = _call_cost({"model": reply.served_model or "",
+                                   "input_tokens": reply.input_tokens or 0,
+                                   "output_tokens": reply.output_tokens or 0}, self.prices)
+                if cost is not None:
+                    self.usage.cost_usd += cost
+                message = {"role": "assistant", "content": reply.message.get("content")}
+                if reply.message.get("tool_calls"):
+                    message["tool_calls"] = reply.message["tool_calls"]
+                self._step(kind="model", ts_start=t, ts_end=self.clock(), concept=reply.concept,
+                           served_model=reply.served_model, router_rung=reply.rung,
+                           router_attempts=reply.attempts, input_tokens=reply.input_tokens,
+                           output_tokens=reply.output_tokens, cost_usd=cost,
+                           content_ref=self._capture(message))
+                self.tel.set(chat, {T.GEN_AI_RESPONSE_MODEL: reply.served_model,
+                                    T.GEN_AI_USAGE_INPUT_TOKENS: reply.input_tokens,
+                                    T.GEN_AI_USAGE_OUTPUT_TOKENS: reply.output_tokens,
+                                    T.KS_ROUTER_CONCEPT: reply.concept,
+                                    T.KS_ROUTER_RUNG: reply.rung,
+                                    T.KS_ROUTER_ATTEMPTS: reply.attempts})
+                self.tel.content(chat, T.GEN_AI_OUTPUT_MESSAGES, [message])
+                self.tel.record_tokens(reply.served_model, reply.input_tokens,
+                                       reply.output_tokens)
             self.messages.append(message)
             calls = reply.message.get("tool_calls") or []
             if not calls:
@@ -241,51 +284,74 @@ class _Run:
     def _process(self, queue: list[dict]) -> bool:
         """Decide and run each call in order. True if the run must pause for approval."""
         for i, call in enumerate(queue):
-            t = self.clock()
-            decision = evaluate(self.ap, call["tool_id"], call["operation"], call["args"])
-            step = self._step(kind="policy", ts_start=t, ts_end=self.clock(),
-                              tool_id=call["tool_id"], operation=call["operation"],
-                              policy_effect=decision.effect, policy_ids=decision.policy_ids,
-                              policy_reason=decision.reason,
-                              outcome="denied" if decision.effect == "deny" else "ok")
-            if decision.effect == "deny":
-                self.usage.denials += 1
-                self._reply(call, {"error": "denied by policy", "reason": decision.reason})
-            elif decision.effect == "require_approval":
-                approvals.request(self.root, self.run_id, self.agent["id"], step.step,
-                                  call["tool_id"], call["operation"], decision.policy_ids,
-                                  decision.approvers)
-                self.pending = [{**call, "step": step.step,
-                                 "redact_classes": list(decision.redact_classes)}] + \
-                    [{**c, "step": None, "redact_classes": []} for c in queue[i + 1:]]
-                return True
-            else:
-                self._execute(call, decision.redact_classes)
+            n = len(self.steps) + 1
+            with self.tel.span(f"keelspec.step {n}", {T.KS_STEP: n}):
+                t = self.clock()
+                with self.tel.span(T.SPAN_POLICY, {T.KS_TOOL_ID: call["tool_id"],
+                                                   T.KS_TOOL_OPERATION: call["operation"]}) as ps:
+                    decision = evaluate(self.ap, call["tool_id"], call["operation"], call["args"])
+                    self.tel.set(ps, {T.KS_POLICY_EFFECT: decision.effect,
+                                      T.KS_POLICY_IDS: decision.policy_ids,
+                                      T.KS_POLICY_REASON: decision.reason})
+                self.tel.record_decision(self.agent["id"], decision.effect, decision.policy_ids)
+                step = self._step(kind="policy", ts_start=t, ts_end=self.clock(),
+                                  tool_id=call["tool_id"], operation=call["operation"],
+                                  policy_effect=decision.effect, policy_ids=decision.policy_ids,
+                                  policy_reason=decision.reason,
+                                  outcome="denied" if decision.effect == "deny" else "ok")
+                if decision.effect == "deny":
+                    self.usage.denials += 1
+                    self._reply(call, {"error": "denied by policy", "reason": decision.reason})
+                elif decision.effect == "require_approval":
+                    with self.tel.span(T.SPAN_APPROVAL, {
+                            T.KS_TOOL_ID: call["tool_id"], T.KS_TOOL_OPERATION: call["operation"],
+                            T.KS_POLICY_IDS: decision.policy_ids,
+                            T.KS_APPROVERS: decision.approvers, T.KS_STEP: step.step,
+                            T.KS_OUTCOME: "awaiting_approval"}):
+                        approvals.request(self.root, self.run_id, self.agent["id"], step.step,
+                                          call["tool_id"], call["operation"],
+                                          decision.policy_ids, decision.approvers)
+                    self.pending = [{**call, "step": step.step,
+                                     "redact_classes": list(decision.redact_classes)}] + \
+                        [{**c, "step": None, "redact_classes": []} for c in queue[i + 1:]]
+                    return True
+                else:
+                    self._execute(call, decision.redact_classes)
         return False
 
     def _execute(self, call: dict, redact_classes: tuple[str, ...]) -> None:
         tool = self.ap.tools[call["tool_id"]]
         limit = int(tool.get("max_result_bytes") or DEFAULT_MAX_RESULT_BYTES)
-        t = self.clock()
-        outcome = "ok"
-        try:
-            result = self.executor.call(tool, call["operation"], call["args"])
-            result = redact(result, tool, call["operation"], redact_classes)
-            payload: dict = {"tool": f"{call['tool_id']}.{call['operation']}", "data": result}
-            text = json.dumps(payload, default=str)
-            if len(text.encode()) > limit:
-                outcome = "truncated"
-                text = json.dumps({"tool": payload["tool"], "truncated": True,
-                                   "data": text.encode()[:limit].decode("utf-8", "ignore")})
-        except ToolError as exc:
-            outcome, text = "error", json.dumps({"tool": f"{call['tool_id']}.{call['operation']}",
-                                                 "error": str(exc)})
-        except TimeoutError:
-            outcome, text = "timeout", json.dumps({"tool": f"{call['tool_id']}.{call['operation']}",
-                                                   "error": "timed out"})
-        self._step(kind="tool", ts_start=t, ts_end=self.clock(), tool_id=call["tool_id"],
-                   operation=call["operation"], outcome=outcome,
-                   content_ref=self._capture({"args": call["args"], "result": text}))
+        name = f"{call['tool_id']}.{call['operation']}"
+        with self.tel.span(f"execute_tool {name}", {
+                T.GEN_AI_OPERATION_NAME: T.OP_EXECUTE_TOOL, T.GEN_AI_TOOL_NAME: name,
+                T.GEN_AI_TOOL_TYPE: "function", T.GEN_AI_TOOL_CALL_ID: call.get("id") or None,
+                T.KS_TOOL_ID: call["tool_id"], T.KS_TOOL_OPERATION: call["operation"],
+                T.KS_TOOL_SIDE_EFFECTS: side_effects_of(tool, call["operation"])}) as span:
+            t = self.clock()
+            outcome = "ok"
+            try:
+                result = self.executor.call(tool, call["operation"], call["args"])
+                result = redact(result, tool, call["operation"], redact_classes)
+                payload: dict = {"tool": name, "data": result}
+                text = json.dumps(payload, default=str)
+                if len(text.encode()) > limit:
+                    outcome = "truncated"
+                    text = json.dumps({"tool": name, "truncated": True,
+                                       "data": text.encode()[:limit].decode("utf-8", "ignore")})
+            except ToolError as exc:
+                outcome, text = "error", json.dumps({"tool": name, "error": str(exc)})
+            except TimeoutError:
+                outcome, text = "timeout", json.dumps({"tool": name, "error": "timed out"})
+            self.tel.set(span, {T.KS_TOOL_OUTCOME: outcome,
+                                T.KS_TOOL_TRUNCATED: outcome == "truncated"})
+            self.tel.content(span, T.GEN_AI_TOOL_CALL_ARGUMENTS, call["args"])
+            self.tel.content(span, T.GEN_AI_TOOL_CALL_RESULT, text)
+            if outcome in ("error", "timeout"):
+                self.tel.error(span, outcome)
+            self._step(kind="tool", ts_start=t, ts_end=self.clock(), tool_id=call["tool_id"],
+                       operation=call["operation"], outcome=outcome,
+                       content_ref=self._capture({"args": call["args"], "result": text}))
         self.messages.append({"role": "tool", "tool_call_id": call["id"], "content": text})
 
     def _reply(self, call: dict, body: dict) -> None:
@@ -294,6 +360,11 @@ class _Run:
 
     def _finish(self, outcome: str, final: str) -> RunResult:
         self._tick()
+        self.tel.set(self.run_span, {T.KS_OUTCOME: outcome})
+        if outcome not in ("completed", "awaiting_approval"):
+            self.tel.error(self.run_span, outcome)
+        self.tel.record_run(self.agent["id"], outcome, self.usage.wall_seconds,
+                            self.usage.cost_usd)
         record = RunRecord(
             run_id=self.run_id, agent_id=self.agent["id"],
             bundle_sha256=self.provenance.get("bundle_sha256", ""),
