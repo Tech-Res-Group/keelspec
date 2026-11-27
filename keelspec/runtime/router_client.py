@@ -11,6 +11,10 @@ FifeRouter is a service, never an import (invariant I-7): this module speaks HTT
 and reads back ``x-fife-model`` (what actually served), ``x-fife-rung`` and
 ``x-fife-attempts``.
 
+There is no default endpoint. Where prompts go is a choice the product team makes in
+``keelspec.runtime.yaml``: hosted FifeRouter, a self-hosted router, or any other
+OpenAI-compatible endpoint. Until ``router.base_url`` is set, a run refuses to start.
+
 A refusal is never a silent downgrade (I-9). 402, 422 and 502 raise ``RouterRefusal``
 at once, with no retry and no weaker model: the run stops at that step with a typed
 outcome. Only transport errors and other 5xx are retried, at most twice, with jitter.
@@ -33,6 +37,18 @@ MAX_RETRIES = 2
 NAME_SEP = "__"
 
 
+ROUTER_NOT_SET = (
+    "no model endpoint is configured. Set router.base_url in keelspec.runtime.yaml to "
+    "where prompts may go, for example:\n\n"
+    "    router:\n"
+    "      base_url: https://api.fiferouter.com/v1    # hosted FifeRouter\n"
+    "      # base_url: https://router.internal/v1     # self-hosted, or any "
+    "OpenAI-compatible endpoint\n"
+    "      api_key_env: FIFEROUTER_API_KEY\n\n"
+    "KeelSpec has no default: sending prompts and tool data to a shared service is "
+    "your decision, not ours.")
+
+
 class RouterRefusal(RuntimeError):
     """The router refused (402/422/502). Not retried."""
 
@@ -47,10 +63,14 @@ class RouterError(RuntimeError):
 
 @dataclasses.dataclass
 class RouterSettings:
-    base_url: str = "https://api.fiferouter.com/v1"
+    base_url: str = ""            # no default: see ROUTER_NOT_SET
     api_key_env: str = "FIFEROUTER_API_KEY"
     timeout_seconds: float = 60.0
     model: str = "auto"
+
+    def problem(self) -> str | None:
+        """Why a run cannot reach a model with these settings, or None."""
+        return None if str(self.base_url or "").strip() else ROUTER_NOT_SET
 
 
 @dataclasses.dataclass
@@ -138,6 +158,8 @@ class RouterClient:
 
     def _post(self, path: str, body: dict, headers: dict):
         import httpx
+        if self.settings.problem():
+            raise RouterError(self.settings.problem())
         last: Exception | None = None
         for attempt in range(MAX_RETRIES + 1):
             self.calls += 1

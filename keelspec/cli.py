@@ -238,6 +238,9 @@ def _run_agent(args, config, registry) -> int:
         print(str(exc), file=sys.stderr)
         return 1
     settings = RuntimeSettings.load(pathlib.Path(args.root) / args.runtime_config)
+    if settings.router.problem():
+        print(settings.router.problem(), file=sys.stderr)
+        return 2
     if args.capture_content:
         settings.capture_content = True
     if args.fixtures:
@@ -332,6 +335,9 @@ def _serve(args, config, registry) -> int:
         return 1
     report = engine.validate(config, args.root, registry)
     settings = RuntimeSettings.load(pathlib.Path(args.root) / args.runtime_config)
+    if settings.router.problem():
+        print(settings.router.problem(), file=sys.stderr)
+        return 2
     if args.fixtures:
         try:
             FixtureExecutor.from_scenario(bundle, args.fixtures)

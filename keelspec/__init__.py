@@ -51,7 +51,7 @@ from .orchestration import (
 from .plugin import Registry, load_plugin
 from .risk import Assessment, assess
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 __all__ = [
     # the agent-built lifecycle

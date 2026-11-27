@@ -1,4 +1,4 @@
-"""The governed-agent runtime (v2).
+"""The governed-agent runtime.
 
 Modules here that need third-party packages (the router client, the MCP client,
 telemetry) import them lazily and come with ``pip install 'keelspec[runtime]'``.

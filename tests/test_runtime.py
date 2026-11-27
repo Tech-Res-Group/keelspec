@@ -359,7 +359,30 @@ def test_runtime_settings_load_from_yaml(tmp_path):
                     "telemetry:\n  capture_content: true\n")
     s = RuntimeSettings.load(path)
     assert s.router.base_url == "https://gw.internal/v1" and s.capture_content is True
-    assert RuntimeSettings.load(tmp_path / "absent.yaml").router.base_url.startswith("https://api.fiferouter")
+    assert s.router.problem() is None
+
+
+def test_there_is_no_default_model_endpoint(tmp_path):
+    # D-5: where prompts go is the product team's choice, so nothing is assumed.
+    from keelspec.runtime.router_client import RouterError
+    absent = RuntimeSettings.load(tmp_path / "absent.yaml").router
+    assert absent.base_url == "" and "router.base_url" in absent.problem()
+    with pytest.raises(RouterError, match="no model endpoint"):
+        RouterClient(absent, api_key="k").chat([], [], concept="c", session="s",
+                                               critical=False, traceparent="t")
+
+
+def test_cli_run_and_serve_refuse_without_an_endpoint(project, capsys):
+    from keelspec.cli import main
+    (project / "keelspec.runtime.yaml").unlink()
+    root = str(project)
+    assert main(["-C", root, "run", AGENT, "Case 88121", "--fixtures",
+                 "SCN-ac04-closed-account"]) == 2
+    assert "no model endpoint is configured" in capsys.readouterr().err
+    assert main(["-C", root, "serve", "--any-status", "--fixtures",
+                 "SCN-ac04-closed-account"]) == 2
+    assert "router.base_url" in capsys.readouterr().err
+    assert not (project / ".keelspec" / "runs").exists()
 
 
 # ── the CLI ──────────────────────────────────────────────────────────────────

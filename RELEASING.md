@@ -13,7 +13,7 @@ Do this once, before the first release. It's the only manual step.
    first): go to <https://pypi.org/manage/account/publishing/> → *Add a pending
    publisher* and fill in:
    - **PyPI project name:** `keelspec`
-   - **Owner:** `tarvitave`
+   - **Owner:** `Tech-Res-Group`
    - **Repository name:** `keelspec`
    - **Workflow name:** `publish.yml`
    - **Environment name:** `pypi`

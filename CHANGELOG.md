@@ -12,6 +12,30 @@ config key, or the plugin `Registry` surface is a breaking change and bumps the 
 
 ## [Unreleased]
 
+## [1.0.1] — 2026-11-27
+
+The first installable 1.x release. 1.0.0 was tagged on GitHub, but its PyPI publish
+failed and it was never uploaded, so 1.0.1 carries everything listed under 1.0.0 plus
+the decisions below (`docs/decisions.md`).
+
+### Changed
+
+- **No default model endpoint (D-5).** `router.base_url` used to default to hosted
+  FifeRouter. It is now empty, and `keelspec run` and `keelspec serve` refuse to
+  start, with exit code 2 and an example, until `keelspec.runtime.yaml` sets it.
+  Where prompts and tool data go is the product team's decision.
+- **"Governed agents", not "v2" (D-6).** The feature name in docs and code drops the
+  "v2" label.
+
+### Added
+
+- `docs/decisions.md`, the governed-agent decisions D-1 to D-7 and their reasons.
+
+### Fixed
+
+- `RELEASING.md` and `publish.yml` named the old repository owner for the PyPI
+  trusted publisher. It is `Tech-Res-Group`.
+
 ## [1.0.0] — 2026-11-27
 
 Governed agents: an agent that runs in production is declared, validated, simulated
@@ -108,7 +132,7 @@ actually means.
   payments ledger, ISO 20022 parser (pacs.002 / pacs.008, reason codes) and case
   management, which implements `release_funds` so the policy, not the tool, is what
   stops it.
-- **Governed agents, v2 milestone M5: the artifact types.** `presets: [agents]` in
+- **Governed agents, M5: the artifact types.** `presets: [agents]` in
   `product.config.yaml` adds four ordinary types, `agents` (AGENT-), `tools` (TOOL-),
   `policies` (POL-) and `scenarios` (SCN-), and turns on library checks inside
   `validate`: PAC-070 (a policy names an operation its tool does not declare),

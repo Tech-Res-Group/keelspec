@@ -1,10 +1,10 @@
 # Reusable GitHub Action: run the KeelSpec product-as-code gate in any repo.
 #
-#   - uses: Tech-Res-Group/keelspec@v1.0.0
+#   - uses: Tech-Res-Group/keelspec@v1.0.1
 #     with:
 #       config: product.config.yaml     # optional (this is the default)
 #       plugin: scripts/product_hooks.py # optional project-specific checks
-#       version: "1.0.0"                 # optional pin; empty = latest on PyPI
+#       version: "1.0.1"                 # optional pin; empty = latest on PyPI
 #       simulate: true                   # optional: also replay agent scenarios
 #
 # It installs KeelSpec and runs `keelspec … validate`, whose exit code is the gate.
@@ -31,7 +31,7 @@ inputs:
     required: false
     default: ''
   version:
-    description: 'KeelSpec version to install, e.g. "1.0.0". Empty installs the latest on PyPI.'
+    description: 'KeelSpec version to install, e.g. "1.0.1". Empty installs the latest on PyPI.'
     required: false
     default: ''
   python-version:

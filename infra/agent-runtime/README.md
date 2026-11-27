@@ -12,8 +12,10 @@ and nothing here has been deployed.
   image build runs `keelspec validate` too, so a failing bundle never becomes an
   image.
 - Serves only agents with `status: deployed`.
-- Reaches the model through FifeRouter (or any OpenAI-compatible endpoint set in
-  `keelspec.runtime.yaml`) and tools through MCP, exactly as `keelspec run` does.
+- Reaches the model at the endpoint set in `keelspec.runtime.yaml` (hosted
+  FifeRouter, a self-hosted router, or any OpenAI-compatible endpoint) and tools
+  through MCP, exactly as `keelspec run` does. There is no default: without
+  `router.base_url` the server refuses to start.
 
 ## Build
 

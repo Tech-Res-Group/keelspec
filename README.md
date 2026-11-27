@@ -412,6 +412,10 @@ What holds, and is tested:
   so. OpenTelemetry spans follow the same rule (`docs/observability.md`).
 - **A router refusal stops the run** (no retry, no quiet downgrade). The model is
   reached over HTTP through FifeRouter or any OpenAI-compatible endpoint.
+- **There is no default model endpoint.** `router.base_url` in
+  `keelspec.runtime.yaml` says where prompts may go (hosted FifeRouter, a
+  self-hosted router, or your own gateway), and `run` and `serve` refuse to start
+  until it is set.
 - **`keelspec simulate` replays scenarios with a deliberately naive scripted model**
   that obeys instructions it finds in tool data, so a passing injection scenario
   shows the policy held, not that a model behaved. `--evidence` records the result,
@@ -542,7 +546,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: Tech-Res-Group/keelspec@v1.0.0
+      - uses: Tech-Res-Group/keelspec@v1.0.1
         with:
           config: product.config.yaml     # optional (default)
           plugin: product_hooks.py         # optional project checks

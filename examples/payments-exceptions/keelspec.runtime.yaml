@@ -1,7 +1,10 @@
-# Runtime settings for `keelspec run`. Secrets never live here: the API key is read
-# from the environment variable named by api_key_env.
+# Runtime settings for `keelspec run` and `keelspec serve`. Secrets never live here:
+# the API key is read from the environment variable named by api_key_env.
 router:
-  base_url: https://api.fiferouter.com/v1   # any OpenAI-compatible endpoint works
+  # Required. KeelSpec has no default endpoint: where prompts and tool data go is
+  # your decision. This example uses hosted FifeRouter; a regulated deployment
+  # would point at a self-hosted router or its own OpenAI-compatible gateway.
+  base_url: https://api.fiferouter.com/v1
   api_key_env: FIFEROUTER_API_KEY
   timeout_seconds: 60
 telemetry:
